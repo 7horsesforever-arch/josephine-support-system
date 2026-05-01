@@ -54,11 +54,29 @@ create table if not exists public.school_assignments (
   unique (user_id, source, source_course_id, source_assignment_id)
 );
 
+create table if not exists public.school_email_messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  source text not null default 'microsoft_graph' check (source in ('microsoft_graph')),
+  source_message_id text not null,
+  sender_name text,
+  sender_email text,
+  subject text not null,
+  body_preview text,
+  received_at timestamptz,
+  web_url text,
+  importance text,
+  is_read boolean,
+  imported_at timestamptz not null default now(),
+  unique (user_id, source, source_message_id)
+);
+
 create index if not exists support_tasks_assigned_user_id_idx on public.support_tasks(assigned_user_id);
 create index if not exists support_tasks_created_by_idx on public.support_tasks(created_by);
 create index if not exists support_tasks_status_idx on public.support_tasks(status);
 create index if not exists support_history_user_id_created_at_idx on public.support_history(user_id, created_at desc);
 create index if not exists school_assignments_user_id_due_at_idx on public.school_assignments(user_id, due_at);
+create index if not exists school_email_messages_user_id_received_at_idx on public.school_email_messages(user_id, received_at desc);
 create index if not exists caregiver_links_student_user_id_idx on public.caregiver_links(student_user_id);
 create index if not exists caregiver_links_caregiver_user_id_idx on public.caregiver_links(caregiver_user_id);
 
@@ -67,6 +85,7 @@ alter table public.caregiver_links enable row level security;
 alter table public.support_tasks enable row level security;
 alter table public.support_history enable row level security;
 alter table public.school_assignments enable row level security;
+alter table public.school_email_messages enable row level security;
 
 drop policy if exists "prototype can read support tasks" on public.support_tasks;
 drop policy if exists "prototype can write support tasks" on public.support_tasks;
@@ -85,6 +104,9 @@ drop policy if exists "Users can delete own support history" on public.support_h
 drop policy if exists "Users can read own school assignments" on public.school_assignments;
 drop policy if exists "Users can write own school assignments" on public.school_assignments;
 drop policy if exists "Users can delete own school assignments" on public.school_assignments;
+drop policy if exists "Users can read own school email messages" on public.school_email_messages;
+drop policy if exists "Users can write own school email messages" on public.school_email_messages;
+drop policy if exists "Users can delete own school email messages" on public.school_email_messages;
 
 create policy "Users can read own profile"
   on public.profiles
@@ -203,6 +225,33 @@ create policy "Users can write own school assignments"
 
 create policy "Users can delete own school assignments"
   on public.school_assignments
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can read own school email messages"
+  on public.school_email_messages
+  for select
+  to authenticated
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1
+      from public.caregiver_links
+      where caregiver_links.student_user_id = school_email_messages.user_id
+        and caregiver_links.caregiver_user_id = (select auth.uid())
+    )
+  );
+
+create policy "Users can write own school email messages"
+  on public.school_email_messages
+  for all
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own school email messages"
+  on public.school_email_messages
   for delete
   to authenticated
   using (user_id = (select auth.uid()));

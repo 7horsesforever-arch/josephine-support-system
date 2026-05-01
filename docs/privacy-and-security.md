@@ -5,6 +5,7 @@
 - Support task titles, categories, reminder intervals, completion dates, and status.
 - Completion/action history.
 - Imported school assignment title, course name, due date, points, status, and Canvas link.
+- Imported school email metadata and previews from Microsoft Graph: sender, subject, body preview, received time, importance, read state, and web link.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -14,6 +15,7 @@
 - School portal passwords or recovery codes.
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.
+- Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
 - Sensitive caregiver notes unless the app has explicit consent, authentication, and deletion controls.
 
 ## Access Model
@@ -30,6 +32,7 @@
 - Secret/service-role keys must never be used in browser code, committed to Git, pasted into chat, or placed in public docs.
 - SMS provider secrets belong in server-only environment variables and server routes/functions.
 - Canvas tokens should be exchanged or used server-side only. Do not commit them, store them in browser storage, or paste them into docs.
+- Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
 
 ## Local Storage
 
@@ -44,3 +47,4 @@
 - Add a deletion/export process for Josephine's data.
 - Add caregiver invitations rather than manually editing caregiver links long term.
 - Prefer Canvas OAuth for production assignment imports. Personal access tokens are acceptable only for a temporary private test.
+- Prefer Microsoft OAuth authorization-code flow for school email imports. A password-based email connection is not acceptable for production.

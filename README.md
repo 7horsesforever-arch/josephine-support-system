@@ -23,6 +23,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Browser-only local mode only when Supabase is not configured.
 - Server-side escalation endpoint placeholder at `/api/escalations`.
 - Server-side Canvas assignment import endpoint at `/api/canvas/import`.
+- Server-side Microsoft Graph mail import endpoint at `/api/microsoft/mail/import`.
 
 ## Supabase Setup
 
@@ -58,6 +59,7 @@ npm run build
 - Verify auth sign-in and private mode.
 - Add caregiver SMS fail-safe alerts.
 - Connect the Canvas import endpoint to an authenticated UI flow.
+- Connect Microsoft OAuth so CSU email can be imported without handling passwords.
 
 ## Deploy on Vercel
 
