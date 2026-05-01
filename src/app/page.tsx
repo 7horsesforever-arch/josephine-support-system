@@ -16,8 +16,6 @@ import {
 } from "@/lib/supabase";
 import {
   localSafetyAlertPatterns,
-  safetyAlertConfig,
-  safetyAlertThreshold,
 } from "@/lib/safety/reviewable-config";
 import { supportModules } from "./support/module-data";
 
@@ -287,50 +285,7 @@ const dashboardJumpLinks = [
   { label: "Money", href: "#money" },
   { label: "Housing", href: "#housing" },
   { label: "Viper", href: "#viper-cam" },
-  { label: "Admin", href: "#admin-caregiver" },
   { label: "Done log", href: "#done-log" },
-];
-
-const sustainabilityReviewPlan = [
-  {
-    name: "Monthly maintenance",
-    cadence: "Monthly",
-    detail:
-      "Check Canvas import, email drafting, Plaid balances, overdue tasks, broken links, and whether the dashboard feels too noisy.",
-  },
-  {
-    name: "Semester reset",
-    cadence: "Before each semester",
-    detail:
-      "Refresh classes, syllabi, accommodation letters, exam dates, tutoring resources, housing, parking, and campus routines.",
-  },
-  {
-    name: "Biannual agent review",
-    cadence: "Twice a year",
-    detail:
-      "Review privacy, security, stale content, integrations, app complexity, and whether Ask JoJo is answering from the right places.",
-  },
-  {
-    name: "Annual production review",
-    cadence: "Before each school year",
-    detail:
-      "Rotate old tokens, verify backups, review OAuth/Plaid/Supabase settings, confirm costs, and re-confirm connected-service consent.",
-  },
-];
-
-const caregiverCheckInPrompts = [
-  "What helped this week?",
-  "What felt too noisy or annoying in the app?",
-  "Is anything overdue because it is confusing, scary, or has too many steps?",
-  "Do any accommodations, classes, housing, food, money, or health supports need follow-up?",
-  "What should be removed, hidden, or made easier next?",
-];
-
-const caregiverBoundaryRules = [
-  "Check-ins should be consent-based and focused on support, not surveillance.",
-  "Do not expose private emails, messages, grades, bank details, or health details in caregiver summaries by default.",
-  "Use high-level status: working, needs setup, needs help, stale, or review soon.",
-  "Josephine should be able to see what is shared and turn off caregiver summaries later.",
 ];
 
 const safetyAlertResponseSteps = [
@@ -338,13 +293,6 @@ const safetyAlertResponseSteps = [
   "For suicidal thoughts, self-harm urges, or emotional crisis support, call or text 988 or use 988 chat.",
   "If this is a CSU concern but not immediate danger, use Tell Someone or contact Student Case Management.",
   "A caregiver alert should share only the safety concern and next support step, not private messages or search history.",
-];
-
-const safetyAlertBoundaries = [
-  "Only watch what Josephine types into this app, such as Ask JoJo or future in-app search.",
-  "Do not monitor browser history, Mac activity, texts, email, or daily behavior in the background.",
-  "Show Josephine the alert and resources immediately.",
-  "External caregiver alerts should require explicit setup, clear consent, and an easy way to review or pause them.",
 ];
 
 const campusDiningLocations = [
@@ -4287,77 +4235,6 @@ export default function Home() {
 
             <section
               className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="admin-caregiver"
-            >
-              <h2 className="text-lg font-bold">Admin & Caregiver</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                A support-first place to keep the app healthy without turning it
-                into a surveillance dashboard.
-              </p>
-              <SupportPageLink href="/support/admin" />
-
-              <div className="mt-4 grid gap-3">
-                {sustainabilityReviewPlan.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{item.name}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {item.cadence}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3">
-                <strong className="text-sm text-teal-950">
-                  Caregiver check-in prompts
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
-                  {caregiverCheckInPrompts.map((prompt) => (
-                    <li key={prompt}>{prompt}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">
-                  Sharing boundaries
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {caregiverBoundaryRules.map((rule) => (
-                    <li key={rule}>{rule}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
-                <strong className="text-sm text-red-950">
-                  Safety alert policy
-                </strong>
-                <p className="mt-2 text-sm text-red-950">
-                  Ask JoJo shows crisis resources if Josephine types a self-harm
-                  or suicide-related concern into the app. It uses the local
-                  trigger list plus OpenAI moderation at{" "}
-                  {safetyAlertConfig.confidenceLevel} confidence (
-                  {Math.round(safetyAlertThreshold() * 100)}% score threshold).
-                  Future caregiver alerts should be opt-in, visible to
-                  Josephine, and limited to high-level safety concerns.
-                </p>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-red-950">
-                  {safetyAlertBoundaries.map((rule) => (
-                    <li key={rule}>{rule}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
               id="done-log"
             >
               <h2 className="mb-4 text-lg font-bold">Done Log</h2>
@@ -4380,6 +4257,14 @@ export default function Home() {
             </section>
           </aside>
         </section>
+        <footer className="flex justify-end pb-2 pt-4">
+          <Link
+            className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
+            href="/support/admin"
+          >
+            Caregiver/admin
+          </Link>
+        </footer>
       </div>
     </main>
   );

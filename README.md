@@ -35,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Viper Cam placeholder for a private barn camera link or future secure stream.
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 - Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
-- Admin and caregiver sustainability reviews for monthly maintenance, semester resets, biannual agent review, annual production review, and consent-based check-ins.
+- Caregiver/admin page at `/support/admin`, linked quietly from the bottom of the dashboard and protected for `chilton18@gmail.com` through Supabase Google login.
 - In-app safety alert response for self-harm or suicide-related concerns typed into Ask JoJo, with 988, CSU Tell Someone, and HelpCompass resources. This does not monitor browser history, Mac activity, texts, email, or daily behavior.
 
 ## Supabase Setup
@@ -71,6 +71,8 @@ The schema uses authenticated-user policies. Do not enter real sensitive data un
 `OPENAI_API_KEY` is server-only and is used by `/api/safety/moderate` for Ask JoJo safety checks. The reviewable safety threshold, model, categories, and local trigger patterns live in `src/lib/safety/reviewable-config.ts`.
 
 Passkey support is wired as a ready path for Josephine's MacBook with Touch ID. Keep the secure email link enabled as the backup sign-in path, then enable Supabase passkey/WebAuthn support before registering a passkey from the signed-in dashboard.
+
+Caregiver/admin access uses Supabase Google OAuth. Enable the Google provider in Supabase Auth, add `/support/admin` to the allowed redirect URLs, and keep access limited to `chilton18@gmail.com`.
 
 ## Privacy And Security
 
