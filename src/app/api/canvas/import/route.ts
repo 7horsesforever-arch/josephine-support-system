@@ -1,10 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { decryptSecret } from "@/lib/server/encryption";
 
 type CanvasImportRequest = {
   canvasBaseUrl?: string;
   canvasAccessToken?: string;
   courseIds?: number[];
+};
+
+type CanvasConnectionRow = {
+  canvas_base_url: string;
+  encrypted_access_token: string;
+  token_iv: string;
+  token_auth_tag: string;
+  expires_at: string;
 };
 
 type CanvasCourse = {
@@ -138,7 +147,54 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  if (!body.canvasBaseUrl || !body.canvasAccessToken) {
+  let canvasBaseUrl = body.canvasBaseUrl;
+  let canvasAccessToken = body.canvasAccessToken;
+  let usingSavedConnection = false;
+
+  if (!canvasAccessToken) {
+    const { data: savedConnection, error: connectionError } = await supabase
+      .from("canvas_connections")
+      .select("canvas_base_url,encrypted_access_token,token_iv,token_auth_tag,expires_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (connectionError) {
+      return NextResponse.json({ error: connectionError.message }, { status: 500 });
+    }
+
+    const connection = savedConnection as CanvasConnectionRow | null;
+    if (!connection) {
+      return NextResponse.json(
+        { error: "Save a Canvas connection or enter a Canvas API token before importing." },
+        { status: 400 },
+      );
+    }
+
+    if (new Date(connection.expires_at) <= new Date()) {
+      return NextResponse.json(
+        { error: "Saved Canvas connection has expired. Save a new token before importing." },
+        { status: 400 },
+      );
+    }
+
+    try {
+      canvasAccessToken = decryptSecret({
+        encryptedValue: connection.encrypted_access_token,
+        iv: connection.token_iv,
+        authTag: connection.token_auth_tag,
+      });
+    } catch {
+      return NextResponse.json(
+        { error: "Saved Canvas connection could not be decrypted. Save a new token." },
+        { status: 500 },
+      );
+    }
+
+    canvasBaseUrl = connection.canvas_base_url;
+    usingSavedConnection = true;
+  }
+
+  if (!canvasBaseUrl || !canvasAccessToken) {
     return NextResponse.json(
       { error: "canvasBaseUrl and canvasAccessToken are required." },
       { status: 400 },
@@ -147,7 +203,7 @@ export async function POST(request: NextRequest) {
 
   let canvasApiBase: string;
   try {
-    canvasApiBase = normalizeCanvasBaseUrl(body.canvasBaseUrl);
+    canvasApiBase = normalizeCanvasBaseUrl(canvasBaseUrl);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Invalid Canvas URL." },
@@ -160,7 +216,7 @@ export async function POST(request: NextRequest) {
       ? body.courseIds.map((id) => ({ id }))
       : await fetchCanvasPages<CanvasCourse>(
           `${canvasApiBase}/courses?enrollment_state=active&per_page=100`,
-          body.canvasAccessToken,
+          canvasAccessToken,
         );
 
     const activeCourses = courses.filter((course) => course.id);
@@ -169,7 +225,7 @@ export async function POST(request: NextRequest) {
     for (const course of activeCourses) {
       const assignments = await fetchCanvasPages<CanvasAssignment>(
         `${canvasApiBase}/courses/${course.id}/assignments?bucket=upcoming&per_page=100`,
-        body.canvasAccessToken,
+        canvasAccessToken,
       );
 
       assignmentRows.push(
@@ -201,9 +257,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (usingSavedConnection) {
+      await supabase
+        .from("canvas_connections")
+        .update({ last_imported_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+    }
+
     return NextResponse.json({
       imported: assignmentRows.length,
       coursesChecked: activeCourses.length,
+      usedSavedConnection: usingSavedConnection,
     });
   } catch (error) {
     return NextResponse.json(

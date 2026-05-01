@@ -37,6 +37,7 @@
 - Secret/service-role keys must never be used in browser code, committed to Git, pasted into chat, or placed in public docs.
 - SMS provider secrets belong in server-only environment variables and server routes/functions.
 - Canvas tokens should be exchanged or used server-side only. Do not commit them, store them in browser storage, or paste them into docs.
+- Saved Canvas API tokens must be encrypted server-side with `CANVAS_TOKEN_ENCRYPTION_KEY`, have an explicit expiration date, and be revocable from the app and Canvas.
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
 - Gmail access should use delegated Google OAuth scopes such as `gmail.readonly`; never collect, store, or replay the user's Google password.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
@@ -55,6 +56,7 @@
 - Add a deletion/export process for Josephine's data.
 - Add caregiver invitations rather than manually editing caregiver links long term.
 - Prefer Canvas OAuth for production assignment imports. Personal access tokens are acceptable only for a temporary private test.
+- If using a saved Canvas token during the private build, set `CANVAS_TOKEN_ENCRYPTION_KEY`, choose a semester or school-year expiration, and revoke/replace the token if it is pasted into chat or exposed elsewhere.
 - Prefer Microsoft OAuth authorization-code flow for school email imports. A password-based email connection is not acceptable for production.
 - Prefer Google OAuth authorization-code flow for personal Gmail imports. A password-based Gmail connection is not acceptable for production.
 - Keep accommodation support in UI behavior and triage rules wherever possible, rather than storing diagnosis labels.

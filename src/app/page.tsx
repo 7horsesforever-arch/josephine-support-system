@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   isSupabaseConfigured,
   registerDevicePasskey,
@@ -74,6 +74,21 @@ type SchoolAssignmentRow = {
   url: string | null;
   points_possible: number | null;
   workflow_state: string | null;
+};
+
+type CanvasConnection = {
+  connected: boolean;
+  canvasBaseUrl: string | null;
+  expiresAt: string | null;
+  lastImportedAt: string | null;
+  updatedAt: string | null;
+};
+
+type CanvasConnectionStatusRow = {
+  canvas_base_url: string;
+  expires_at: string;
+  last_imported_at: string | null;
+  updated_at: string;
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -286,6 +301,13 @@ function assignmentFromRow(row: SchoolAssignmentRow): SchoolAssignment {
   };
 }
 
+function schoolYearExpiration() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  date.setHours(23, 59, 59, 999);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState(createStarterTasks);
   const [history, setHistory] = useState(createInitialHistory);
@@ -300,10 +322,13 @@ export default function Home() {
   const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
   const [canvasBaseUrl, setCanvasBaseUrl] = useState(defaultCanvasBaseUrl);
   const [canvasAccessToken, setCanvasAccessToken] = useState("");
+  const [canvasTokenExpiresAt, setCanvasTokenExpiresAt] = useState(schoolYearExpiration);
+  const [canvasConnection, setCanvasConnection] = useState<CanvasConnection | null>(null);
   const [canvasMessage, setCanvasMessage] = useState(
-    "Canvas assignment import is ready. Use OAuth or a short-lived Canvas API token, not the mobile QR code.",
+    "Canvas assignment import is ready. Save a Canvas API token once, then import without re-entering it.",
   );
   const [isCanvasImporting, setIsCanvasImporting] = useState(false);
+  const [isCanvasConnectionSaving, setIsCanvasConnectionSaving] = useState(false);
 
   const userId = session?.user.id;
 
@@ -455,6 +480,30 @@ export default function Home() {
         setAssignments(savedAssignments.map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
       }
 
+      const { data: savedCanvasConnection, error: canvasConnectionError } =
+        await supabase!
+          .from("canvas_connections")
+          .select("canvas_base_url,expires_at,last_imported_at,updated_at")
+          .eq("user_id", activeUserId)
+          .maybeSingle();
+
+      if (!ignore && canvasConnectionError) {
+        setCanvasMessage("Canvas saved connection needs the latest Supabase schema.");
+      }
+
+      if (!ignore && !canvasConnectionError) {
+        const connection = savedCanvasConnection as CanvasConnectionStatusRow | null;
+        setCanvasConnection({
+          connected: Boolean(connection),
+          canvasBaseUrl: connection?.canvas_base_url ?? null,
+          expiresAt: connection?.expires_at ?? null,
+          lastImportedAt: connection?.last_imported_at ?? null,
+          updatedAt: connection?.updated_at ?? null,
+        });
+        if (connection?.canvas_base_url) setCanvasBaseUrl(connection.canvas_base_url);
+        if (connection?.expires_at) setCanvasTokenExpiresAt(connection.expires_at.slice(0, 10));
+      }
+
       setSyncStatus("supabase");
       setSyncMessage("Private data saved to Supabase.");
     }
@@ -465,6 +514,40 @@ export default function Home() {
       ignore = true;
     };
   }, [authReady, session?.user.email, userId]);
+
+  const getCurrentAppAccessToken = useCallback(async () => {
+    if (!supabase) return null;
+
+    const {
+      data: { session: currentSession },
+    } = await supabase.auth.getSession();
+
+    return currentSession?.access_token ?? null;
+  }, []);
+
+  const loadCanvasConnection = useCallback(async () => {
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) return;
+
+    const response = await fetch("/api/canvas/connection", {
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+      },
+    });
+
+    const payload = (await response.json()) as CanvasConnection & {
+      error?: string;
+    };
+
+    if (!response.ok) {
+      setCanvasMessage(payload.error ?? "Canvas connection status could not be loaded.");
+      return;
+    }
+
+    setCanvasConnection(payload);
+    if (payload.canvasBaseUrl) setCanvasBaseUrl(payload.canvasBaseUrl);
+    if (payload.expiresAt) setCanvasTokenExpiresAt(payload.expiresAt.slice(0, 10));
+  }, [getCurrentAppAccessToken]);
 
   async function refreshAssignments() {
     if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
@@ -663,40 +746,75 @@ export default function Home() {
 
     const trimmedBaseUrl = canvasBaseUrl.trim();
     const trimmedToken = canvasAccessToken.trim();
+    const hasSavedConnection = Boolean(canvasConnection?.connected);
 
-    if (!trimmedBaseUrl || !trimmedToken) {
-      setCanvasMessage("Enter the Canvas URL and a Canvas API access token.");
+    if (!trimmedBaseUrl || (!trimmedToken && !hasSavedConnection)) {
+      setCanvasMessage("Save a Canvas token once, or enter one for this import.");
       return;
     }
 
     setIsCanvasImporting(true);
-    setCanvasMessage("Importing upcoming Canvas assignments...");
+    setCanvasMessage(
+      trimmedToken
+        ? "Saving Canvas connection and importing assignments..."
+        : "Importing upcoming Canvas assignments with the saved connection...",
+    );
 
-    const {
-      data: { session: currentSession },
-    } = await supabase.auth.getSession();
+    const appAccessToken = await getCurrentAppAccessToken();
 
-    if (!currentSession?.access_token) {
+    if (!appAccessToken) {
       setIsCanvasImporting(false);
       setCanvasMessage("App session expired. Sign in again before importing Canvas.");
       return;
     }
 
+    if (trimmedToken) {
+      const saveResponse = await fetch("/api/canvas/connection", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${appAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          canvasBaseUrl: trimmedBaseUrl,
+          canvasAccessToken: trimmedToken,
+          expiresAt: canvasTokenExpiresAt,
+        }),
+      });
+
+      const savePayload = (await saveResponse.json()) as CanvasConnection & {
+        error?: string;
+      };
+
+      if (!saveResponse.ok) {
+        setIsCanvasImporting(false);
+        setCanvasMessage(savePayload.error ?? "Canvas connection could not be saved.");
+        return;
+      }
+
+      setCanvasConnection(savePayload);
+      setCanvasAccessToken("");
+    }
+
+    const savedUntil = trimmedToken
+      ? canvasTokenExpiresAt
+      : (canvasConnection?.expiresAt?.slice(0, 10) ?? canvasTokenExpiresAt);
+
     const response = await fetch("/api/canvas/import", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${currentSession.access_token}`,
+        Authorization: `Bearer ${appAccessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         canvasBaseUrl: trimmedBaseUrl,
-        canvasAccessToken: trimmedToken,
       }),
     });
 
     const payload = (await response.json()) as {
       imported?: number;
       coursesChecked?: number;
+      usedSavedConnection?: boolean;
       error?: string;
     };
 
@@ -709,9 +827,99 @@ export default function Home() {
 
     setCanvasAccessToken("");
     setCanvasMessage(
-      `Imported ${payload.imported ?? 0} assignments from ${payload.coursesChecked ?? 0} Canvas courses. Token cleared from this screen.`,
+      `Imported ${payload.imported ?? 0} assignments from ${payload.coursesChecked ?? 0} Canvas courses. Canvas connection is saved until ${formatDate(new Date(savedUntil))}.`,
     );
+    await loadCanvasConnection();
     await refreshAssignments();
+  }
+
+  async function saveCanvasConnection() {
+    if (!supabase || !userId) {
+      setCanvasMessage("Sign in before saving Canvas.");
+      return;
+    }
+
+    const trimmedBaseUrl = canvasBaseUrl.trim();
+    const trimmedToken = canvasAccessToken.trim();
+
+    if (!trimmedBaseUrl || !trimmedToken) {
+      setCanvasMessage("Enter the Canvas URL and token before saving.");
+      return;
+    }
+
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setCanvasMessage("App session expired. Sign in again before saving Canvas.");
+      return;
+    }
+
+    setIsCanvasConnectionSaving(true);
+    setCanvasMessage("Saving encrypted Canvas connection...");
+
+    const response = await fetch("/api/canvas/connection", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        canvasBaseUrl: trimmedBaseUrl,
+        canvasAccessToken: trimmedToken,
+        expiresAt: canvasTokenExpiresAt,
+      }),
+    });
+
+    const payload = (await response.json()) as CanvasConnection & {
+      error?: string;
+    };
+
+    setIsCanvasConnectionSaving(false);
+
+    if (!response.ok) {
+      setCanvasMessage(payload.error ?? "Canvas connection could not be saved.");
+      return;
+    }
+
+    setCanvasConnection(payload);
+    setCanvasAccessToken("");
+    setCanvasMessage(
+      `Canvas connection saved until ${formatDate(new Date(payload.expiresAt ?? canvasTokenExpiresAt))}.`,
+    );
+  }
+
+  async function revokeCanvasConnection() {
+    if (!window.confirm("Remove the saved Canvas connection from this app?")) {
+      return;
+    }
+
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setCanvasMessage("App session expired. Sign in again before removing Canvas.");
+      return;
+    }
+
+    const response = await fetch("/api/canvas/connection", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+      },
+    });
+
+    const payload = (await response.json()) as { error?: string };
+
+    if (!response.ok) {
+      setCanvasMessage(payload.error ?? "Canvas connection could not be removed.");
+      return;
+    }
+
+    setCanvasConnection({
+      connected: false,
+      canvasBaseUrl: null,
+      expiresAt: null,
+      lastImportedAt: null,
+      updatedAt: null,
+    });
+    setCanvasMessage("Saved Canvas connection removed.");
   }
 
   if (isSupabaseConfigured && !authReady) {
@@ -925,10 +1133,33 @@ export default function Home() {
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-bold">School Connections</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Canvas QR login is for the mobile app and expires quickly. This
-                import uses a Canvas API token only for this request, then clears
-                it from the screen.
+                Save Canvas once for the semester or school year. The token is
+                encrypted server-side, never saved in this browser, and can be
+                removed here.
               </p>
+              <div className="mt-3 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">
+                  {canvasConnection?.connected
+                    ? "Canvas is saved"
+                    : "Canvas is not saved yet"}
+                </strong>
+                {canvasConnection?.connected ? (
+                  <span>
+                    Expires{" "}
+                    {canvasConnection.expiresAt
+                      ? formatDate(new Date(canvasConnection.expiresAt))
+                      : "later"}
+                    {canvasConnection.lastImportedAt
+                      ? ` · Last import ${formatDateTime(canvasConnection.lastImportedAt)}`
+                      : ""}
+                  </span>
+                ) : (
+                  <span>
+                    Paste a Canvas API token once, choose an expiration, then
+                    save or import.
+                  </span>
+                )}
+              </div>
               <form className="mt-4 grid gap-3" onSubmit={importCanvasAssignments}>
                 <label className="grid gap-1 text-sm font-semibold text-stone-700">
                   Canvas URL
@@ -940,24 +1171,64 @@ export default function Home() {
                   />
                 </label>
                 <label className="grid gap-1 text-sm font-semibold text-stone-700">
-                  Canvas API token
+                  Canvas API token {canvasConnection?.connected ? "(only to replace saved token)" : ""}
                   <input
                     className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
                     value={canvasAccessToken}
                     onChange={(event) => setCanvasAccessToken(event.target.value)}
                     type="password"
                     autoComplete="off"
-                    placeholder="Paste token for one import"
+                    placeholder={
+                      canvasConnection?.connected
+                        ? "Leave blank to use saved token"
+                        : "Paste token to save"
+                    }
                   />
                 </label>
+                <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                  Save until
+                  <input
+                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                    value={canvasTokenExpiresAt}
+                    onChange={(event) => setCanvasTokenExpiresAt(event.target.value)}
+                    type="date"
+                  />
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    className="min-h-10 rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+                    type="button"
+                    onClick={saveCanvasConnection}
+                    disabled={isCanvasConnectionSaving || !canvasAccessToken.trim()}
+                  >
+                    {isCanvasConnectionSaving ? "Saving" : "Save Connection"}
+                  </button>
+                  <button
+                    className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
+                    type="button"
+                    onClick={revokeCanvasConnection}
+                    disabled={!canvasConnection?.connected}
+                  >
+                    Remove Saved
+                  </button>
+                </div>
                 <button
                   className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
                   type="submit"
                   disabled={isCanvasImporting}
                 >
-                  {isCanvasImporting ? "Importing" : "Import Assignments"}
+                  {isCanvasImporting
+                    ? "Importing"
+                    : canvasConnection?.connected && !canvasAccessToken.trim()
+                      ? "Import With Saved Canvas"
+                      : "Save And Import Assignments"}
                 </button>
               </form>
+              <p className="mt-3 text-xs text-stone-500">
+                Canvas QR login is still only for the mobile app. This connection
+                uses a Canvas API token and should be revoked in Canvas if the
+                token is ever pasted somewhere unsafe.
+              </p>
               <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
 
               <div className="mt-5 border-t border-stone-200 pt-4">

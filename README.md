@@ -42,9 +42,12 @@ To enable Supabase mode:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+CANVAS_TOKEN_ENCRYPTION_KEY=
 ```
 
 The schema uses authenticated-user policies. Do not enter real sensitive data until you have confirmed sign-in and RLS behavior in Supabase.
+
+`CANVAS_TOKEN_ENCRYPTION_KEY` is server-only and is required before saving a Canvas token. Generate a strong value with `openssl rand -base64 32`, put it in `.env.local` and deployment environment variables, and do not commit it.
 
 Passkey support is wired as a ready path for Josephine's MacBook with Touch ID. Keep the secure email link enabled as the backup sign-in path, then enable Supabase passkey/WebAuthn support before registering a passkey from the signed-in dashboard.
 

@@ -25,6 +25,7 @@ Josephine's support system should treat her MacBook with Touch ID as the primary
 - Any imported school data should remain user-scoped under Row Level Security.
 - Josephine's personal Gmail address, `7horsesforever@gmail.com`, should use Google OAuth and email-read scopes only.
 - Canvas QR mobile login codes are for the Canvas mobile app. Treat them like passwords, and do not use them as app API tokens.
+- Saved Canvas API tokens must be encrypted server-side, expire explicitly, and remain revocable from both this app and Canvas.
 
 ## Setup Checklist
 

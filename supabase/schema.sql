@@ -54,6 +54,18 @@ create table if not exists public.school_assignments (
   unique (user_id, source, source_course_id, source_assignment_id)
 );
 
+create table if not exists public.canvas_connections (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  canvas_base_url text not null,
+  encrypted_access_token text not null,
+  token_iv text not null,
+  token_auth_tag text not null,
+  expires_at timestamptz not null,
+  last_imported_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.school_email_messages (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -117,6 +129,7 @@ create index if not exists support_tasks_created_by_idx on public.support_tasks(
 create index if not exists support_tasks_status_idx on public.support_tasks(status);
 create index if not exists support_history_user_id_created_at_idx on public.support_history(user_id, created_at desc);
 create index if not exists school_assignments_user_id_due_at_idx on public.school_assignments(user_id, due_at);
+create index if not exists canvas_connections_expires_at_idx on public.canvas_connections(expires_at);
 create index if not exists school_email_messages_user_id_received_at_idx on public.school_email_messages(user_id, received_at desc);
 create index if not exists school_email_messages_user_id_source_received_at_idx on public.school_email_messages(user_id, source, received_at desc);
 create index if not exists school_email_triage_user_id_priority_idx on public.school_email_triage(user_id, priority, created_at desc);
@@ -129,6 +142,7 @@ alter table public.caregiver_links enable row level security;
 alter table public.support_tasks enable row level security;
 alter table public.support_history enable row level security;
 alter table public.school_assignments enable row level security;
+alter table public.canvas_connections enable row level security;
 alter table public.school_email_messages enable row level security;
 alter table public.school_email_triage enable row level security;
 
@@ -149,6 +163,9 @@ drop policy if exists "Users can delete own support history" on public.support_h
 drop policy if exists "Users can read own school assignments" on public.school_assignments;
 drop policy if exists "Users can write own school assignments" on public.school_assignments;
 drop policy if exists "Users can delete own school assignments" on public.school_assignments;
+drop policy if exists "Users can read own Canvas connection" on public.canvas_connections;
+drop policy if exists "Users can write own Canvas connection" on public.canvas_connections;
+drop policy if exists "Users can delete own Canvas connection" on public.canvas_connections;
 drop policy if exists "Users can read own school email messages" on public.school_email_messages;
 drop policy if exists "Users can write own school email messages" on public.school_email_messages;
 drop policy if exists "Users can delete own school email messages" on public.school_email_messages;
@@ -273,6 +290,25 @@ create policy "Users can write own school assignments"
 
 create policy "Users can delete own school assignments"
   on public.school_assignments
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can read own Canvas connection"
+  on public.canvas_connections
+  for select
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can write own Canvas connection"
+  on public.canvas_connections
+  for all
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own Canvas connection"
+  on public.canvas_connections
   for delete
   to authenticated
   using (user_id = (select auth.uid()));
