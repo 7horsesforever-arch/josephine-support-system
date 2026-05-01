@@ -66,6 +66,17 @@ export const supportModules: SupportModule[] = [
         ],
       },
       {
+        title: "SDC Student Agreement Reminders",
+        items: [
+          "Request accommodations every semester that Josephine wants to use them.",
+          "Read and respond to SDC messages in CSU email because SDC uses that as official communication.",
+          "Talk with instructors about accommodation logistics before support is needed.",
+          "Contact SDC quickly if an access barrier or accommodation problem comes up.",
+          "Remember accommodations start from the letter or approval date and are not retroactive.",
+          "Use accommodations only for disability-related needs and follow CSU and SDC procedures.",
+        ],
+      },
+      {
         title: "Testing Rules",
         items: [
           "Regular in-person exams and quizzes need to be scheduled with SDC at least 7 days ahead.",

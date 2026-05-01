@@ -306,6 +306,15 @@ const accommodationReadinessSteps = [
   "Review the SDC Accommodation Handbook before the semester gets busy.",
 ];
 
+const sdcStudentAgreementReminders = [
+  "Request accommodations every semester that Josephine wants to use them.",
+  "Read and respond to SDC messages in CSU email because SDC uses that as official communication.",
+  "Talk with instructors about accommodation logistics before support is needed.",
+  "Contact SDC quickly if an access barrier or accommodation problem comes up.",
+  "Remember accommodations start from the letter or approval date and are not retroactive.",
+  "Use accommodations only for disability-related needs and follow CSU and SDC procedures.",
+];
+
 const communityInterestWatchlist = [
   "Black Student Union",
   "Delta Sigma Theta Sorority",
@@ -1022,6 +1031,17 @@ function createStarterTasks(): SupportTask[] {
       maxGapDays: 150,
       lastCompletedAt: daysAgo(118),
       status: "ok",
+    },
+    {
+      id: "check-sdc-email",
+      title: "Check SDC email",
+      category: "school",
+      description:
+        "Look for SDC messages in CSU email and respond quickly when action is needed.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(10),
+      status: "due",
     },
     {
       id: "schedule-sdc-exams",
@@ -2634,6 +2654,16 @@ export default function Home() {
                     Policies
                   </a>
                 </div>
+              </div>
+              <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 p-3">
+                <strong className="text-sm text-blue-950">
+                  SDC agreement reminders
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-blue-950">
+                  {sdcStudentAgreementReminders.map((reminder) => (
+                    <li key={reminder}>{reminder}</li>
+                  ))}
+                </ul>
               </div>
               <div className="mt-4 grid gap-3">
                 {academicSupportResources.map((resource) => (
