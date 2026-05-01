@@ -16,6 +16,7 @@
 - General accommodation workflow reminders, such as sending letters, checking the SDC portal, scheduling tests, and confirming housing follow-up.
 - Community-interest watch terms, such as Black Student Union and Delta Sigma Theta, for surfacing relevant email and campus announcements.
 - Vehicle make/model/year, maintenance reminder cadence, odometer check-ins, and service due estimates.
+- Work support metadata, such as job-search tasks, application status, weekly hours, paycheck check reminders, and Drive file links.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -35,6 +36,7 @@
 - Google passwords or Gmail OAuth access tokens beyond the short import request.
 - Sensitive caregiver notes unless the app has explicit consent, authentication, and deletion controls.
 - Precise vehicle location, trip history, insurance policy numbers, license plate, VIN, or telematics data unless Josephine explicitly opts in and the app has a clear need.
+- Full tax forms, payroll credentials, Social Security number, bank direct-deposit details, employer portal passwords, or workplace documents committed to Git.
 
 ## Access Model
 
@@ -62,6 +64,7 @@
 - Academic accommodation, assistive-technology, testing, and housing-eligibility paperwork should live in private storage or secure notes. Public resource links, scheduling rules, and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
 - Food delivery should open the official campus ordering app/site. Do not store Grubhub, Starship, or payment credentials in this app.
 - Vehicle support should begin with manual mileage logs and reminders. Do not connect location, insurance, telematics, or roadside accounts without explicit consent.
+- Work documents should live in Google Drive or another private document store. The app should keep metadata, reminders, and selected links, not full payroll or tax documents.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage

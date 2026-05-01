@@ -107,6 +107,14 @@ Assignment agents should recommend resources based on the work type, deadline ru
 - Use the 10,000-mile/12-month oil-service schedule as a planning baseline, then defer to the dashboard, owner's manual, or trusted service shop if they differ.
 - A future vehicle agent can estimate next service from mileage logs and service receipts, but it should not track location, insurance, or telematics unless Josephine explicitly opts in.
 
+## Work Support
+
+- Josephine may take a part-time job while at CSU.
+- Link to Handshake for job discovery and CSU student employment resources for campus job rules and application flow.
+- Use Google Drive for resumes, cover letters, offer letters, onboarding forms, schedules, pay stubs, tax forms, training certificates, and workplace policies.
+- Track weekly work hours, pay-period checks, and schedule fit with coursework, sleep, meals, transportation, and accommodations.
+- A future work agent can summarize postings, compare schedules against academic load, draft supervisor messages, and flag pay/schedule questions for review.
+
 ## Safety Boundary
 
 Josephine's accommodation context should shape the app experience. It should not become a broad profile for unrelated decisions, and it should not be shared with external services except where Josephine/caregivers have clearly authorized a specific connection.

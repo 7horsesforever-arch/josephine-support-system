@@ -21,6 +21,7 @@ type TaskCategory =
   | "housing"
   | "food"
   | "vehicle"
+  | "work"
   | "admin"
   | "health"
   | "life";
@@ -336,6 +337,53 @@ const vehicleAgentIdeas = [
   "Do not connect insurance, telematics, or location tracking unless Josephine explicitly wants it.",
 ];
 
+const handshakeUrl = "https://bizcareers.colostate.edu/resources/handshake/";
+const workdayStudentEmploymentUrl =
+  "https://workday.csusystem.edu/student-employment-faqs/";
+
+const workDocumentFolders = [
+  "Resume and cover letters",
+  "Offer letters and onboarding paperwork",
+  "Work schedule screenshots or PDFs",
+  "Timesheets and pay stubs",
+  "Tax forms such as W-4 and W-2",
+  "Training certificates and workplace policies",
+];
+
+const workSupportPlan = [
+  {
+    name: "Job search",
+    cadence: "Weekly while looking",
+    detail:
+      "Review Handshake, save promising roles, and keep applications in one list.",
+  },
+  {
+    name: "Hours check",
+    cadence: "Weekly when employed",
+    detail:
+      "Record hours worked, compare to the posted schedule, and flag weeks that may overload school.",
+  },
+  {
+    name: "Paycheck check",
+    cadence: "Every pay period",
+    detail:
+      "Confirm the paycheck arrived, hours look right, and money tasks are updated.",
+  },
+  {
+    name: "Work documents",
+    cadence: "As needed",
+    detail:
+      "Store job documents in Google Drive and keep only metadata/reminders in the app.",
+  },
+];
+
+const workAgentIdeas = [
+  "Summarize job postings into schedule, commute, pay, duties, and application steps.",
+  "Compare work hours against class workload before accepting extra shifts.",
+  "Draft messages to supervisors about availability, schedule questions, or accommodations.",
+  "Track pay-period reminders without storing full tax or payroll documents in app code.",
+];
+
 const academicSupportResources: AcademicSupportResource[] = [
   {
     name: "Assistive Technology Resource Center",
@@ -525,6 +573,39 @@ function createStarterTasks(): SupportTask[] {
       status: "due",
     },
     {
+      id: "work-job-search-check",
+      title: "Check job options",
+      category: "work",
+      description:
+        "Review Handshake for part-time roles and save anything that fits school schedule, transportation, and energy.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(8),
+      status: "due",
+    },
+    {
+      id: "work-hours-check",
+      title: "Track work hours",
+      category: "work",
+      description:
+        "When employed, record weekly hours and flag any schedule that crowds assignments, sleep, meals, or accommodations.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(6),
+      status: "ok",
+    },
+    {
+      id: "work-documents-check",
+      title: "Store work documents",
+      category: "work",
+      description:
+        "Put resumes, offer letters, onboarding forms, schedules, pay stubs, and tax forms in the Work folder in Google Drive.",
+      normalIntervalDays: 30,
+      maxGapDays: 60,
+      lastCompletedAt: daysAgo(31),
+      status: "due",
+    },
+    {
       id: "request-atrc-meeting",
       title: "Request ATRC meeting",
       category: "school",
@@ -706,6 +787,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
     category === "housing" ||
     category === "food" ||
     category === "vehicle" ||
+    category === "work" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -724,6 +806,7 @@ function categoryLabel(category: TaskCategory) {
     housing: "Housing",
     food: "Food",
     vehicle: "Vehicle",
+    work: "Work",
     admin: "Admin",
     health: "Health",
     life: "Life",
@@ -1901,6 +1984,7 @@ export default function Home() {
               <option value="housing">Housing</option>
               <option value="food">Food</option>
               <option value="vehicle">Vehicle</option>
+              <option value="work">Work</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -2517,6 +2601,79 @@ export default function Home() {
                 </strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
                   {vehicleAgentIdeas.map((idea) => (
+                    <li key={idea}>{idea}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Work</h2>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Support part-time job search, onboarding documents, hours,
+                    paychecks, and schedule fit with school.
+                  </p>
+                </div>
+                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+                  Future job
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={handshakeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Handshake
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                  href={workdayStudentEmploymentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Student Employment Info
+                </a>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                {workSupportPlan.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{item.name}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {item.cadence}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                <strong className="text-sm text-stone-950">
+                  Google Drive work folder
+                </strong>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
+                  {workDocumentFolders.map((folder) => (
+                    <span className="rounded-md bg-white p-2" key={folder}>
+                      {folder}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                <strong className="text-sm text-amber-950">Work agent path</strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
+                  {workAgentIdeas.map((idea) => (
                     <li key={idea}>{idea}</li>
                   ))}
                 </ul>

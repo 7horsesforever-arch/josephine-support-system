@@ -30,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Server-side school email triage endpoint at `/api/email/triage`.
 - Review-only communications drafting endpoint at `/api/email/drafts`.
 - Vehicle support reminders for mileage checks, fuel, wash/cleanout, and oil-service planning.
+- Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
 
 ## Supabase Setup
 
