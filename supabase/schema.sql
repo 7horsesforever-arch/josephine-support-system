@@ -99,6 +99,36 @@ create table if not exists public.housing_documents (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.financial_connections (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  provider text not null default 'plaid' check (provider in ('plaid')),
+  institution_id text,
+  institution_name text,
+  plaid_item_id text,
+  encrypted_access_token text not null,
+  token_iv text not null,
+  token_auth_tag text not null,
+  last_synced_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.financial_accounts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  plaid_account_id text not null,
+  name text not null,
+  official_name text,
+  mask text,
+  account_type text not null,
+  account_subtype text,
+  available_balance numeric,
+  current_balance numeric,
+  iso_currency_code text,
+  updated_at timestamptz not null default now(),
+  unique (user_id, plaid_account_id)
+);
+
 create table if not exists public.school_email_messages (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -180,6 +210,8 @@ create index if not exists school_assignments_user_id_due_at_idx on public.schoo
 create index if not exists canvas_connections_expires_at_idx on public.canvas_connections(expires_at);
 create index if not exists housing_documents_user_id_important_date_idx on public.housing_documents(user_id, important_date);
 create index if not exists housing_documents_user_id_status_idx on public.housing_documents(user_id, status, updated_at desc);
+create index if not exists financial_connections_last_synced_at_idx on public.financial_connections(last_synced_at);
+create index if not exists financial_accounts_user_id_updated_at_idx on public.financial_accounts(user_id, updated_at desc);
 create index if not exists school_email_messages_user_id_received_at_idx on public.school_email_messages(user_id, received_at desc);
 create index if not exists school_email_messages_user_id_source_received_at_idx on public.school_email_messages(user_id, source, received_at desc);
 create index if not exists school_email_triage_user_id_priority_idx on public.school_email_triage(user_id, priority, created_at desc);
@@ -196,6 +228,8 @@ alter table public.support_history enable row level security;
 alter table public.school_assignments enable row level security;
 alter table public.canvas_connections enable row level security;
 alter table public.housing_documents enable row level security;
+alter table public.financial_connections enable row level security;
+alter table public.financial_accounts enable row level security;
 alter table public.school_email_messages enable row level security;
 alter table public.school_email_triage enable row level security;
 alter table public.school_email_drafts enable row level security;
@@ -223,6 +257,12 @@ drop policy if exists "Users can delete own Canvas connection" on public.canvas_
 drop policy if exists "Users can read own housing documents" on public.housing_documents;
 drop policy if exists "Users can write own housing documents" on public.housing_documents;
 drop policy if exists "Users can delete own housing documents" on public.housing_documents;
+drop policy if exists "Users can read own financial connections" on public.financial_connections;
+drop policy if exists "Users can write own financial connections" on public.financial_connections;
+drop policy if exists "Users can delete own financial connections" on public.financial_connections;
+drop policy if exists "Users can read own financial accounts" on public.financial_accounts;
+drop policy if exists "Users can write own financial accounts" on public.financial_accounts;
+drop policy if exists "Users can delete own financial accounts" on public.financial_accounts;
 drop policy if exists "Users can read own school email messages" on public.school_email_messages;
 drop policy if exists "Users can write own school email messages" on public.school_email_messages;
 drop policy if exists "Users can delete own school email messages" on public.school_email_messages;
@@ -396,6 +436,52 @@ create policy "Users can write own housing documents"
 
 create policy "Users can delete own housing documents"
   on public.housing_documents
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can read own financial connections"
+  on public.financial_connections
+  for select
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can write own financial connections"
+  on public.financial_connections
+  for all
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own financial connections"
+  on public.financial_connections
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can read own financial accounts"
+  on public.financial_accounts
+  for select
+  to authenticated
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1
+      from public.caregiver_links
+      where caregiver_links.student_user_id = financial_accounts.user_id
+        and caregiver_links.caregiver_user_id = (select auth.uid())
+    )
+  );
+
+create policy "Users can write own financial accounts"
+  on public.financial_accounts
+  for all
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own financial accounts"
+  on public.financial_accounts
   for delete
   to authenticated
   using (user_id = (select auth.uid()));

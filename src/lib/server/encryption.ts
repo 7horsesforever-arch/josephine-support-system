@@ -8,10 +8,10 @@ type EncryptedSecret = {
 
 const algorithm = "aes-256-gcm";
 
-function getEncryptionKey() {
-  const rawKey = process.env.CANVAS_TOKEN_ENCRYPTION_KEY;
+function getEncryptionKey(envName = "CANVAS_TOKEN_ENCRYPTION_KEY") {
+  const rawKey = process.env[envName];
   if (!rawKey) {
-    throw new Error("CANVAS_TOKEN_ENCRYPTION_KEY is required to save Canvas tokens.");
+    throw new Error(`${envName} is required to save encrypted tokens.`);
   }
 
   if (/^[A-Za-z0-9+/=]{44}$/.test(rawKey)) {
@@ -21,8 +21,8 @@ function getEncryptionKey() {
   return createHash("sha256").update(rawKey).digest();
 }
 
-export function encryptSecret(value: string): EncryptedSecret {
-  const key = getEncryptionKey();
+export function encryptSecret(value: string, envName?: string): EncryptedSecret {
+  const key = getEncryptionKey(envName);
   const iv = randomBytes(12);
   const cipher = createCipheriv(algorithm, key, iv);
   const encrypted = Buffer.concat([
@@ -37,8 +37,8 @@ export function encryptSecret(value: string): EncryptedSecret {
   };
 }
 
-export function decryptSecret(secret: EncryptedSecret) {
-  const key = getEncryptionKey();
+export function decryptSecret(secret: EncryptedSecret, envName?: string) {
+  const key = getEncryptionKey(envName);
   const decipher = createDecipheriv(
     algorithm,
     key,

@@ -1,7 +1,12 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePlaidLink } from "react-plaid-link";
+import type {
+  PlaidLinkOnSuccessMetadata,
+  PlaidLinkOptions,
+} from "react-plaid-link";
 import {
   isSupabaseConfigured,
   registerDevicePasskey,
@@ -128,6 +133,40 @@ type HousingDocumentRow = {
   important_date: string | null;
   notes: string | null;
   updated_at: string;
+};
+
+type FinancialAccount = {
+  plaidAccountId: string;
+  name: string;
+  officialName: string | null;
+  mask: string | null;
+  accountType: string;
+  accountSubtype: string | null;
+  availableBalance: number | null;
+  currentBalance: number | null;
+  isoCurrencyCode: string | null;
+  updatedAt: string;
+};
+
+type FinancialAccountRow = {
+  plaid_account_id: string;
+  name: string;
+  official_name: string | null;
+  mask: string | null;
+  account_type: string;
+  account_subtype: string | null;
+  available_balance: number | null;
+  current_balance: number | null;
+  iso_currency_code: string | null;
+  updated_at: string;
+};
+
+type PlaidConnectionPayload = {
+  connected: boolean;
+  institutionName: string | null;
+  accounts: FinancialAccountRow[];
+  lastSyncedAt: string | null;
+  error?: string;
 };
 
 type CanvasConnection = {
@@ -353,6 +392,15 @@ function formatDateTime(isoDate: string) {
   }).format(new Date(isoDate));
 }
 
+function formatCurrency(value: number | null, currencyCode: string | null) {
+  if (value === null) return "Not available";
+
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: currencyCode ?? "USD",
+  }).format(value);
+}
+
 function statusLabel(status: TaskStatus) {
   return {
     ok: "On track",
@@ -511,6 +559,21 @@ function housingDocumentFromRow(row: HousingDocumentRow): HousingDocument {
   };
 }
 
+function financialAccountFromRow(row: FinancialAccountRow): FinancialAccount {
+  return {
+    plaidAccountId: row.plaid_account_id,
+    name: row.name,
+    officialName: row.official_name,
+    mask: row.mask,
+    accountType: row.account_type,
+    accountSubtype: row.account_subtype,
+    availableBalance: row.available_balance,
+    currentBalance: row.current_balance,
+    isoCurrencyCode: row.iso_currency_code,
+    updatedAt: row.updated_at,
+  };
+}
+
 function schoolYearExpiration() {
   const date = new Date();
   date.setFullYear(date.getFullYear() + 1);
@@ -524,6 +587,11 @@ export default function Home() {
   const [assignments, setAssignments] = useState<SchoolAssignment[]>([]);
   const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([]);
   const [housingDocuments, setHousingDocuments] = useState<HousingDocument[]>([]);
+  const [financialAccounts, setFinancialAccounts] = useState<FinancialAccount[]>([]);
+  const [financialInstitutionName, setFinancialInstitutionName] = useState<string | null>(null);
+  const [financialLastSyncedAt, setFinancialLastSyncedAt] = useState<string | null>(null);
+  const [plaidLinkToken, setPlaidLinkToken] = useState<string | null>(null);
+  const shouldOpenPlaidRef = useRef(false);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -548,6 +616,10 @@ export default function Home() {
   const [housingMessage, setHousingMessage] = useState(
     "Housing documents will live in private storage with reminders for contracts, move-in steps, and renewal dates.",
   );
+  const [financialMessage, setFinancialMessage] = useState(
+    "Connect Canvas Credit Union with Plaid to show masked accounts and balances.",
+  );
+  const [isPlaidLoading, setIsPlaidLoading] = useState(false);
 
   const userId = session?.user.id;
 
@@ -740,6 +812,47 @@ export default function Home() {
         );
       }
 
+      const { data: savedFinancialConnection, error: financialConnectionError } =
+        await supabase!
+          .from("financial_connections")
+          .select("institution_name,last_synced_at")
+          .eq("user_id", activeUserId)
+          .eq("provider", "plaid")
+          .maybeSingle();
+
+      if (!ignore && financialConnectionError) {
+        setFinancialMessage("Financial connection needs the latest Supabase schema.");
+      }
+
+      if (!ignore && !financialConnectionError && savedFinancialConnection) {
+        setFinancialInstitutionName(
+          (savedFinancialConnection as { institution_name: string | null })
+            .institution_name,
+        );
+        setFinancialLastSyncedAt(
+          (savedFinancialConnection as { last_synced_at: string | null })
+            .last_synced_at,
+        );
+      }
+
+      const { data: savedFinancialAccounts, error: financialAccountsError } =
+        await supabase!
+          .from("financial_accounts")
+          .select("plaid_account_id,name,official_name,mask,account_type,account_subtype,available_balance,current_balance,iso_currency_code,updated_at")
+          .order("updated_at", { ascending: false });
+
+      if (!ignore && financialAccountsError) {
+        setFinancialMessage("Financial accounts need the latest Supabase schema.");
+      }
+
+      if (!ignore && savedFinancialAccounts) {
+        setFinancialAccounts(
+          savedFinancialAccounts.map((row) =>
+            financialAccountFromRow(row as FinancialAccountRow),
+          ),
+        );
+      }
+
       const { data: savedCanvasConnection, error: canvasConnectionError } =
         await supabase!
           .from("canvas_connections")
@@ -784,6 +897,170 @@ export default function Home() {
 
     return currentSession?.access_token ?? null;
   }, []);
+
+  const applyPlaidPayload = useCallback((payload: PlaidConnectionPayload) => {
+    setFinancialInstitutionName(payload.institutionName);
+    setFinancialLastSyncedAt(payload.lastSyncedAt);
+    setFinancialAccounts(payload.accounts.map(financialAccountFromRow));
+  }, []);
+
+  const refreshFinancialBalances = useCallback(async () => {
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setFinancialMessage("Sign in before refreshing credit union balances.");
+      return;
+    }
+
+    setIsPlaidLoading(true);
+    setFinancialMessage("Refreshing credit union balances...");
+
+    const response = await fetch("/api/financial/plaid/balances", {
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+      },
+    });
+
+    const payload = (await response.json()) as PlaidConnectionPayload;
+    setIsPlaidLoading(false);
+
+    if (!response.ok) {
+      setFinancialMessage(payload.error ?? "Credit union balances could not be refreshed.");
+      return;
+    }
+
+    applyPlaidPayload(payload);
+    setFinancialMessage(
+      payload.connected
+        ? "Credit union balances refreshed. Amounts are read-only."
+        : "Connect Canvas Credit Union with Plaid to show masked accounts and balances.",
+    );
+  }, [applyPlaidPayload, getCurrentAppAccessToken]);
+
+  const exchangePlaidPublicToken = useCallback(
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
+      const appAccessToken = await getCurrentAppAccessToken();
+      if (!appAccessToken) {
+        setFinancialMessage("App session expired. Sign in again before connecting Plaid.");
+        return;
+      }
+
+      setIsPlaidLoading(true);
+      setFinancialMessage("Saving encrypted Plaid connection...");
+
+      const response = await fetch("/api/financial/plaid/exchange", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${appAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          publicToken,
+          metadata,
+        }),
+      });
+
+      const payload = (await response.json()) as PlaidConnectionPayload;
+      setIsPlaidLoading(false);
+
+      if (!response.ok) {
+        setFinancialMessage(payload.error ?? "Plaid connection could not be saved.");
+        return;
+      }
+
+      applyPlaidPayload(payload);
+      setFinancialMessage("Canvas Credit Union connected. Balances are read-only.");
+    },
+    [applyPlaidPayload, getCurrentAppAccessToken],
+  );
+
+  const plaidConfig: PlaidLinkOptions = {
+    token: plaidLinkToken,
+    onSuccess: (publicToken, metadata) => {
+      void exchangePlaidPublicToken(publicToken, metadata);
+    },
+    onExit: (error) => {
+      if (error) {
+        setFinancialMessage(error.display_message || error.error_message);
+      }
+    },
+  };
+
+  const { open: openPlaid, ready: isPlaidReady } = usePlaidLink(plaidConfig);
+
+  useEffect(() => {
+    if (!shouldOpenPlaidRef.current || !plaidLinkToken || !isPlaidReady) return;
+
+    openPlaid();
+    shouldOpenPlaidRef.current = false;
+  }, [isPlaidReady, openPlaid, plaidLinkToken]);
+
+  async function startPlaidConnection() {
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setFinancialMessage("Sign in before connecting Canvas Credit Union.");
+      return;
+    }
+
+    setIsPlaidLoading(true);
+    setFinancialMessage("Starting secure Plaid connection...");
+
+    const response = await fetch("/api/financial/plaid/link-token", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+      },
+    });
+
+    const payload = (await response.json()) as {
+      linkToken?: string;
+      error?: string;
+    };
+
+    setIsPlaidLoading(false);
+
+    if (!response.ok || !payload.linkToken) {
+      setFinancialMessage(payload.error ?? "Plaid link could not start.");
+      return;
+    }
+
+    setPlaidLinkToken(payload.linkToken);
+    shouldOpenPlaidRef.current = true;
+  }
+
+  async function disconnectPlaidConnection() {
+    if (!window.confirm("Remove the saved Canvas Credit Union connection from this app?")) {
+      return;
+    }
+
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setFinancialMessage("Sign in before removing the credit union connection.");
+      return;
+    }
+
+    setIsPlaidLoading(true);
+    setFinancialMessage("Removing credit union connection...");
+
+    const response = await fetch("/api/financial/plaid/balances", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+      },
+    });
+
+    const payload = (await response.json()) as { error?: string };
+    setIsPlaidLoading(false);
+
+    if (!response.ok) {
+      setFinancialMessage(payload.error ?? "Credit union connection could not be removed.");
+      return;
+    }
+
+    setFinancialAccounts([]);
+    setFinancialInstitutionName(null);
+    setFinancialLastSyncedAt(null);
+    setFinancialMessage("Credit union connection removed.");
+  }
 
   const loadCanvasConnection = useCallback(async () => {
     const appAccessToken = await getCurrentAppAccessToken();
@@ -1731,28 +2008,100 @@ export default function Home() {
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-bold">Money & Bills</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Open the credit union in a separate secure tab for balances,
-                transfers, and bill pay. This app should not store banking
-                passwords, account numbers, or bill-pay credentials.
+                Connect Canvas Credit Union through Plaid for read-only balances.
+                Open the credit union directly for transfers and bill pay.
               </p>
-              {creditUnionUrl ? (
-                <a
-                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={creditUnionUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open Credit Union
-                </a>
-              ) : (
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">
+                  {financialInstitutionName ?? "Canvas Credit Union"}
+                </strong>
+                <span>
+                  {financialLastSyncedAt
+                    ? `Last updated ${formatDateTime(financialLastSyncedAt)}`
+                    : "Not connected yet"}
+                </span>
+              </div>
+              {financialAccounts.length > 0 ? (
+                <ol className="mt-4 grid gap-3">
+                  {financialAccounts.map((account) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={account.plaidAccountId}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{account.name}</strong>
+                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                          {account.accountSubtype ?? account.accountType}
+                        </span>
+                      </div>
+                      <span className="mt-1 block text-xs text-stone-500">
+                        {account.mask ? `•••• ${account.mask}` : "Masked account"}
+                      </span>
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                        <span>
+                          <strong className="block text-stone-950">
+                            {formatCurrency(account.availableBalance, account.isoCurrencyCode)}
+                          </strong>
+                          Available
+                        </span>
+                        <span>
+                          <strong className="block text-stone-950">
+                            {formatCurrency(account.currentBalance, account.isoCurrencyCode)}
+                          </strong>
+                          Current
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <button
-                  className="mt-4 min-h-10 w-full cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
+                  className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
                   type="button"
-                  disabled
+                  onClick={startPlaidConnection}
+                  disabled={isPlaidLoading || (Boolean(plaidLinkToken) && !isPlaidReady)}
                 >
-                  Credit Union Link Not Set
+                  {financialAccounts.length > 0 ? "Reconnect Plaid" : "Connect Plaid"}
                 </button>
-              )}
+                <button
+                  className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
+                  type="button"
+                  onClick={refreshFinancialBalances}
+                  disabled={isPlaidLoading || financialAccounts.length === 0}
+                >
+                  Refresh Balances
+                </button>
+              </div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {creditUnionUrl ? (
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                    href={creditUnionUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open Credit Union
+                  </a>
+                ) : (
+                  <button
+                    className="min-h-10 cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
+                    type="button"
+                    disabled
+                  >
+                    Credit Union Link Not Set
+                  </button>
+                )}
+                <button
+                  className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
+                  type="button"
+                  onClick={disconnectPlaidConnection}
+                  disabled={isPlaidLoading || financialAccounts.length === 0}
+                >
+                  Remove Plaid
+                </button>
+              </div>
+              <p className="mt-3 text-sm text-stone-600">{financialMessage}</p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">Weekly routine</strong>
                 <span>
