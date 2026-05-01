@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSupportModule, supportModules } from "../module-data";
 import { HealthRoutineDashboard } from "../health-routine-dashboard";
 import { MessagesWorkspace } from "../messages-workspace";
+import { SchoolFocusTimer } from "../school-focus-timer";
 
 const healthMetricCards = [
   {
@@ -411,7 +412,12 @@ export default async function SupportModulePage({
           ))}
         </section>
 
-        {supportModule.slug === "school" ? <SchoolScheduleDashboard /> : null}
+        {supportModule.slug === "school" ? (
+          <>
+            <SchoolFocusTimer />
+            <SchoolScheduleDashboard />
+          </>
+        ) : null}
       </div>
     </main>
   );

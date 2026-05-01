@@ -66,6 +66,7 @@ export const supportModules: SupportModule[] = [
           "Import Canvas assignments and collect syllabus links.",
           "Capture exam dates, final exam dates, and testing-center scheduling deadlines.",
           "Save professor office hours, TA contacts, tutoring resources, and textbook needs.",
+          "Use fixed focus blocks while working through assignments so starting feels smaller.",
           "Add the weekly class schedule at the bottom of this page once course times are known.",
         ],
       },
