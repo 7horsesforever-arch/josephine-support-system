@@ -716,6 +716,17 @@ function createStarterTasks(): SupportTask[] {
       status: "ok",
     },
     {
+      id: "oura-charge-check",
+      title: "Charge Oura Ring",
+      category: "health",
+      description:
+        "Weekly battery check so sleep and readiness data keep flowing without Josephine having to remember it at bedtime.",
+      normalIntervalDays: 7,
+      maxGapDays: 10,
+      lastCompletedAt: daysAgo(8),
+      status: "due",
+    },
+    {
       id: "emergency-plan-review",
       title: "Review emergency plan",
       category: "emergency",

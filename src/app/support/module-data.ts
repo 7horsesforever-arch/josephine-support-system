@@ -157,6 +157,7 @@ export const supportModules: SupportModule[] = [
           "Oura can be connected through its API with Josephine's permission.",
           "The useful scopes are daily summaries and sleep data, with readiness as a possible recovery signal.",
           "Use OAuth for production so the connection can refresh without asking Josephine for a token repeatedly.",
+          "Charge the ring once a week so overnight data does not drop out.",
           "Do not store Oura tokens in browser storage; keep them encrypted server-side.",
         ],
       },
