@@ -20,6 +20,7 @@ type TaskCategory =
   | "financial"
   | "housing"
   | "food"
+  | "vehicle"
   | "admin"
   | "health"
   | "life";
@@ -295,6 +296,46 @@ const housingAccommodationNotes = [
   "Track renewal, contract, room assignment, and move-in deadlines in Housing.",
 ];
 
+const vehicleProfile = {
+  name: "2017 Volkswagen Touareg",
+  role: "Campus car",
+  note: "Use monthly odometer checks so maintenance is based on real miles, not memory.",
+};
+
+const vehicleMaintenancePlan = [
+  {
+    name: "Monthly miles check",
+    cadence: "Every month",
+    detail:
+      "Record odometer, fuel level, warning lights, tire pressure concerns, and any new noises.",
+  },
+  {
+    name: "Fuel check",
+    cadence: "Weekly",
+    detail:
+      "Check before the week starts and refill before the tank drops below one quarter.",
+  },
+  {
+    name: "Wash and clean out",
+    cadence: "Monthly",
+    detail:
+      "Wash exterior, clear trash, check wipers, and refill windshield washer fluid if low.",
+  },
+  {
+    name: "Oil service planning",
+    cadence: "Every 10,000 miles or 12 months",
+    detail:
+      "Use the odometer check to plan oil/filter service before the dashboard reminder becomes stressful.",
+  },
+];
+
+const vehicleAgentIdeas = [
+  "Start with in-app mileage logs and receipt/document reminders.",
+  "Later, read service receipts from email and update the next oil-service estimate.",
+  "Use official/service-shop guidance before recommending repairs or spending money.",
+  "Do not connect insurance, telematics, or location tracking unless Josephine explicitly wants it.",
+];
+
 const academicSupportResources: AcademicSupportResource[] = [
   {
     name: "Assistive Technology Resource Center",
@@ -437,6 +478,50 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 14,
       maxGapDays: 21,
       lastCompletedAt: daysAgo(12),
+      status: "due",
+    },
+    {
+      id: "monthly-mileage-check",
+      title: "Monthly mileage check",
+      category: "vehicle",
+      description:
+        "Record the Touareg odometer, fuel level, warning lights, tire pressure concerns, and any new noises.",
+      normalIntervalDays: 30,
+      maxGapDays: 45,
+      lastCompletedAt: daysAgo(34),
+      status: "due",
+    },
+    {
+      id: "fuel-check",
+      title: "Check gas level",
+      category: "vehicle",
+      description:
+        "Look at the tank before the week starts and refill before it gets below one quarter.",
+      normalIntervalDays: 7,
+      maxGapDays: 10,
+      lastCompletedAt: daysAgo(6),
+      status: "ok",
+    },
+    {
+      id: "car-wash-cleanout",
+      title: "Wash and clean out car",
+      category: "vehicle",
+      description:
+        "Monthly reset for the Touareg: wash exterior, clear trash, check wipers, and refill washer fluid if low.",
+      normalIntervalDays: 30,
+      maxGapDays: 45,
+      lastCompletedAt: daysAgo(32),
+      status: "due",
+    },
+    {
+      id: "oil-service-plan",
+      title: "Plan oil service",
+      category: "vehicle",
+      description:
+        "Use odometer notes to schedule oil and filter service around every 10,000 miles or 12 months.",
+      normalIntervalDays: 90,
+      maxGapDays: 180,
+      lastCompletedAt: daysAgo(96),
       status: "due",
     },
     {
@@ -620,6 +705,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
     category === "financial" ||
     category === "housing" ||
     category === "food" ||
+    category === "vehicle" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -637,6 +723,7 @@ function categoryLabel(category: TaskCategory) {
     financial: "Financial",
     housing: "Housing",
     food: "Food",
+    vehicle: "Vehicle",
     admin: "Admin",
     health: "Health",
     life: "Life",
@@ -1813,6 +1900,7 @@ export default function Home() {
               <option value="financial">Financial</option>
               <option value="housing">Housing</option>
               <option value="food">Food</option>
+              <option value="vehicle">Vehicle</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -2387,6 +2475,51 @@ export default function Home() {
                   Check balance, confirm upcoming bills, and ask for support
                   before moving money or changing payment settings.
                 </span>
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Vehicle</h2>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Keep Josephine&apos;s car usable at school with mileage-based
+                    reminders instead of relying on memory.
+                  </p>
+                </div>
+                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+                  {vehicleProfile.role}
+                </span>
+              </div>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">{vehicleProfile.name}</strong>
+                <span>{vehicleProfile.note}</span>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {vehicleMaintenancePlan.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{item.name}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {item.cadence}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                <strong className="text-sm text-amber-950">
+                  Maintenance agent path
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
+                  {vehicleAgentIdeas.map((idea) => (
+                    <li key={idea}>{idea}</li>
+                  ))}
+                </ul>
               </div>
             </section>
 

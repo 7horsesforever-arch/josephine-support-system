@@ -99,6 +99,14 @@ Assignment agents should recommend resources based on the work type, deadline ru
 - Include robot delivery instructions for low-energy, bad-weather, or "do not want to go out" moments.
 - Keep a bi-weekly mini-fridge shopping list for easy snacks, backup meals, and drinks.
 
+## Vehicle Support
+
+- Josephine will have a 2017 Volkswagen Touareg at school.
+- Use a monthly odometer check as the source of truth for mileage-based maintenance.
+- Include reminders for weekly fuel checks, monthly wash/cleanout, and oil-service planning.
+- Use the 10,000-mile/12-month oil-service schedule as a planning baseline, then defer to the dashboard, owner's manual, or trusted service shop if they differ.
+- A future vehicle agent can estimate next service from mileage logs and service receipts, but it should not track location, insurance, or telematics unless Josephine explicitly opts in.
+
 ## Safety Boundary
 
 Josephine's accommodation context should shape the app experience. It should not become a broad profile for unrelated decisions, and it should not be shared with external services except where Josephine/caregivers have clearly authorized a specific connection.
