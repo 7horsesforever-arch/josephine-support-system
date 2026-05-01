@@ -473,6 +473,7 @@ export const supportModules: SupportModule[] = [
         title: "Safety Alerts",
         items: [
           "Ask JoJo should show immediate crisis resources when a self-harm or suicide-related concern is typed into the app.",
+          "Use a reviewable local trigger list plus OpenAI moderation set to medium confidence for self-harm categories.",
           "Safety alerts should not monitor browser history, Mac activity, texts, email, or daily behavior in the background.",
           "Caregiver alerts should be opt-in, visible to Josephine, and limited to high-level safety concerns.",
           "Immediate danger still means call or text 911; crisis support means call or text 988.",

@@ -14,6 +14,11 @@ import {
   signInWithDevicePasskey,
   supabase,
 } from "@/lib/supabase";
+import {
+  localSafetyAlertPatterns,
+  safetyAlertConfig,
+  safetyAlertThreshold,
+} from "@/lib/safety/reviewable-config";
 import { supportModules } from "./support/module-data";
 
 type TaskCategory =
@@ -217,6 +222,15 @@ type AskJojoAnswer = {
   intro: string;
   steps: string[];
   sources: AskJojoSource[];
+};
+
+type SafetyModerationState = {
+  safetyAlert: boolean;
+  source: "openai_moderation";
+  matchedCategory: string | null;
+  confidenceLevel: string;
+  threshold: number;
+  error?: string;
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -816,20 +830,8 @@ function getDailyAffirmation(date: Date) {
   return dailyAffirmations[dayNumber % dailyAffirmations.length];
 }
 
-const safetyAlertPatterns = [
-  /\bsuicide\b/i,
-  /\bsuicidal\b/i,
-  /\bself[-\s]?harm\b/i,
-  /\bwant to die\b/i,
-  /\bend my life\b/i,
-  /\bkill myself\b/i,
-  /\bhurt myself\b/i,
-  /\boverdose\b/i,
-  /\bnot worth living\b/i,
-];
-
 function hasSafetyAlertSignal(input: string) {
-  return safetyAlertPatterns.some((pattern) => pattern.test(input));
+  return localSafetyAlertPatterns().some((pattern) => pattern.test(input));
 }
 
 const askJojoStopWords = new Set([
@@ -878,10 +880,14 @@ function firstUsefulSentence(text: string) {
     : firstSentence;
 }
 
-function answerAskJojo(question: string, sources: AskJojoSource[]): AskJojoAnswer {
+function answerAskJojo(
+  question: string,
+  sources: AskJojoSource[],
+  moderationState: SafetyModerationState | null,
+): AskJojoAnswer {
   const trimmedQuestion = question.trim();
 
-  if (hasSafetyAlertSignal(trimmedQuestion)) {
+  if (hasSafetyAlertSignal(trimmedQuestion) || moderationState?.safetyAlert) {
     return {
       intro:
         "This sounds safety-related. Pause here and use real support now instead of trying to solve it alone in the app.",
@@ -1718,6 +1724,11 @@ export default function Home() {
   );
   const [isPlaidLoading, setIsPlaidLoading] = useState(false);
   const [askJojoQuestion, setAskJojoQuestion] = useState("");
+  const [safetyModeration, setSafetyModeration] =
+    useState<SafetyModerationState | null>(null);
+  const [safetyModerationMessage, setSafetyModerationMessage] = useState(
+    "Safety checks use a local trigger list plus OpenAI moderation when configured.",
+  );
 
   const userId = session?.user.id;
 
@@ -2323,6 +2334,100 @@ export default function Home() {
     setSyncMessage("Saved.");
   }
 
+  useEffect(() => {
+    const trimmedQuestion = askJojoQuestion.trim();
+
+    if (!trimmedQuestion) {
+      const timeoutId = window.setTimeout(() => {
+        setSafetyModeration(null);
+        setSafetyModerationMessage(
+          "Safety checks use a local trigger list plus OpenAI moderation when configured.",
+        );
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    if (hasSafetyAlertSignal(trimmedQuestion)) {
+      const timeoutId = window.setTimeout(() => {
+        setSafetyModeration(null);
+        setSafetyModerationMessage("Local safety trigger matched.");
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        const appAccessToken = await getCurrentAppAccessToken();
+
+        if (isSupabaseConfigured && !appAccessToken) {
+          setSafetyModeration(null);
+          setSafetyModerationMessage("Sign in before OpenAI safety moderation runs.");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/safety/moderate", {
+            method: "POST",
+            headers: {
+              ...(appAccessToken
+                ? { Authorization: `Bearer ${appAccessToken}` }
+                : {}),
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: trimmedQuestion }),
+            signal: controller.signal,
+          });
+
+          const payload = (await response.json()) as {
+            safetyAlert?: boolean;
+            matchedCategory?: string | null;
+            confidenceLevel?: string;
+            threshold?: number;
+            enabled?: boolean;
+            error?: string;
+            reason?: string;
+          };
+
+          if (!response.ok || payload.enabled === false) {
+            setSafetyModeration(null);
+            setSafetyModerationMessage(
+              payload.error ??
+                payload.reason ??
+                "OpenAI safety moderation is not configured.",
+            );
+            return;
+          }
+
+          setSafetyModeration({
+            safetyAlert: Boolean(payload.safetyAlert),
+            source: "openai_moderation",
+            matchedCategory: payload.matchedCategory ?? null,
+            confidenceLevel: payload.confidenceLevel ?? "medium",
+            threshold: payload.threshold ?? 0.35,
+          });
+          setSafetyModerationMessage(
+            payload.safetyAlert
+              ? `OpenAI moderation matched ${payload.matchedCategory ?? "a self-harm category"} at ${payload.confidenceLevel ?? "medium"} confidence.`
+              : `OpenAI moderation checked at ${payload.confidenceLevel ?? "medium"} confidence.`,
+          );
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "AbortError") return;
+
+          setSafetyModeration(null);
+          setSafetyModerationMessage("OpenAI safety moderation could not be reached.");
+        }
+      })();
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [askJojoQuestion, getCurrentAppAccessToken]);
+
   const summary = useMemo(() => {
     return tasks.reduce(
       (counts, task) => {
@@ -2425,8 +2530,8 @@ export default function Home() {
   ]);
 
   const askJojoAnswer = useMemo(
-    () => answerAskJojo(askJojoQuestion, askJojoSources),
-    [askJojoQuestion, askJojoSources],
+    () => answerAskJojo(askJojoQuestion, askJojoSources, safetyModeration),
+    [askJojoQuestion, askJojoSources, safetyModeration],
   );
 
   function recordAction(taskId: string, type: ActionType) {
@@ -2908,6 +3013,9 @@ export default function Home() {
               <p className="mt-3 text-xs text-stone-500">
                 JoJo only answers from information already in this app. It does
                 not send messages, change accounts, or contact anyone.
+              </p>
+              <p className="mt-2 text-xs text-stone-500">
+                {safetyModerationMessage}
               </p>
             </div>
           </div>
@@ -4232,10 +4340,13 @@ export default function Home() {
                   Safety alert policy
                 </strong>
                 <p className="mt-2 text-sm text-red-950">
-                  Ask JoJo now shows crisis resources if Josephine types a
-                  self-harm or suicide-related concern into the app. Future
-                  caregiver alerts should be opt-in, visible to Josephine, and
-                  limited to high-level safety concerns.
+                  Ask JoJo shows crisis resources if Josephine types a self-harm
+                  or suicide-related concern into the app. It uses the local
+                  trigger list plus OpenAI moderation at{" "}
+                  {safetyAlertConfig.confidenceLevel} confidence (
+                  {Math.round(safetyAlertThreshold() * 100)}% score threshold).
+                  Future caregiver alerts should be opt-in, visible to
+                  Josephine, and limited to high-level safety concerns.
                 </p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-red-950">
                   {safetyAlertBoundaries.map((rule) => (
