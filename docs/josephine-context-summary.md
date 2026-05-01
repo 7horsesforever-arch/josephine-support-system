@@ -115,6 +115,27 @@ Assignment agents should recommend resources based on the work type, deadline ru
 - Track weekly work hours, pay-period checks, and schedule fit with coursework, sleep, meals, transportation, and accommodations.
 - A future work agent can summarize postings, compare schedules against academic load, draft supervisor messages, and flag pay/schedule questions for review.
 
+## Medical And Emergency Support
+
+- Keep medical logistics organized: insurance status, insurance/pharmacy cards, CSU Health Network portal, prescription refill reminders, appointments, and urgent-care plan.
+- Do not store diagnoses, detailed clinical notes, full insurance cards, or medication details unless Josephine explicitly chooses a secure medical workflow.
+- Keep a simple emergency plan with 911, CSU Police non-emergency, SafeWalk, RA/front desk, caregiver contacts, and "help now" decision prompts.
+- Emergency and medical supports should be easy to open under stress and should avoid dense instructions.
+
+## Campus Logistics
+
+- Track RamCard, meal plan, RamCash, parking permit, transit/Around the Horn, laundry, mail/packages, keys, and move-in/move-out basics.
+- Keep logistics practical and checklist-based. The goal is to prevent small campus-system friction from turning into a full-day problem.
+
+## Planning, Documents, Travel, And Belonging
+
+- A semester launch checklist should cover accommodation letters, Canvas sync, syllabi, exam dates, textbooks, office hours, tutoring, study blocks, meal anchors, and sleep anchors.
+- Important documents should live in Google Drive or private storage, grouped by ID, insurance, SDC, housing, financial aid, billing, vehicle, work, medical, and travel.
+- Packing and room inventory should track what Josephine has, needs, stores at home, and takes between California and Colorado.
+- Travel support should cover trips home, Viper visits, packing, transportation, academic deadlines, and recovery time.
+- Social and belonging support should include low-pressure weekly connection prompts, Key LLC, Cultural Resource Center events, Black Student Union, Delta Sigma Theta interest, OPS, and trusted peers.
+- Help scripts should create editable messages to professors, SDC, RA/housing, supervisors, caregivers, and support people. They should never send automatically.
+
 ## Viper And Barn Camera Support
 
 - Josephine's horse Viper will be in California while Josephine is at school in Colorado.

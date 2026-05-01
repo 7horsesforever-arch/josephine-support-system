@@ -32,6 +32,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Vehicle support reminders for mileage checks, fuel, wash/cleanout, and oil-service planning.
 - Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
 - Viper Cam placeholder for a private barn camera link or future secure stream.
+- College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 
 ## Supabase Setup
 

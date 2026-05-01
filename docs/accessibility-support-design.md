@@ -28,6 +28,9 @@ The email triage layer should act like a small copilot team:
 - Accommodation checker: flags when an item may need extension planning, assistive technology, tutoring, or caregiver/advisor review.
 - SDC readiness checker: flags semester accommodation letters, testing deadlines, flex-deadline communication, and possible instructor accommodation issues.
 - Community connector: surfaces Black Student Union, Delta Sigma Theta, and Cultural Resource Center announcements without auto-subscribing or contacting anyone.
+- Weekly planning agent: balances school, food, sleep, health, work, money, travel, and social load.
+- Document organizer: suggests Google Drive folders and reminders for selected documents without copying sensitive files into app code.
+- Support escalation agent: flags overdue medical, emergency, school, housing, or logistics items and suggests a reviewed next contact.
 - Review guard: never sends, deletes, replies, or marks mail read without explicit review.
 
 ## Password-Light Access

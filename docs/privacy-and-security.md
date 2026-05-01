@@ -18,6 +18,8 @@
 - Vehicle make/model/year, maintenance reminder cadence, odometer check-ins, and service due estimates.
 - Work support metadata, such as job-search tasks, application status, weekly hours, paycheck check reminders, and Drive file links.
 - Private Viper Cam viewer link or app-safe stream URL when Josephine/caregiver chooses equipment.
+- Medical, emergency, logistics, calendar, document, travel, social, and packing reminders.
+- Public CSU resource links and non-sensitive support scripts.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -39,6 +41,7 @@
 - Precise vehicle location, trip history, insurance policy numbers, license plate, VIN, or telematics data unless Josephine explicitly opts in and the app has a clear need.
 - Full tax forms, payroll credentials, Social Security number, bank direct-deposit details, employer portal passwords, or workplace documents committed to Git.
 - Barn camera usernames, passwords, public live-stream URLs, recordings of people without consent, or camera views that expose neighboring private areas.
+- Detailed medical history, medication names/doses, full insurance cards, Social Security number, passport images, driver's license images, emergency contact phone numbers in source code, or private travel itineraries committed to Git.
 
 ## Access Model
 
@@ -68,6 +71,7 @@
 - Vehicle support should begin with manual mileage logs and reminders. Do not connect location, insurance, telematics, or roadside accounts without explicit consent.
 - Work documents should live in Google Drive or another private document store. The app should keep metadata, reminders, and selected links, not full payroll or tax documents.
 - Viper Cam should start as a private authenticated viewer link. Embedded streaming should use a server-side proxy or vendor-supported secure share flow, never hard-coded camera credentials.
+- Medical, emergency-contact, travel, identity, and insurance documents should live in private Drive/storage. The app should show reminders, public resource links, and consented contact metadata only.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage

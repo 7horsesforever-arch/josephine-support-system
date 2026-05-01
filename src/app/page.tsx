@@ -22,6 +22,13 @@ type TaskCategory =
   | "food"
   | "vehicle"
   | "work"
+  | "medical"
+  | "emergency"
+  | "logistics"
+  | "calendar"
+  | "documents"
+  | "travel"
+  | "social"
   | "admin"
   | "health"
   | "life";
@@ -205,6 +212,18 @@ const creditUnionUrl = process.env.NEXT_PUBLIC_CREDIT_UNION_URL?.trim() ?? "";
 const viperCamUrl = process.env.NEXT_PUBLIC_VIPER_CAM_URL?.trim() ?? "";
 const diningHoursUrl = "https://housing.colostate.edu/dining/";
 const grubhubCampusUrl = "https://www.grubhub.com/campus";
+const healthNetworkUrl = "https://health.colostate.edu/";
+const healthPortalUrl = "https://portal.health.colostate.edu/";
+const studentInsuranceUrl =
+  "https://thehub.colostate.edu/student-health-insurance-information/";
+const csuPoliceUrl = "https://police.colostate.edu/";
+const safeWalkUrl = "https://police.colostate.edu/safe-walk/";
+const csuSafetyUrl = "https://safety.colostate.edu/";
+const ramCardUrl = "https://www.ramcash.colostate.edu/";
+const transitUrl =
+  "https://pts.colostate.edu/active-transportation-and-transit-commuter-services/transit-and-shuttles/";
+const parkingUrl = "https://pts.colostate.edu/parking-services/";
+const mailServicesUrl = "https://mailservices.colostate.edu/";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
@@ -408,6 +427,158 @@ const viperCamSafetyNotes = [
   "Do not put camera usernames, passwords, or public stream URLs in app code.",
   "Aim the camera at Viper's stall/paddock, not neighboring properties or people-heavy areas.",
   "Start with an Open Viper Cam button; embed video later once the equipment path is confirmed.",
+];
+
+const medicalSupportPlan = [
+  {
+    name: "Insurance and cards",
+    cadence: "Before fall and after changes",
+    detail:
+      "Keep insurance card, pharmacy card, and CSU health requirement status easy to find.",
+  },
+  {
+    name: "Prescriptions",
+    cadence: "Monthly",
+    detail:
+      "Check refill dates, pharmacy location, remaining doses, and who to contact if something runs low.",
+  },
+  {
+    name: "Appointments",
+    cadence: "As needed",
+    detail:
+      "Use the CSU Health Network portal for appointments, secure messages, forms, and immunization items.",
+  },
+  {
+    name: "Urgent care plan",
+    cadence: "Set once, review each semester",
+    detail:
+      "Know where to go for same-day care, after-hours support, and what symptoms mean call now.",
+  },
+];
+
+const emergencyPlanItems = [
+  {
+    name: "Emergency",
+    contact: "Call or text 911",
+    detail: "Use for immediate danger, medical emergency, fire, or suspected stalking/following.",
+  },
+  {
+    name: "CSU Police non-emergency",
+    contact: "970-491-6425",
+    detail: "Use for non-emergency safety concerns on campus.",
+  },
+  {
+    name: "SafeWalk",
+    contact: "970-491-1155",
+    detail: "Dusk-to-dawn campus walking escort when she feels unsafe walking alone.",
+  },
+  {
+    name: "Caregiver support",
+    contact: "Family contact list",
+    detail: "Keep trusted contacts available without exposing private phone numbers in app code.",
+  },
+];
+
+const campusLogisticsItems = [
+  {
+    name: "RamCard",
+    detail:
+      "Student ID, dining, building access, RamCash, printing, recreation center, and library use.",
+    href: ramCardUrl,
+  },
+  {
+    name: "Parking and car",
+    detail:
+      "Confirm parking permit, license plate rules, campus maps, and where to park on class days.",
+    href: parkingUrl,
+  },
+  {
+    name: "Transit",
+    detail:
+      "Use Around the Horn, Transfort, MAX, and courtesy shuttle info for backup transportation.",
+    href: transitUrl,
+  },
+  {
+    name: "Mail and packages",
+    detail:
+      "Track mailing address, package pickup routine, and package notification emails.",
+    href: mailServicesUrl,
+  },
+  {
+    name: "Laundry",
+    detail:
+      "Keep the laundry location, payment method, detergent, and backup clothes routine visible.",
+    href: null,
+  },
+];
+
+const semesterLaunchItems = [
+  "Send accommodation letters and confirm SDC portal access.",
+  "Import Canvas assignments and upload syllabi or syllabus links.",
+  "Capture exam dates, final exam dates, and SDC testing deadlines.",
+  "Buy or rent textbooks and confirm audiobook/accessible format needs.",
+  "Save professor office hours, TA contacts, and tutoring resources.",
+  "Set weekly planning block, study blocks, meal anchors, and sleep anchors.",
+];
+
+const calendarRoutineItems = [
+  "Weekly planning review",
+  "Class schedule and room check",
+  "Study blocks before due dates",
+  "Meals and hydration anchors",
+  "Sleep and wake routine",
+  "Work shifts and recovery time",
+  "Appointments and transportation buffers",
+];
+
+const importantDocumentFolders = [
+  "ID and RamCard backup info",
+  "Insurance and medical",
+  "SDC accommodations",
+  "Housing",
+  "Financial aid and billing",
+  "Vehicle",
+  "Work and tax",
+  "Travel",
+];
+
+const packingInventoryItems = [
+  "Dorm room essentials",
+  "Medication and health supplies",
+  "Chargers and assistive tech",
+  "Laundry and cleaning",
+  "Weather gear",
+  "Mini-fridge food backups",
+  "Car emergency kit",
+];
+
+const travelSupportItems = [
+  "Plan trips home and Viper visits around academic deadlines.",
+  "Keep packing lists for Colorado-to-California travel.",
+  "Track flight, shuttle, or driving details in one place.",
+  "Add recovery time after long travel days.",
+];
+
+const socialBelongingItems = [
+  "Try one campus event or community connection each week.",
+  "Watch for Black Student Union and Cultural Resource Center announcements.",
+  "Track Delta Sigma Theta interest and informational events.",
+  "Use Key LLC, OPS, and trusted peers for low-pressure connection.",
+];
+
+const supportScriptIdeas = [
+  "Professor: ask for clarification, extension, office hours, or accommodation follow-up.",
+  "RA or housing: ask about room, roommate/suitemate, maintenance, or package issues.",
+  "Supervisor: ask about schedule, hours, availability, or time-off needs.",
+  "SDC: report accommodation problems or ask how to use an approved support.",
+  "Caregiver: ask for help choosing the next step when something feels stuck.",
+];
+
+const planningAgentIdeas = [
+  "Semester setup agent: syllabi, due dates, textbooks, testing, and accommodation letters.",
+  "Weekly planning agent: school, food, health, work, social, money, and travel load.",
+  "Document organizer agent: routes PDFs to Drive folders and creates reminders.",
+  "Escalation agent: flags overdue support items and suggests who to contact.",
 ];
 
 const academicSupportResources: AcademicSupportResource[] = [
@@ -632,6 +803,138 @@ function createStarterTasks(): SupportTask[] {
       status: "due",
     },
     {
+      id: "medical-insurance-check",
+      title: "Check health insurance setup",
+      category: "medical",
+      description:
+        "Confirm insurance requirement status, insurance card, pharmacy card, and CSU Health Network portal access.",
+      normalIntervalDays: 120,
+      maxGapDays: 180,
+      lastCompletedAt: daysAgo(130),
+      status: "due",
+    },
+    {
+      id: "prescription-refill-check",
+      title: "Medication refill check",
+      category: "medical",
+      description:
+        "Check refill dates, remaining doses, pharmacy location, and whether support is needed before anything runs low.",
+      normalIntervalDays: 30,
+      maxGapDays: 40,
+      lastCompletedAt: daysAgo(28),
+      status: "ok",
+    },
+    {
+      id: "emergency-plan-review",
+      title: "Review emergency plan",
+      category: "emergency",
+      description:
+        "Confirm emergency contacts, CSU Police, SafeWalk, RA/front desk, and what to do when help is needed now.",
+      normalIntervalDays: 90,
+      maxGapDays: 120,
+      lastCompletedAt: daysAgo(95),
+      status: "due",
+    },
+    {
+      id: "campus-alerts-check",
+      title: "Check campus safety alerts",
+      category: "emergency",
+      description:
+        "Confirm CSU safety alerts are set up and the SafeWalk number is easy to find.",
+      normalIntervalDays: 120,
+      maxGapDays: 180,
+      lastCompletedAt: daysAgo(122),
+      status: "due",
+    },
+    {
+      id: "campus-logistics-check",
+      title: "Campus logistics check",
+      category: "logistics",
+      description:
+        "Check RamCard, parking permit, transit backup, laundry, mail/packages, and package pickup routine.",
+      normalIntervalDays: 30,
+      maxGapDays: 45,
+      lastCompletedAt: daysAgo(33),
+      status: "due",
+    },
+    {
+      id: "weekly-planning-review",
+      title: "Weekly planning review",
+      category: "calendar",
+      description:
+        "Balance assignments, meals, sleep, work, appointments, transportation, and social plans for the week.",
+      normalIntervalDays: 7,
+      maxGapDays: 10,
+      lastCompletedAt: daysAgo(7),
+      status: "due",
+    },
+    {
+      id: "semester-launch-checklist",
+      title: "Semester launch checklist",
+      category: "school",
+      description:
+        "Review syllabi, textbooks, accommodation letters, exam dates, office hours, and Canvas imports at the start of term.",
+      normalIntervalDays: 120,
+      maxGapDays: 150,
+      lastCompletedAt: daysAgo(125),
+      status: "due",
+    },
+    {
+      id: "important-documents-check",
+      title: "Organize important documents",
+      category: "documents",
+      description:
+        "Make sure IDs, insurance, SDC, housing, financial, vehicle, work, and travel documents are in the right Drive folders.",
+      normalIntervalDays: 30,
+      maxGapDays: 60,
+      lastCompletedAt: daysAgo(37),
+      status: "due",
+    },
+    {
+      id: "room-inventory-check",
+      title: "Room and packing inventory",
+      category: "logistics",
+      description:
+        "Update what she has, what she needs, what is stored at home, and what should travel back to school.",
+      normalIntervalDays: 60,
+      maxGapDays: 90,
+      lastCompletedAt: daysAgo(66),
+      status: "due",
+    },
+    {
+      id: "travel-home-plan",
+      title: "Plan travel home or Viper visit",
+      category: "travel",
+      description:
+        "Plan travel around deadlines, transportation, packing, recovery time, and Viper visit hopes.",
+      normalIntervalDays: 60,
+      maxGapDays: 90,
+      lastCompletedAt: daysAgo(61),
+      status: "due",
+    },
+    {
+      id: "social-belonging-check",
+      title: "Try one social connection",
+      category: "social",
+      description:
+        "Pick one low-pressure event, Key LLC activity, club, or community connection to try this week.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(9),
+      status: "due",
+    },
+    {
+      id: "help-script-check",
+      title: "Draft one help message",
+      category: "communications",
+      description:
+        "Use a plain-language script for a professor, RA, SDC, supervisor, caregiver, or support person when stuck.",
+      normalIntervalDays: 14,
+      maxGapDays: 30,
+      lastCompletedAt: daysAgo(16),
+      status: "due",
+    },
+    {
       id: "request-atrc-meeting",
       title: "Request ATRC meeting",
       category: "school",
@@ -814,6 +1117,13 @@ function normalizeTaskCategory(category: string): TaskCategory {
     category === "food" ||
     category === "vehicle" ||
     category === "work" ||
+    category === "medical" ||
+    category === "emergency" ||
+    category === "logistics" ||
+    category === "calendar" ||
+    category === "documents" ||
+    category === "travel" ||
+    category === "social" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -833,6 +1143,13 @@ function categoryLabel(category: TaskCategory) {
     food: "Food",
     vehicle: "Vehicle",
     work: "Work",
+    medical: "Medical",
+    emergency: "Emergency",
+    logistics: "Logistics",
+    calendar: "Calendar",
+    documents: "Documents",
+    travel: "Travel",
+    social: "Social",
     admin: "Admin",
     health: "Health",
     life: "Life",
@@ -2011,6 +2328,13 @@ export default function Home() {
               <option value="food">Food</option>
               <option value="vehicle">Vehicle</option>
               <option value="work">Work</option>
+              <option value="medical">Medical</option>
+              <option value="emergency">Emergency</option>
+              <option value="logistics">Logistics</option>
+              <option value="calendar">Calendar</option>
+              <option value="documents">Documents</option>
+              <option value="travel">Travel</option>
+              <option value="social">Social</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -2262,6 +2586,244 @@ export default function Home() {
                 Private referral codes, student IDs, and accommodation documents
                 belong in secure notes or private document storage, not app code.
               </p>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Medical & Prescriptions</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Keep health logistics visible without storing clinical details
+                unless Josephine explicitly wants a secure workflow for them.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={healthPortalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Health Portal
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                  href={studentInsuranceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Insurance Info
+                </a>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {medicalSupportPlan.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{item.name}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {item.cadence}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+              <a
+                className="mt-3 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                href={healthNetworkUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open CSU Health Network
+              </a>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Emergency Plan</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Make urgent support simple: who to call, when to call, and what
+                to do when Josephine needs help now.
+              </p>
+              <div className="mt-4 grid gap-3">
+                {emergencyPlanItems.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <strong className="block text-sm">{item.name}</strong>
+                    <span className="mt-1 block text-xs font-bold text-red-800">
+                      {item.contact}
+                    </span>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                  href={csuPoliceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  CSU Police
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                  href={safeWalkUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  SafeWalk
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                  href={csuSafetyUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Safety
+                </a>
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Campus Logistics</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Keep the ordinary campus systems together so small frictions do
+                not become full-day problems.
+              </p>
+              <div className="mt-4 grid gap-3">
+                {campusLogisticsItems.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <strong className="text-sm">{item.name}</strong>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                    {item.href ? (
+                      <a
+                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open
+                      </a>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Semester Launch</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                First-week setup for fewer surprises later.
+              </p>
+              <ol className="mt-4 grid gap-2 text-sm text-stone-700">
+                {semesterLaunchItems.map((item) => (
+                  <li className="rounded-md bg-stone-50 p-2" key={item}>
+                    {item}
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Calendar & Routines</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Build the week around class, recovery, meals, sleep, work, and
+                support time.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
+                {calendarRoutineItems.map((item) => (
+                  <span className="rounded-md bg-stone-50 p-2" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Documents & Packing</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Google Drive should hold the files. The app should hold the
+                reminders, categories, and selected links.
+              </p>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                <strong className="text-sm text-stone-950">
+                  Important document folders
+                </strong>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
+                  {importantDocumentFolders.map((folder) => (
+                    <span className="rounded-md bg-white p-2" key={folder}>
+                      {folder}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                <strong className="text-sm text-stone-950">
+                  Room and packing inventory
+                </strong>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
+                  {packingInventoryItems.map((item) => (
+                    <span className="rounded-md bg-white p-2" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Travel & Visits</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Plan trips home, holidays, and Viper visits around school load
+                and recovery time.
+              </p>
+              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                {travelSupportItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Social & Belonging</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Keep connection low-pressure and visible so it does not depend
+                on memory or high-energy days.
+              </p>
+              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                {socialBelongingItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Scripts & Agents</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Suggested messages and planning agents stay review-only. They
+                should help Josephine start, not speak for her automatically.
+              </p>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                <strong className="text-sm text-stone-950">Help scripts</strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                  {supportScriptIdeas.map((idea) => (
+                    <li key={idea}>{idea}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                <strong className="text-sm text-amber-950">Agent roadmap</strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
+                  {planningAgentIdeas.map((idea) => (
+                    <li key={idea}>{idea}</li>
+                  ))}
+                </ul>
+              </div>
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
