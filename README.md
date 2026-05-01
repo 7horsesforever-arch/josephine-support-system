@@ -38,6 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Real-time transit links for Transfort Bus Tracker, CSU campus routes, RideTransfort alerts, and text-stop arrivals.
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 - Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
+- Calmer neurodiverse-friendly dashboard cards that keep detailed module content on full pages.
 - Caregiver/admin page at `/support/admin`, linked quietly from the bottom of the dashboard and protected for `chilton18@gmail.com` through Supabase Google login.
 - In-app safety alert response for self-harm or suicide-related concerns typed into Ask JoJo, with 988, CSU Tell Someone, and HelpCompass resources. This does not monitor browser history, Mac activity, texts, email, or daily behavior.
 

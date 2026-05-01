@@ -447,6 +447,148 @@ export const supportModules: SupportModule[] = [
     ],
   },
   {
+    slug: "semester",
+    title: "Semester Start",
+    eyebrow: "Launch",
+    summary:
+      "First-week setup, syllabi, accommodations, exams, textbooks, and support contacts before the term gets loud.",
+    sections: [
+      {
+        title: "First Week",
+        items: [
+          "Send accommodation letters and confirm SDC portal access.",
+          "Import Canvas assignments and upload syllabi or syllabus links.",
+          "Capture exam dates, final exam dates, and testing-center deadlines.",
+          "Buy or rent textbooks and confirm audiobook or accessible-format needs.",
+          "Save professor office hours, TA contacts, tutoring resources, and textbook needs.",
+          "Pick a weekly planning time, study blocks, meal anchors, and sleep anchors.",
+        ],
+      },
+      {
+        title: "Keep It Simple",
+        items: [
+          "Only the next action belongs on the dashboard.",
+          "Reference details belong here, not in the daily view.",
+          "Use Ask JoJo when the next step is unclear.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "rhythm",
+    title: "Weekly Rhythm",
+    eyebrow: "Planning",
+    summary:
+      "A calmer weekly plan for classes, assignments, meals, sleep, work, appointments, and actual downtime.",
+    sections: [
+      {
+        title: "Weekly Anchors",
+        items: [
+          "Weekly reset.",
+          "Class schedule and room reset.",
+          "Study blocks before due dates.",
+          "Meals and hydration anchors.",
+          "Sleep and wake routine.",
+          "Work shifts and downtime.",
+          "Appointments and transportation buffers.",
+        ],
+      },
+      {
+        title: "When The Week Is Too Much",
+        items: [
+          "Pick the top three must-do items.",
+          "Move optional tasks out of the way.",
+          "Use support scripts to ask for help earlier.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "travel",
+    title: "Home & Visits",
+    eyebrow: "Travel",
+    summary:
+      "Trips home, holidays, Viper visits, packing, transportation, deadlines, and recovery time.",
+    sections: [
+      {
+        title: "Plan Around Energy",
+        items: [
+          "Plan trips home and Viper visits around due dates.",
+          "Keep packing lists for Colorado-to-California travel.",
+          "Track flight, shuttle, or driving details in one place.",
+          "Add recovery time after long travel days.",
+        ],
+      },
+      {
+        title: "Before Leaving",
+        items: [
+          "Check Canvas due dates.",
+          "Pack medication, chargers, IDs, and weather gear.",
+          "Confirm transportation and return timing.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "belonging",
+    title: "People",
+    eyebrow: "Belonging",
+    summary:
+      "Low-pressure connection, Key LLC, clubs, cultural centers, and support for social context.",
+    sections: [
+      {
+        title: "Connection Options",
+        items: [
+          "Key LLC events and built-in community.",
+          "Black Student Union and Cultural Resource Center updates.",
+          "Delta Sigma Theta interest and information opportunities.",
+          "One low-pressure social attempt per week.",
+        ],
+      },
+      {
+        title: "Social Decoder",
+        items: [
+          "Use Social Decoder when a message feels unclear, loaded, or hard to answer.",
+          "Check whether a reply should be short, warm, direct, or reviewed first.",
+          "Nothing sends without Josephine reviewing it.",
+        ],
+      },
+    ],
+    links: [
+      {
+        label: "Cultural Resource Centers",
+        href: "https://inclusiveexcellence.colostate.edu/cultural-and-resource-centers",
+      },
+      { label: "Key LLC", href: "https://key.lc.colostate.edu/" },
+    ],
+  },
+  {
+    slug: "scripts",
+    title: "Scripts",
+    eyebrow: "Words Help",
+    summary:
+      "Starting points for asking professors, RA, SDC, supervisors, caregivers, or support people for help.",
+    sections: [
+      {
+        title: "Use Scripts For",
+        items: [
+          "Professor: I need help understanding what matters first.",
+          "SDC: I need help using an approved accommodation.",
+          "RA or housing: I need help with room, maintenance, or suite logistics.",
+          "Caregiver: I need backup, but I do not know where to start.",
+        ],
+      },
+      {
+        title: "Rules",
+        items: [
+          "Draft first, review before sending.",
+          "Keep messages short and specific.",
+          "Ask JoJo for a first draft when the blank page is the blocker.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "work",
     title: "Work",
     eyebrow: "Future Job",

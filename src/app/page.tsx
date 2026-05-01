@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import type {
   PlaidLinkOnSuccessMetadata,
@@ -50,16 +51,6 @@ type SupportTask = {
   maxGapDays: number;
   lastCompletedAt: string;
   status: TaskStatus;
-};
-
-type AcademicSupportResource = {
-  name: string;
-  shortName: string;
-  useFor: string;
-  timing: string;
-  contact: string;
-  href: string | null;
-  details?: string[];
 };
 
 type HistoryEntry = {
@@ -246,24 +237,12 @@ const healthNetworkUrl = "https://health.colostate.edu/";
 const healthPortalUrl = "https://portal.health.colostate.edu/";
 const studentInsuranceUrl =
   "https://thehub.colostate.edu/student-health-insurance-information/";
-const ouraApiDocsUrl = "https://cloud.ouraring.com/docs/authentication";
-const appleHealthKitDocsUrl =
-  "https://developer.apple.com/documentation/healthkit";
-const csuPoliceUrl = "https://police.colostate.edu/";
-const safeWalkUrl = "https://police.colostate.edu/safe-walk/";
-const csuSafetyUrl = "https://safety.colostate.edu/";
 const lifelineUrl = "https://988lifeline.org/";
 const lifelineChatUrl = "https://988lifeline.org/chat/";
 const csuTellSomeoneUrl = "https://supportandsafety.colostate.edu/tell-someone/";
 const helpCompassUrl = "https://helpcompass.colostate.edu/";
 const ramCardUrl = "https://www.ramcash.colostate.edu/";
-const transitUrl =
-  "https://pts.colostate.edu/active-transportation-and-transit-commuter-services/transit-and-shuttles/";
-const transfortUrl = "https://ridetransfort.com/";
 const transfortBusTrackerUrl = "https://clever-web.fcgov.com/home";
-const csuCampusMapUrl = "https://maps.colostate.edu/";
-const parkingUrl = "https://pts.colostate.edu/parking-services/";
-const mailServicesUrl = "https://mailservices.colostate.edu/";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
@@ -288,7 +267,6 @@ const dashboardJumpLinks = [
   { label: "Today", href: "#today-list" },
   { label: "Messages", href: "#messages" },
   { label: "School", href: "#school-help" },
-  { label: "Canvas", href: "#canvas" },
   { label: "Food", href: "#food" },
   { label: "Money", href: "#money" },
   { label: "Housing", href: "#housing" },
@@ -302,461 +280,13 @@ const safetyAlertResponseSteps = [
   "A caregiver alert should share only the safety concern and next support step, not private messages or search history.",
 ];
 
-const campusDiningLocations = [
-  {
-    name: "Braiden Dining Center",
-    focus: "Home base",
-    schedule: "Use first for breakfast, lunch, dinner, and between-class meals.",
-    note: "Braiden Hall contains Braiden Dining Center and RAMwich pickup.",
-  },
-  {
-    name: "Lory Student Center",
-    focus: "Class-day backup",
-    schedule: "Use between classes for quick meals and national-chain options.",
-    note: "CSU lists local favorites plus national chains in the LSC.",
-  },
-  {
-    name: "Academic Village / Ram's Horn",
-    focus: "South-campus option",
-    schedule: "Use when near Academic Village, Edwards, Summit, or Ingersoll.",
-    note: "Good alternate dining center when Braiden is crowded or closed.",
-  },
-  {
-    name: "Durrell Center",
-    focus: "Northwest-campus option",
-    schedule: "Use when near Moby, Durward, Westfall, or Laurel Village.",
-    note: "CSU map lists Durrell Dining Center and Durrell Express.",
-  },
-  {
-    name: "Corbett / Parmelee",
-    focus: "North-campus option",
-    schedule: "Use when near the Rec Center, Corbett, Parmelee, or north campus.",
-    note: "CSU map lists Corbett Marketplace and Parmelee Dining Center.",
-  },
-  {
-    name: "Allison Café",
-    focus: "Light meal option",
-    schedule: "Use for smaller breakfast or lunch when near Allison and LSC.",
-    note: "CSU map lists continental breakfast and Spoons Soups and Salads for lunch.",
-  },
-];
-
-const robotDeliverySteps = [
-  "Open Grubhub and choose the CSU campus dining option.",
-  "Pick a campus restaurant that offers robot delivery.",
-  "Set the delivery pin outside Braiden Hall or the closest safe outdoor pickup spot.",
-  "Watch the order tracker and go outside when the robot arrives.",
-  "Use this when going out feels too hard, the weather is bad, or energy is low.",
-];
-
-const miniFridgeShoppingList = [
-  "Greek yogurt cups",
-  "Cheese sticks or Babybel",
-  "Hummus cups",
-  "Baby carrots or snap peas",
-  "Apples, grapes, or berries",
-  "Microwave rice or pasta cups",
-  "Protein drinks or shelf-stable shakes",
-  "Turkey, tuna, or tofu snack packs",
-  "Granola bars",
-  "Crackers or pretzels",
-  "Peanut butter or sunflower butter",
-  "Sparkling water or electrolyte drinks",
-];
-
-const testingCenterRules = [
-  "Schedule in-person exams and quizzes in the SDC student portal.",
-  "Regular exams and quizzes must be scheduled at least 7 days before the exam date.",
-  "Final exams must be scheduled 1 month before the exam date.",
-  "Schedule at the same date and time as class unless the instructor gives written approval.",
-  "Ask the Accessible Testing Center if accommodations are missing or unclear.",
-];
-
-const accommodationReadinessSteps = [
-  "Review approved accommodations in the SDC student portal under My Eligibilities.",
-  "Send accommodation letters to instructors at the start of every semester.",
-  "Use flexibility accommodations by communicating with instructors when an extension is needed.",
-  "Contact SDC quickly if an instructor does not provide an accommodation.",
-  "Review the SDC Accommodation Handbook before the semester gets busy.",
-];
-
-const sdcStudentAgreementReminders = [
-  "Request accommodations every semester that Josephine wants to use them.",
-  "Read and respond to SDC messages in CSU email because SDC uses that as official communication.",
-  "Talk with instructors about accommodation logistics before support is needed.",
-  "Contact SDC quickly if an access barrier or accommodation problem comes up.",
-  "Remember accommodations start from the letter or approval date and are not retroactive.",
-  "Use accommodations only for disability-related needs and follow CSU and SDC procedures.",
-];
-
-const communityInterestWatchlist = [
-  "Black Student Union",
-  "Delta Sigma Theta Sorority",
-  "Black/African American Cultural Center events",
-];
-
-const socialDecoderChecks = [
-  "What is the sender probably asking for directly?",
-  "What might be implied but not said out loud?",
-  "What tone does it seem to have: friendly, neutral, urgent, frustrated, joking, or unclear?",
-  "Does this need a reply now, later, or not at all?",
-  "What is a safe, kind response that does not over-share?",
-  "What should be checked with a trusted person before replying?",
-];
-
-const socialDecoderSources = [
-  {
-    name: "Email",
-    detail:
-      "Use with CSU email and Gmail triage so confusing messages get a plain-language social read.",
-  },
-  {
-    name: "Texts",
-    detail:
-      "Start with copy/paste or share-sheet text Josephine chooses. Do not silently read Mac Messages.",
-  },
-  {
-    name: "Professors and staff",
-    detail:
-      "Decode formality, hidden deadlines, office-hours invitations, and what reply is expected.",
-  },
-  {
-    name: "Peers and roommates",
-    detail:
-      "Decode tone, plans, invitations, conflict signals, and when to ask a clarifying question.",
-  },
-];
-
-const housingAccommodationNotes = [
-  "Approved housing accommodation: single room in a suite.",
-  "Confirm with SDC or Housing whether the accommodation needs annual renewal.",
-  "Track renewal, contract, room assignment, and move-in deadlines in Housing.",
-];
-
 const vehicleProfile = {
   name: "2017 Volkswagen Touareg",
   role: "Campus car",
   note: "Use monthly odometer checks so maintenance is based on real miles, not memory.",
 };
 
-const vehicleMaintenancePlan = [
-  {
-    name: "Monthly miles check",
-    cadence: "Every month",
-    detail:
-      "Record odometer, fuel level, warning lights, tire pressure concerns, and any new noises.",
-  },
-  {
-    name: "Fuel check",
-    cadence: "Weekly",
-    detail:
-      "Check before the week starts and refill before the tank drops below one quarter.",
-  },
-  {
-    name: "Wash and clean out",
-    cadence: "Monthly",
-    detail:
-      "Wash exterior, clear trash, check wipers, and refill windshield washer fluid if low.",
-  },
-  {
-    name: "Oil service planning",
-    cadence: "Every 10,000 miles or 12 months",
-    detail:
-      "Use the odometer check to plan oil/filter service before the dashboard reminder becomes stressful.",
-  },
-];
-
-const vehicleAgentIdeas = [
-  "Start with in-app mileage logs and receipt/document reminders.",
-  "Later, read service receipts from email and update the next oil-service estimate.",
-  "Use official/service-shop guidance before recommending repairs or spending money.",
-  "Do not connect insurance, telematics, or location tracking unless Josephine explicitly wants it.",
-];
-
 const handshakeUrl = "https://bizcareers.colostate.edu/resources/handshake/";
-const workdayStudentEmploymentUrl =
-  "https://workday.csusystem.edu/student-employment-faqs/";
-
-const workDocumentFolders = [
-  "Resume and cover letters",
-  "Offer letters and onboarding paperwork",
-  "Work schedule screenshots or PDFs",
-  "Timesheets and pay stubs",
-  "Tax forms such as W-4 and W-2",
-  "Training certificates and workplace policies",
-];
-
-const workSupportPlan = [
-  {
-    name: "Job search",
-    cadence: "Weekly while looking",
-    detail:
-      "Review Handshake, save promising roles, and keep applications in one list.",
-  },
-  {
-    name: "Hours check",
-    cadence: "Weekly when employed",
-    detail:
-      "Record hours worked, compare to the posted schedule, and flag weeks that may overload school.",
-  },
-  {
-    name: "Paycheck check",
-    cadence: "Every pay period",
-    detail:
-      "Confirm the paycheck arrived, hours look right, and money tasks are updated.",
-  },
-  {
-    name: "Work documents",
-    cadence: "As needed",
-    detail:
-      "Store job documents in Google Drive and keep only metadata/reminders in the app.",
-  },
-];
-
-const workAgentIdeas = [
-  "Summarize job postings into schedule, commute, pay, duties, and application steps.",
-  "Compare work hours against class workload before accepting extra shifts.",
-  "Draft messages to supervisors about availability, schedule questions, or accommodations.",
-  "Track pay-period reminders without storing full tax or payroll documents in app code.",
-];
-
-const viperCamSetupOptions = [
-  {
-    name: "Barn Wi-Fi available",
-    detail:
-      "Use a weather-resistant Wi-Fi or PoE camera and link to the private camera app or secure stream.",
-  },
-  {
-    name: "No reliable Wi-Fi",
-    detail:
-      "Use a solar LTE camera with a data plan, then open the vendor's authenticated viewer from the app.",
-  },
-  {
-    name: "True embedded feed",
-    detail:
-      "Choose a camera/NVR with RTSP or WebRTC support and proxy it server-side without exposing credentials.",
-  },
-];
-
-const viperCamSafetyNotes = [
-  "Keep the live feed private and password-protected.",
-  "Do not put camera usernames, passwords, or public stream URLs in app code.",
-  "Aim the camera at Viper's stall/paddock, not neighboring properties or people-heavy areas.",
-  "Start with an Open Viper Cam button; embed video later once the equipment path is confirmed.",
-];
-
-const medicalSupportPlan = [
-  {
-    name: "Sleep Check",
-    cadence: "Daily",
-    detail:
-      "Use bedtime, wake time, sleep duration, and recovery notes to spot rough nights before they turn into rough weeks.",
-  },
-  {
-    name: "Scrub It!",
-    cadence: "Every couple of days",
-    detail:
-      "Shower reset: hair, face, underarms, body, feet, and clean clothes after. If it feels like too much, start with getting into the bathroom.",
-  },
-  {
-    name: "Brush It!",
-    cadence: "Every night",
-    detail:
-      "Dentist reminder: brush for two minutes with fluoride toothpaste, aim at the gumline, brush the tongue, and do not rinse all the fluoride away.",
-  },
-  {
-    name: "Wash It!",
-    cadence: "Weekly-ish",
-    detail:
-      "Laundry reset: clothes, towels, sheets when needed, detergent, dry completely, and put away enough that tomorrow is easier.",
-  },
-  {
-    name: "Insurance stuff",
-    cadence: "Before fall and after changes",
-    detail:
-      "Keep insurance card, pharmacy card, and CSU health requirement status easy to find.",
-  },
-  {
-    name: "Prescriptions",
-    cadence: "Monthly",
-    detail:
-      "Check refill dates, pharmacy location, remaining doses, and who to contact if something runs low.",
-  },
-  {
-    name: "Appointments",
-    cadence: "As needed",
-    detail:
-      "Use the CSU Health Network portal for appointments, secure messages, forms, and immunization items.",
-  },
-  {
-    name: "Urgent care plan",
-    cadence: "Set once, review each semester",
-    detail:
-      "Know where to go for same-day care, after-hours support, and what symptoms mean call now.",
-  },
-];
-
-const sleepWellnessPlan = [
-  {
-    name: "Tonight plan",
-    detail:
-      "Pick a realistic bedtime, set a wind-down alarm, plug in devices, and make tomorrow's first step visible.",
-  },
-  {
-    name: "Morning check",
-    detail:
-      "Notice sleep duration, wake-up difficulty, energy, and whether the day needs a lighter plan.",
-  },
-  {
-    name: "Recovery signal",
-    detail:
-      "If sleep is short or restless, ask JoJo to reduce friction: easier food, fewer optional tasks, and earlier assignment starts.",
-  },
-];
-
-const sleepDataIntegrationPlan = [
-  {
-    name: "Oura Ring",
-    status: "Good web-app fit",
-    detail:
-      "Use Oura OAuth and the daily/sleep scopes to import sleep and readiness summaries with Josephine's permission.",
-    href: ouraApiDocsUrl,
-  },
-  {
-    name: "Apple Health",
-    status: "Needs native helper",
-    detail:
-      "Apple Health data comes through HealthKit permission on an Apple app, not directly from this web app. Use a future iOS/macOS helper, Shortcut export, or file import.",
-    href: appleHealthKitDocsUrl,
-  },
-];
-
-const emergencyPlanItems = [
-  {
-    name: "Emergency",
-    contact: "Call or text 911",
-    detail: "Use for immediate danger, medical emergency, fire, or suspected stalking/following.",
-  },
-  {
-    name: "CSU Police non-emergency",
-    contact: "970-491-6425",
-    detail: "Use for non-emergency safety concerns on campus.",
-  },
-  {
-    name: "SafeWalk",
-    contact: "970-491-1155",
-    detail: "Dusk-to-dawn campus walking escort when she feels unsafe walking alone.",
-  },
-  {
-    name: "Family backup",
-    contact: "Trusted people",
-    detail: "Keep the people she trusts easy to find without putting phone numbers in code.",
-  },
-];
-
-const campusLogisticsItems = [
-  {
-    name: "RamCard",
-    detail:
-      "Student ID, dining, building access, RamCash, printing, recreation center, and library use.",
-    href: ramCardUrl,
-  },
-  {
-    name: "Parking and car",
-    detail:
-      "Confirm parking permit, license plate rules, campus maps, and where to park on class days.",
-    href: parkingUrl,
-  },
-  {
-    name: "Transit",
-    detail:
-      "Use Around the Horn, Transfort, MAX, Bus Tracker, and stop-text arrivals for backup transportation.",
-    href: transitUrl,
-  },
-  {
-    name: "Mail and packages",
-    detail:
-      "Track mailing address, package pickup routine, and package notification emails.",
-    href: mailServicesUrl,
-  },
-  {
-    name: "Laundry",
-    detail:
-      "Know where to go, how to pay, and what to bring before the clean-clothes crisis.",
-    href: null,
-  },
-];
-
-const realTimeTransitTools = [
-  {
-    name: "Transfort Bus Tracker",
-    status: "Real-time",
-    detail:
-      "Open the Fort Collins tracker to see live bus locations and estimated arrivals by route or stop.",
-    href: transfortBusTrackerUrl,
-  },
-  {
-    name: "CSU Campus Map",
-    status: "Campus routes",
-    detail:
-      "Use CSU's interactive campus map for live campus bus route tracking when she is moving between CSU locations.",
-    href: csuCampusMapUrl,
-  },
-  {
-    name: "Ride Transfort",
-    status: "Routes and alerts",
-    detail:
-      "Check route schedules, rider alerts, and the RideTransfort app for instant updates on delays.",
-    href: transfortUrl,
-  },
-  {
-    name: "Text a stop ID",
-    status: "No app needed",
-    detail:
-      "At a Transfort stop, text the four-digit stop ID to 970-829-1700 for next arrivals.",
-    href: transfortUrl,
-  },
-];
-
-const semesterLaunchItems = [
-  "Send accommodation letters and confirm SDC portal access.",
-  "Import Canvas assignments and upload syllabi or syllabus links.",
-  "Capture exam dates, final exam dates, and SDC testing deadlines.",
-  "Buy or rent textbooks and confirm audiobook/accessible format needs.",
-  "Save professor office hours, TA contacts, and tutoring resources.",
-  "Pick a weekly planning time, study blocks, meal anchors, and sleep anchors.",
-];
-
-const calendarRoutineItems = [
-  "Weekly reset",
-  "Class schedule and room reset",
-  "Study blocks before due dates",
-  "Meals and hydration anchors",
-  "Sleep and wake routine",
-  "Work shifts and downtime",
-  "Appointments and transportation buffers",
-];
-
-const importantDocumentFolders = [
-  "ID and RamCard backup info",
-  "Insurance and medical",
-  "SDC accommodations",
-  "Housing",
-  "Financial aid and billing",
-  "Vehicle",
-  "Work and tax",
-  "Travel",
-];
-
-const packingInventoryItems = [
-  "Dorm room essentials",
-  "Medication and health supplies",
-  "Chargers and assistive tech",
-  "Laundry and cleaning",
-  "Weather gear",
-  "Mini-fridge food backups",
-  "Car emergency kit",
-];
 
 const roomResetItems = [
   "Trash and recycling out",
@@ -776,113 +306,45 @@ const roomSupplyCheckItems = [
   "Mini-fridge snacks and drinks",
 ];
 
-const travelSupportItems = [
-  "Plan trips home and Viper visits around due dates.",
-  "Keep packing lists for Colorado-to-California travel.",
-  "Track flight, shuttle, or driving details in one place.",
-  "Add recovery time after long travel days.",
-];
-
-const socialBelongingItems = [
-  "Try one campus event or community connection each week.",
-  "Watch for Black Student Union and Cultural Resource Center announcements.",
-  "Track Delta Sigma Theta interest and informational events.",
-  "Use Key LLC, OPS, and trusted peers for low-pressure connection.",
-];
-
-const supportScriptIdeas = [
-  "Professor: ask for clarification, office hours, an extension, or accommodation follow-up.",
-  "RA or housing: ask about room, roommate/suitemate, maintenance, or package issues.",
-  "Supervisor: ask about schedule, hours, availability, or time-off needs.",
-  "SDC: report accommodation problems or ask how to use an approved support.",
-  "Caregiver: ask for help choosing the next step when something feels stuck.",
-];
-
-const planningAgentIdeas = [
-  "Semester setup helper: syllabi, due dates, textbooks, testing, and accommodation letters.",
-  "Weekly planning helper: school, food, health, work, friends, money, and travel load.",
-  "Document helper: routes PDFs to Drive folders and creates reminders.",
-  "Support helper: flags overdue items and suggests who to contact.",
-  "Social decoder: explains tone, implied asks, urgency, and safe reply options for selected emails or texts.",
-];
-
-const academicSupportResources: AcademicSupportResource[] = [
-  {
-    name: "Assistive Technology Resource Center",
-    shortName: "ATRC",
-    useFor:
-      "Choosing tools for reading, writing, note-taking, organization, and access.",
-    timing: "Request a meeting before assignments pile up.",
-    contact: "970-491-6258 · atrc@colostate.edu",
-    href: "https://www.chhs.colostate.edu/atrc/student-services/",
-  },
-  {
-    name: "TILT Tutoring",
-    shortName: "TILT",
-    useFor: "Course tutoring, study strategy, and getting unstuck early.",
-    timing: "Schedule several days before a quiz, test, or major due date.",
-    contact: "Use CSU TILT tutoring resources.",
-    href: "https://tilt.colostate.edu/learning/tutoring/freeacademicsupport/",
-  },
-  {
-    name: "Student Disability Center",
-    shortName: "SDC",
-    useFor: "Accommodation questions, support planning, and access issues.",
-    timing: "Contact as soon as an accommodation problem appears.",
-    contact: "970-491-6385",
-    href: "https://disabilitycenter.colostate.edu/",
-  },
-  {
-    name: "Accessible Testing Center",
-    shortName: "Testing",
-    useFor: "Scheduling accommodated exams.",
-    timing: "Book regular exams 7 days ahead and finals 1 month ahead.",
-    contact: "sdctest@colostate.edu · 970-491-3574",
-    href: "https://disabilitycenter.colostate.edu/sdc-student-portal-information/",
-    details: testingCenterRules,
-  },
-  {
-    name: "Key Living and Learning Community",
-    shortName: "Key LLC",
-    useFor: "Peer/community support and help navigating first-year routines.",
-    timing: "Use for planning, accountability, and campus connection.",
-    contact: "Use Key community staff and programming.",
-    href: "https://key.lc.colostate.edu/",
-  },
-  {
-    name: "Opportunities for Postsecondary Success",
-    shortName: "OPS",
-    useFor: "Structured support for postsecondary success and follow-through.",
-    timing: "Use for recurring planning and accountability.",
-    contact: "Use Josephine's OPS contact once confirmed.",
-    href: "https://www.chhs.colostate.edu/ccp/programs/opportunities-for-postsecondary-success/",
-  },
-  {
-    name: "CSU Health Network",
-    shortName: "Wellbeing",
-    useFor: "Mental health resources, skill-building, support groups, and HelpCompass.",
-    timing: "Use before stress turns into a crisis.",
-    contact: "Use CSU Health Network and HelpCompass resources.",
-    href: "https://health.colostate.edu/mental-health-resources/",
-  },
-  {
-    name: "Cultural Resource Centers",
-    shortName: "Community",
-    useFor: "Finding belonging, events, Black Student Union leads, and community support.",
-    timing: "Check weekly during the first semester.",
-    contact: "Start with CSU Cultural Resource Centers.",
-    href: "https://inclusiveexcellence.colostate.edu/cultural-and-resource-centers",
-  },
-];
-
-function SupportPageLink({ href }: { href: string }) {
+function DashboardModuleCard({
+  id,
+  title,
+  summary,
+  href,
+  badge,
+  children,
+}: {
+  id: string;
+  title: string;
+  summary: string;
+  href: string;
+  badge?: string;
+  children?: ReactNode;
+}) {
   return (
-    <Link
-      className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-      href={href}
+    <section
+      className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-4 shadow-sm"
+      id={id}
     >
-      Open full page
-    </Link>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold">{title}</h2>
+          <p className="mt-1 text-sm text-stone-600">{summary}</p>
+        </div>
+        {badge ? (
+          <span className="shrink-0 rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+            {badge}
+          </span>
+        ) : null}
+      </div>
+      {children}
+      <Link
+        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+        href={href}
+      >
+        Open full page
+      </Link>
+    </section>
   );
 }
 
@@ -2735,8 +2197,8 @@ export default function Home() {
     );
   }
 
-  async function importCanvasAssignments(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function importCanvasAssignments(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
 
     if (!supabase || !userId) {
       setCanvasMessage("Sign in before importing Canvas assignments.");
@@ -3304,26 +2766,18 @@ export default function Home() {
             <div className="md:col-span-2">
               <h2 className="text-lg font-bold">Life Stuff</h2>
               <p className="mt-1 text-sm text-stone-600">
-                School, food, money, friends, documents, safety, Viper, and the
-                things that make college easier to keep track of.
+                Quick cards only. The full pages hold the details, checklists,
+                links, and setup notes.
               </p>
             </div>
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+
+            <DashboardModuleCard
               id="messages"
+              title="Messages"
+              summary="Draft replies and decode confusing tone before anything gets sent."
+              href="/support/messages"
+              badge="Review first"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Messages</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Sort email, draft replies, and decode confusing tone before
-                    anything gets sent.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  Review first
-                </span>
-              </div>
               <button
                 className="mt-4 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
                 type="button"
@@ -3332,187 +2786,135 @@ export default function Home() {
               >
                 {isEmailDrafting ? "Drafting" : "Draft Replies"}
               </button>
-              <SupportPageLink href="/support/messages" />
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
-                <strong className="text-sm text-stone-950">
-                  Stuff to watch for
-                </strong>
-                <p className="mt-1 text-xs text-stone-600">
-                  Pull these out of the noise when they show up.
-                </p>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                  {communityInterestWatchlist.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3">
-                <strong className="text-sm text-teal-950">Social Decoder</strong>
-                <p className="mt-1 text-xs text-teal-950">
-                  Use this for emails or texts that feel confusing, loaded, or
-                  hard to answer.
-                </p>
-                <div className="mt-3 grid gap-2">
-                  {socialDecoderSources.map((source) => (
-                    <article
-                      className="rounded-md bg-white p-2 text-sm text-stone-700"
-                      key={source.name}
-                    >
-                      <strong className="block text-stone-950">{source.name}</strong>
-                      <span>{source.detail}</span>
-                    </article>
-                  ))}
-                </div>
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-teal-950">
-                  {socialDecoderChecks.map((check) => (
-                    <li key={check}>{check}</li>
-                  ))}
-                </ul>
-              </div>
               <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
               {emailDrafts.length > 0 ? (
-                <ol className="mt-4 grid gap-3">
-                  {emailDrafts.map((draft) => (
-                    <li
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={draft.id}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong className="text-sm">{draft.subject}</strong>
-                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">
-                          {draft.status.replace("_", " ")}
-                        </span>
-                      </div>
-                      <span className="mt-1 block text-xs text-stone-500">
-                        To {draft.recipientEmail ?? "sender"} ·{" "}
-                        {draft.source === "google_gmail" ? "Gmail" : "CSU email"}
-                      </span>
-                      <p className="mt-3 whitespace-pre-line text-sm text-stone-700">
-                        {draft.body}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
+                <p className="mt-2 text-sm font-semibold text-teal-800">
+                  {emailDrafts.length} draft{emailDrafts.length === 1 ? "" : "s"} ready to review.
+                </p>
               ) : null}
-            </section>
+            </DashboardModuleCard>
 
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+            <DashboardModuleCard
               id="school-help"
+              title="School Help"
+              summary="Assignments, SDC timing, tutoring, accommodations, and resource matching."
+              href="/support/school"
+              badge={`${assignments.length} Canvas`}
             >
-              <h2 className="text-lg font-bold">School Help</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Match assignments with the right people and tools before a due
-                date gets too close.
-              </p>
-              <SupportPageLink href="/support/school" />
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">
-                  SDC testing deadlines
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">
+                  {canvasConnection?.connected
+                    ? "Canvas connected"
+                    : "Canvas setup needed"}
                 </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {testingCenterRules.slice(1, 4).map((rule) => (
-                    <li key={rule}>{rule}</li>
-                  ))}
-                </ul>
+                <span>
+                  {canvasConnection?.lastImportedAt
+                    ? `Last import ${formatDateTime(canvasConnection.lastImportedAt)}`
+                    : "Use the setup drawer only when the token changes."}
+                </span>
               </div>
-              <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
-                <strong className="text-sm text-teal-950">
-                  Start-of-semester setup
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
-                  {accommodationReadinessSteps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ul>
-                <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold">
-                  <a
-                    className="text-teal-800 hover:text-teal-950"
-                    href="https://disabilitycenter.colostate.edu/sdc-student-portal-information/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    SDC Portal Help
-                  </a>
-                  <a
-                    className="text-teal-800 hover:text-teal-950"
-                    href="https://disabilitycenter.colostate.edu/accommodations-handbook/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Accommodation Handbook
-                  </a>
-                  <a
-                    className="text-teal-800 hover:text-teal-950"
-                    href="https://disabilitycenter.colostate.edu/policies-and-procedures/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Policies
-                  </a>
-                </div>
-              </div>
-              <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 p-3">
-                <strong className="text-sm text-blue-950">
-                  SDC agreement reminders
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-blue-950">
-                  {sdcStudentAgreementReminders.map((reminder) => (
-                    <li key={reminder}>{reminder}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4 grid gap-3">
-                {academicSupportResources.map((resource) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={resource.shortName}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{resource.shortName}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {resource.name}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{resource.useFor}</p>
-                    <p className="mt-1 text-xs text-stone-500">{resource.timing}</p>
-                    <p className="mt-1 text-xs text-stone-500">{resource.contact}</p>
-                    {resource.details ? (
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-stone-600">
-                        {resource.details.map((detail) => (
-                          <li key={detail}>{detail}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {resource.href ? (
-                      <a
-                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                        href={resource.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open
-                      </a>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
-              <p className="mt-3 text-xs text-stone-500">
-                Private referral codes, student IDs, and accommodation files
-                should stay in secure notes or private Drive storage.
-              </p>
-            </section>
+              <button
+                className="mt-3 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                type="button"
+                onClick={() => {
+                  void importCanvasAssignments();
+                }}
+                disabled={isCanvasImporting}
+              >
+                {isCanvasImporting ? "Importing" : "Import Assignments"}
+              </button>
+              <details className="mt-3 rounded-md border border-stone-200 bg-white p-3">
+                <summary className="cursor-pointer text-sm font-semibold text-teal-800">
+                  Canvas setup
+                </summary>
+                <form className="mt-3 grid gap-3" onSubmit={importCanvasAssignments}>
+                  <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                    Canvas URL
+                    <input
+                      className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                      value={canvasBaseUrl}
+                      onChange={(event) => setCanvasBaseUrl(event.target.value)}
+                      inputMode="url"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                    Canvas API token
+                    <input
+                      className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                      value={canvasAccessToken}
+                      onChange={(event) => setCanvasAccessToken(event.target.value)}
+                      type="password"
+                      autoComplete="off"
+                      placeholder={
+                        canvasConnection?.connected
+                          ? "Leave blank to use saved token"
+                          : "Paste token to save"
+                      }
+                    />
+                  </label>
+                  <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                    Save until
+                    <input
+                      className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                      value={canvasTokenExpiresAt}
+                      onChange={(event) => setCanvasTokenExpiresAt(event.target.value)}
+                      type="date"
+                    />
+                  </label>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <button
+                      className="min-h-10 rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+                      type="button"
+                      onClick={saveCanvasConnection}
+                      disabled={isCanvasConnectionSaving || !canvasAccessToken.trim()}
+                    >
+                      {isCanvasConnectionSaving ? "Saving" : "Save Canvas"}
+                    </button>
+                    <button
+                      className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
+                      type="button"
+                      onClick={revokeCanvasConnection}
+                      disabled={!canvasConnection?.connected}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </form>
+              </details>
+              <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
+            </DashboardModuleCard>
 
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="health"
+            <DashboardModuleCard
+              id="help-now"
+              title="Help Now"
+              summary="Urgent support stays visible. Detailed plans live on the safety page."
+              href="/support/safety"
+              badge="Important"
             >
-              <h2 className="text-lg font-bold">Health & Wellness</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Sleep, appointments, insurance, refills, and the
-                boring-but-important health stuff in one place.
-              </p>
-              <SupportPageLink href="/support/health" />
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:bg-red-800"
+                  href="tel:988"
+                >
+                  Call 988
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-red-50"
+                  href={csuTellSomeoneUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Tell Someone
+                </a>
+              </div>
+            </DashboardModuleCard>
+
+            <DashboardModuleCard
+              id="health"
+              title="Health"
+              summary="Sleep, insurance, refills, appointments, Oura, and Apple Health."
+              href="/support/health"
+            >
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
                   className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
@@ -3528,701 +2930,53 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Insurance Info
+                  Insurance
                 </a>
               </div>
-              <div className="mt-4 grid gap-3">
-                {medicalSupportPlan.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{item.name}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {item.cadence}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Sleep
-                </h3>
-                <div className="mt-3 grid gap-3">
-                  {sleepWellnessPlan.map((item) => (
-                    <article
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={item.name}
-                    >
-                      <strong className="text-sm">{item.name}</strong>
-                      <p className="mt-2 text-sm text-stone-700">
-                        {item.detail}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Wearable Data
-                </h3>
-                <div className="mt-3 grid gap-3">
-                  {sleepDataIntegrationPlan.map((item) => (
-                    <article
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={item.name}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong className="text-sm">{item.name}</strong>
-                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                          {item.status}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm text-stone-700">
-                        {item.detail}
-                      </p>
-                      <a
-                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Developer notes
-                      </a>
-                    </article>
-                  ))}
-                </div>
-              </div>
               <a
-                className="mt-3 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100"
                 href={healthNetworkUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                Open CSU Health Network
+                CSU Health Network
               </a>
-            </section>
+            </DashboardModuleCard>
 
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="help-now"
-            >
-              <h2 className="text-lg font-bold">Help Now</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                The numbers and next steps to use when something feels urgent,
-                unsafe, or too big to handle alone.
-              </p>
-              <SupportPageLink href="/support/safety" />
-              <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
-                <strong className="text-sm text-red-950">
-                  Mental health crisis or self-harm concern
-                </strong>
-                <p className="mt-2 text-sm text-red-950">
-                  If Josephine or someone else may be in immediate danger, call
-                  or text 911 now. For suicidal thoughts, self-harm urges, or
-                  emotional crisis support, call or text 988.
-                </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <a
-                    className="inline-flex min-h-10 items-center justify-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:bg-red-800"
-                    href="tel:988"
-                  >
-                    Call 988
-                  </a>
-                  <a
-                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
-                    href={lifelineChatUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    988 Chat
-                  </a>
-                  <a
-                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
-                    href={csuTellSomeoneUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Tell Someone
-                  </a>
-                  <a
-                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
-                    href={helpCompassUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    HelpCompass
-                  </a>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3">
-                {emergencyPlanItems.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <strong className="block text-sm">{item.name}</strong>
-                    <span className="mt-1 block text-xs font-bold text-red-800">
-                      {item.contact}
-                    </span>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={csuPoliceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  CSU Police
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={safeWalkUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  SafeWalk
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={csuSafetyUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Safety
-                </a>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="campus-basics"
-            >
-              <h2 className="text-lg font-bold">Campus Basics</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                RamCard, parking, buses, laundry, mail, and the everyday systems
-                that are annoying when they disappear.
-              </p>
-              <SupportPageLink href="/support/campus" />
-              <div className="mt-4 grid gap-3">
-                {campusLogisticsItems.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <strong className="text-sm">{item.name}</strong>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                    {item.href ? (
-                      <a
-                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open
-                      </a>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Real-time transit
-                </h3>
-                <div className="mt-3 grid gap-3">
-                  {realTimeTransitTools.map((tool) => (
-                    <article
-                      className="rounded-md border border-teal-100 bg-teal-50/60 p-3"
-                      key={tool.name}
-                    >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <strong className="text-sm">{tool.name}</strong>
-                        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-teal-900">
-                          {tool.status}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm text-stone-700">
-                        {tool.detail}
-                      </p>
-                      <a
-                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                        href={tool.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open
-                      </a>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="semester-start"
-            >
-              <h2 className="text-lg font-bold">Semester Start</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                A first-week checklist so the semester starts with fewer
-                surprises.
-              </p>
-              <ol className="mt-4 grid gap-2 text-sm text-stone-700">
-                {semesterLaunchItems.map((item) => (
-                  <li className="rounded-md bg-stone-50 p-2" key={item}>
-                    {item}
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="weekly-rhythm"
-            >
-              <h2 className="text-lg font-bold">Weekly Rhythm</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Class, meals, sleep, study time, work, appointments, and actual
-                breathing room.
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
-                {calendarRoutineItems.map((item) => (
-                  <span className="rounded-md bg-stone-50 p-2" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="docs-packing"
-            >
-              <h2 className="text-lg font-bold">Docs & Packing</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Drive holds the files. This keeps the folders and reminders
-                from becoming a mystery.
-              </p>
-              <SupportPageLink href="/support/docs" />
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
-                <strong className="text-sm text-stone-950">
-                  Important folders
-                </strong>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
-                  {importantDocumentFolders.map((folder) => (
-                    <span className="rounded-md bg-white p-2" key={folder}>
-                      {folder}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
-                <strong className="text-sm text-stone-950">
-                  Room inventory
-                </strong>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
-                  {packingInventoryItems.map((item) => (
-                    <span className="rounded-md bg-white p-2" key={item}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-4 rounded-md border border-teal-100 bg-teal-50/70 p-3">
-                <strong className="text-sm text-teal-950">
-                  Weekly room reset
-                </strong>
-                <p className="mt-1 text-sm text-teal-950">
-                  Clean enough for the room to work, then check whether anything
-                  needs to be added to the Amazon list.
-                </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-md bg-white p-3">
-                    <span className="text-xs font-bold uppercase text-teal-900">
-                      Reset
-                    </span>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                      {roomResetItems.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="rounded-md bg-white p-3">
-                    <span className="text-xs font-bold uppercase text-teal-900">
-                      Supplies
-                    </span>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                      {roomSupplyCheckItems.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="home-viper-visits"
-            >
-              <h2 className="text-lg font-bold">Home & Viper Visits</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Trips home, holidays, and Viper time planned around due dates
-                and recovery time.
-              </p>
-              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                {travelSupportItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="people-belonging"
-            >
-              <h2 className="text-lg font-bold">People & Belonging</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Low-pressure ways to find her people without needing a perfect
-                social-energy day.
-              </p>
-              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                {socialBelongingItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="scripts-helpers"
-            >
-              <h2 className="text-lg font-bold">Scripts & Helpers</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Drafts and planning helpers give her a starting point. Nothing
-                speaks for her or sends itself.
-              </p>
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
-                <strong className="text-sm text-stone-950">Help scripts</strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
-                  {supportScriptIdeas.map((idea) => (
-                    <li key={idea}>{idea}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">Helper roadmap</strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {planningAgentIdeas.map((idea) => (
-                    <li key={idea}>{idea}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="canvas"
-            >
-              <h2 className="text-lg font-bold">Canvas</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Save Canvas once, then pull assignments without hunting through
-                the portal every time.
-              </p>
-              <div className="mt-3 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">
-                  {canvasConnection?.connected
-                    ? "Canvas is connected"
-                    : "Canvas is not connected yet"}
-                </strong>
-                {canvasConnection?.connected ? (
-                  <span>
-                    Expires{" "}
-                    {canvasConnection.expiresAt
-                      ? formatDate(new Date(canvasConnection.expiresAt))
-                      : "later"}
-                    {canvasConnection.lastImportedAt
-                      ? ` · Last import ${formatDateTime(canvasConnection.lastImportedAt)}`
-                      : ""}
-                  </span>
-                ) : (
-                  <span>
-                    Paste a Canvas token once, pick an expiration, then save or
-                    import.
-                  </span>
-                )}
-              </div>
-              <form className="mt-4 grid gap-3" onSubmit={importCanvasAssignments}>
-                <label className="grid gap-1 text-sm font-semibold text-stone-700">
-                  Canvas URL
-                  <input
-                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
-                    value={canvasBaseUrl}
-                    onChange={(event) => setCanvasBaseUrl(event.target.value)}
-                    inputMode="url"
-                  />
-                </label>
-                <label className="grid gap-1 text-sm font-semibold text-stone-700">
-                  Canvas API token {canvasConnection?.connected ? "(only to replace saved token)" : ""}
-                  <input
-                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
-                    value={canvasAccessToken}
-                    onChange={(event) => setCanvasAccessToken(event.target.value)}
-                    type="password"
-                    autoComplete="off"
-                    placeholder={
-                      canvasConnection?.connected
-                        ? "Leave blank to use saved token"
-                        : "Paste token to save"
-                    }
-                  />
-                </label>
-                <label className="grid gap-1 text-sm font-semibold text-stone-700">
-                  Save until
-                  <input
-                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
-                    value={canvasTokenExpiresAt}
-                    onChange={(event) => setCanvasTokenExpiresAt(event.target.value)}
-                    type="date"
-                  />
-                </label>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <button
-                    className="min-h-10 rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
-                    type="button"
-                    onClick={saveCanvasConnection}
-                    disabled={isCanvasConnectionSaving || !canvasAccessToken.trim()}
-                  >
-                    {isCanvasConnectionSaving ? "Saving" : "Save Canvas"}
-                  </button>
-                  <button
-                    className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
-                    type="button"
-                    onClick={revokeCanvasConnection}
-                    disabled={!canvasConnection?.connected}
-                  >
-                    Remove
-                  </button>
-                </div>
-                <button
-                  className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
-                  type="submit"
-                  disabled={isCanvasImporting}
-                >
-                  {isCanvasImporting
-                    ? "Importing"
-                    : canvasConnection?.connected && !canvasAccessToken.trim()
-                      ? "Import Assignments"
-                      : "Save Canvas & Import"}
-                </button>
-              </form>
-              <p className="mt-3 text-xs text-stone-500">
-                Canvas QR login is still only for the mobile app. This connection
-                uses a Canvas API token and should be revoked in Canvas if the
-                token is ever pasted somewhere unsafe.
-              </p>
-              <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
-
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Coming Up From Canvas
-                </h3>
-                {assignments.length > 0 ? (
-                  <ol className="mt-3 grid gap-3">
-                    {assignments.map((assignment) => (
-                      <li
-                        className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
-                        key={assignment.id}
-                      >
-                        <strong className="block">{assignment.title}</strong>
-                        <span className="block text-sm text-stone-600">
-                          {assignment.courseName}
-                        </span>
-                        <span className="block text-sm text-stone-500">
-                          {assignment.dueAt
-                            ? `Due ${formatDateTime(assignment.dueAt)}`
-                            : "No due date listed"}
-                        </span>
-                        {assignment.url ? (
-                          <a
-                            className="mt-1 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                            href={assignment.url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Open in Canvas
-                          </a>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="mt-3 text-sm text-stone-600">
-                    No assignments imported yet.
-                  </p>
-                )}
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="viper-cam"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Viper Cam</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    A quick check-in on Viper when Colorado feels far away from
-                    California.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  California
-                </span>
-              </div>
-              <SupportPageLink href="/support/viper" />
-
-              {viperCamUrl ? (
-                <a
-                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={viperCamUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open Viper Cam
-                </a>
-              ) : (
-                <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                  <strong className="block text-stone-950">
-                    Camera link coming later
-                  </strong>
-                  <span>
-                    After equipment is chosen, set `NEXT_PUBLIC_VIPER_CAM_URL`
-                    to a private viewer link or app-safe stream URL.
-                  </span>
-                </div>
-              )}
-
-              <div className="mt-4 grid gap-3">
-                {viperCamSetupOptions.map((option) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={option.name}
-                  >
-                    <strong className="text-sm">{option.name}</strong>
-                    <p className="mt-2 text-sm text-stone-700">{option.detail}</p>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">
-                  Privacy and placement
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {viperCamSafetyNotes.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+            <DashboardModuleCard
               id="food"
+              title="Food"
+              summary="Dining hours, Braiden, robot delivery, and mini-fridge restock."
+              href="/support/food"
+              badge="Braiden first"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Food</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Braiden first, backups ready, robot delivery when going out
-                    is not happening.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  Braiden first
-                </span>
-              </div>
-              <SupportPageLink href="/support/food" />
-
-              <div className="mt-4 grid gap-3">
-                {campusDiningLocations.map((location) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={location.name}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{location.name}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {location.focus}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{location.schedule}</p>
-                    <p className="mt-1 text-xs text-stone-500">{location.note}</p>
-                  </article>
-                ))}
-              </div>
-
-              <a
-                className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                href={diningHoursUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Check Today&apos;s Dining Hours
-              </a>
-
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Robot Delivery
-                </h3>
-                <ol className="mt-3 grid gap-2 text-sm text-stone-700">
-                  {robotDeliverySteps.map((step) => (
-                    <li className="rounded-md bg-stone-50 p-2" key={step}>
-                      {step}
-                    </li>
-                  ))}
-                </ol>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
-                  className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={diningHoursUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Dining Hours
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
                   href={grubhubCampusUrl}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open Grubhub Campus
+                  Grubhub
                 </a>
               </div>
+            </DashboardModuleCard>
 
-              <div className="mt-5 border-t border-stone-200 pt-4">
-                <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Mini-fridge List
-                </h3>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
-                  {miniFridgeShoppingList.map((item) => (
-                    <span className="rounded-md bg-stone-50 p-2" key={item}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+            <DashboardModuleCard
               id="money"
+              title="Money"
+              summary="Read-only money check. Transfers and bill pay stay at the credit union."
+              href="/support/money"
+              badge={financialAccounts.length > 0 ? "Connected" : "Setup"}
             >
-              <h2 className="text-lg font-bold">Money</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Quick balance check here. Transfers and bill pay still happen
-                directly at the credit union.
-              </p>
-              <SupportPageLink href="/support/money" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
                   {financialInstitutionName ?? "Canvas Credit Union"}
@@ -4233,48 +2987,14 @@ export default function Home() {
                     : "Not connected yet"}
                 </span>
               </div>
-              {financialAccounts.length > 0 ? (
-                <ol className="mt-4 grid gap-3">
-                  {financialAccounts.map((account) => (
-                    <li
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={account.plaidAccountId}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong className="text-sm">{account.name}</strong>
-                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                          {account.accountSubtype ?? account.accountType}
-                        </span>
-                      </div>
-                      <span className="mt-1 block text-xs text-stone-500">
-                        {account.mask ? `•••• ${account.mask}` : "Masked account"}
-                      </span>
-                      <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                        <span>
-                          <strong className="block text-stone-950">
-                            {formatCurrency(account.availableBalance, account.isoCurrencyCode)}
-                          </strong>
-                          Available
-                        </span>
-                        <span>
-                          <strong className="block text-stone-950">
-                            {formatCurrency(account.currentBalance, account.isoCurrencyCode)}
-                          </strong>
-                          Current
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <button
                   className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
                   type="button"
                   onClick={startPlaidConnection}
                   disabled={isPlaidLoading || (Boolean(plaidLinkToken) && !isPlaidReady)}
                 >
-                  {financialAccounts.length > 0 ? "Reconnect Plaid" : "Connect Plaid"}
+                  {financialAccounts.length > 0 ? "Reconnect" : "Connect"}
                 </button>
                 <button
                   className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
@@ -4282,244 +3002,170 @@ export default function Home() {
                   onClick={refreshFinancialBalances}
                   disabled={isPlaidLoading || financialAccounts.length === 0}
                 >
-                  Refresh Balances
+                  Refresh
                 </button>
               </div>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {creditUnionUrl ? (
-                  <a
-                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                    href={creditUnionUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open Credit Union
-                  </a>
-                ) : (
+              <details className="mt-3 rounded-md border border-stone-200 bg-white p-3">
+                <summary className="cursor-pointer text-sm font-semibold text-teal-800">
+                  More money actions
+                </summary>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {creditUnionUrl ? (
+                    <a
+                      className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                      href={creditUnionUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open Credit Union
+                    </a>
+                  ) : (
+                    <button
+                      className="min-h-10 cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
+                      type="button"
+                      disabled
+                    >
+                      Credit Union Link Missing
+                    </button>
+                  )}
                   <button
-                    className="min-h-10 cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
+                    className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
                     type="button"
-                    disabled
+                    onClick={disconnectPlaidConnection}
+                    disabled={isPlaidLoading || financialAccounts.length === 0}
                   >
-                    Credit Union Link Missing
+                    Remove Plaid
                   </button>
-                )}
-                <button
-                  className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
-                  type="button"
-                  onClick={disconnectPlaidConnection}
-                  disabled={isPlaidLoading || financialAccounts.length === 0}
-                >
-                  Remove Plaid
-                </button>
-              </div>
+                </div>
+              </details>
               <p className="mt-3 text-sm text-stone-600">{financialMessage}</p>
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">Weekly money reset</strong>
-                <span>
-                  Check balance, look for upcoming bills, and get backup before
-                  moving money or changing payment settings.
-                </span>
-              </div>
-            </section>
+            </DashboardModuleCard>
 
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="vehicle"
+            <DashboardModuleCard
+              id="campus-basics"
+              title="Campus"
+              summary="RamCard, parking, buses, mail, laundry, and real-time transit."
+              href="/support/campus"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Vehicle</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Keep the Touareg campus-ready without having to remember
-                    every maintenance detail.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  {vehicleProfile.role}
-                </span>
-              </div>
-              <SupportPageLink href="/support/vehicle" />
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">{vehicleProfile.name}</strong>
-                <span>{vehicleProfile.note}</span>
-              </div>
-              <div className="mt-4 grid gap-3">
-                {vehicleMaintenancePlan.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{item.name}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {item.cadence}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">
-                  Maintenance helper path
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {vehicleAgentIdeas.map((idea) => (
-                    <li key={idea}>{idea}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="work"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Work</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    For future job searching, schedules, paychecks, and keeping
-                    work from taking over school.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  Future job
-                </span>
-              </div>
-              <SupportPageLink href="/support/work" />
-
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
                   className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={handshakeUrl}
+                  href={transfortBusTrackerUrl}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open Handshake
+                  Bus Tracker
                 </a>
                 <a
                   className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={workdayStudentEmploymentUrl}
+                  href={ramCardUrl}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Student Employment Info
+                  RamCard
                 </a>
               </div>
+            </DashboardModuleCard>
 
-              <div className="mt-4 grid gap-3">
-                {workSupportPlan.map((item) => (
-                  <article
-                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                    key={item.name}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="text-sm">{item.name}</strong>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-                        {item.cadence}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
-                  </article>
-                ))}
-              </div>
+            <DashboardModuleCard
+              id="docs-packing"
+              title="Docs & Packing"
+              summary="Drive folders, room inventory, weekly room reset, and supply checks."
+              href="/support/docs"
+            />
 
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
-                <strong className="text-sm text-stone-950">
-                  Google Drive work folder
-                </strong>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
-                  {workDocumentFolders.map((folder) => (
-                    <span className="rounded-md bg-white p-2" key={folder}>
-                      {folder}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">Work helper path</strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
-                  {workAgentIdeas.map((idea) => (
-                    <li key={idea}>{idea}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+            <DashboardModuleCard
               id="housing"
+              title="Housing"
+              summary="Room info, documents, maintenance, renewal dates, and accommodation notes."
+              href="/support/housing"
+              badge={housingDocuments.length > 0 ? `${housingDocuments.length} docs` : "Docs"}
             >
-              <h2 className="text-lg font-bold">Housing</h2>
-              <p className="mt-2 text-sm text-stone-600">
-                Room info, move-in details, contracts, billing, maintenance, and
-                renewal dates together.
-              </p>
-              <SupportPageLink href="/support/housing" />
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">Housing files</strong>
-                <span>
-                  Store PDFs in private Drive or secure storage. This app keeps
-                  the reminders and links, not public copies.
-                </span>
-              </div>
-              <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
-                <strong className="text-sm text-teal-950">
-                  Housing accommodation
-                </strong>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
-                  {housingAccommodationNotes.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-              </div>
-              <p className="mt-3 text-sm text-stone-600">{housingMessage}</p>
-              {housingDocuments.length > 0 ? (
-                <ol className="mt-4 grid gap-3">
-                  {housingDocuments.map((document) => (
-                    <li
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={document.id}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong className="text-sm">{document.title}</strong>
-                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold capitalize text-blue-800">
-                          {document.status.replace("_", " ")}
-                        </span>
-                      </div>
-                      <span className="mt-1 block text-xs capitalize text-stone-500">
-                        {document.documentType.replace("_", " ")}
-                        {document.importantDate
-                          ? ` · Date ${formatDate(new Date(document.importantDate))}`
-                          : ""}
-                      </span>
-                      {document.notes ? (
-                        <p className="mt-2 text-sm text-stone-700">{document.notes}</p>
-                      ) : null}
-                      {document.fileUrl ? (
-                        <a
-                          className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                          href={document.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Open Document
-                        </a>
-                      ) : null}
-                    </li>
-                  ))}
-                </ol>
+              <p className="mt-4 text-sm text-stone-600">{housingMessage}</p>
+            </DashboardModuleCard>
+
+            <DashboardModuleCard
+              id="vehicle"
+              title="Vehicle"
+              summary="Touareg mileage, gas, wash/cleanout, oil service, and receipts."
+              href="/support/vehicle"
+              badge={vehicleProfile.role}
+            />
+
+            <DashboardModuleCard
+              id="work"
+              title="Work"
+              summary="Handshake, job search, hours, paychecks, and work documents."
+              href="/support/work"
+              badge="Future job"
+            >
+              <a
+                className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                href={handshakeUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open Handshake
+              </a>
+            </DashboardModuleCard>
+
+            <DashboardModuleCard
+              id="viper-cam"
+              title="Viper Cam"
+              summary="A quick Viper check-in plus camera setup and privacy notes."
+              href="/support/viper"
+              badge="California"
+            >
+              {viperCamUrl ? (
+                <a
+                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={viperCamUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Viper Cam
+                </a>
               ) : (
                 <p className="mt-4 text-sm text-stone-600">
-                  No housing docs linked yet. Upload the CSU contract through
-                  private storage when ready.
+                  Camera link will appear after equipment is chosen.
                 </p>
               )}
-            </section>
+            </DashboardModuleCard>
 
+            <DashboardModuleCard
+              id="semester-start"
+              title="Semester Start"
+              summary="First-week setup, syllabi, accommodation letters, exams, and textbooks."
+              href="/support/semester"
+            />
+
+            <DashboardModuleCard
+              id="weekly-rhythm"
+              title="Weekly Rhythm"
+              summary="A calmer weekly plan for classes, meals, sleep, work, and downtime."
+              href="/support/rhythm"
+            />
+
+            <DashboardModuleCard
+              id="home-viper-visits"
+              title="Home & Visits"
+              summary="Trips home, holidays, Viper visits, packing, and recovery time."
+              href="/support/travel"
+            />
+
+            <DashboardModuleCard
+              id="people-belonging"
+              title="People"
+              summary="Low-pressure connection, Key LLC, cultural centers, clubs, and belonging."
+              href="/support/belonging"
+            />
+
+            <DashboardModuleCard
+              id="scripts-helpers"
+              title="Scripts"
+              summary="Help-message scripts and planning prompts when words are hard."
+              href="/support/scripts"
+            />
           </aside>
         </section>
         <footer className="flex justify-end gap-2 pb-2 pt-4">
