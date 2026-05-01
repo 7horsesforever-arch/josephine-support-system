@@ -29,6 +29,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Server-side Gmail import endpoint at `/api/google/gmail/import`.
 - Server-side school email triage endpoint at `/api/email/triage`.
 - Review-only communications drafting endpoint at `/api/email/drafts`.
+- Social Decoder support for selected emails or pasted texts.
 - Vehicle support reminders for mileage checks, fuel, wash/cleanout, and oil-service planning.
 - Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
 - Viper Cam placeholder for a private barn camera link or future secure stream.

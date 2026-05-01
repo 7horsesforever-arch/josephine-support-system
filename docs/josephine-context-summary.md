@@ -75,6 +75,8 @@ Assignment agents should recommend resources based on the work type, deadline ru
 - Organize messages by urgency, deadline, meetings, admin/financial items, coursework, and support/accommodation topics.
 - Summaries should be plain-language and action-oriented.
 - The app should surface possible deadlines and suggested next steps without pretending to make final academic or administrative decisions.
+- A Social Decoder should help with selected emails and texts by explaining tone, implied asks, urgency, likely expectations, and safe response options.
+- Social interpretation should be framed as possibility, not certainty, and should encourage asking a trusted person when stakes are high or context is unclear.
 
 ## Financial Support
 

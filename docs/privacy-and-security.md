@@ -8,6 +8,7 @@
 - Imported school and personal email metadata/previews from Microsoft Graph and Gmail: sender, subject, body preview/snippet, received time, importance/read state, source, and web link.
 - Email triage output: priority, category, short summary, suggested action, and possible due-date hint.
 - Email draft output: recipient, subject, body, status, source, and drafting agent name.
+- Social Decoder output for selected messages: possible tone, implied ask, urgency, suggested response, and review notes.
 - A public credit union login URL for opening the banking site in a separate tab.
 - Plaid financial connection metadata, encrypted Plaid access token, masked account names, account types, current/available balances, currency, and last synced time.
 - Housing document metadata: title, document type, status, private storage path or access-controlled URL, important date, and notes.
@@ -34,6 +35,7 @@
 - Private accommodation documents, referral codes, student ID numbers, or protected download links unless they live in purpose-built private document storage with explicit consent.
 - Meal-plan payment credentials or stored food-delivery payment credentials.
 - Long private email or Canvas message bodies.
+- Full text message history, Mac Messages database exports, or messages Josephine did not explicitly select for review.
 - Canvas access tokens beyond the short import request.
 - Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
 - Google passwords or Gmail OAuth access tokens beyond the short import request.
@@ -63,6 +65,7 @@
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
 - Gmail access should use delegated Google OAuth scopes such as `gmail.readonly`; never collect, store, or replay the user's Google password.
 - Email drafting agents may prepare editable replies, but they must not send, delete, archive, or mark mail read without explicit review.
+- Social Decoder should analyze only selected/pasted/shared messages or explicitly imported email previews. Do not silently read local Mac texts, iMessage databases, or full message history.
 - Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Plaid access tokens must be encrypted server-side with `PLAID_TOKEN_ENCRYPTION_KEY`; use Plaid Link rather than bank-password forms.
 - Housing documents should live in private storage with RLS-protected metadata. Do not commit contracts or residence documents to Git.

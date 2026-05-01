@@ -28,10 +28,18 @@ The email triage layer should act like a small copilot team:
 - Accommodation checker: flags when an item may need extension planning, assistive technology, tutoring, or caregiver/advisor review.
 - SDC readiness checker: flags semester accommodation letters, testing deadlines, flex-deadline communication, and possible instructor accommodation issues.
 - Community connector: surfaces Black Student Union, Delta Sigma Theta, and Cultural Resource Center announcements without auto-subscribing or contacting anyone.
+- Social decoder: for selected emails or pasted/shared texts, explains likely tone, implied asks, urgency, possible interpretations, and safe response options.
 - Weekly planning agent: balances school, food, sleep, health, work, money, travel, and social load.
 - Document organizer: suggests Google Drive folders and reminders for selected documents without copying sensitive files into app code.
 - Support escalation agent: flags overdue medical, emergency, school, housing, or logistics items and suggests a reviewed next contact.
 - Review guard: never sends, deletes, replies, or marks mail read without explicit review.
+
+## Social Decoder Pattern
+
+- Treat social interpretation as uncertain. Use phrases like "may mean" and "a safe next step could be" instead of claiming certainty.
+- Show direct ask, possible implied ask, tone, urgency, suggested reply, and when to ask a trusted person.
+- Start with content Josephine explicitly selects, pastes, or imports. Do not silently read Mac Messages or private texts.
+- Keep the output supportive, nonjudgmental, and short enough to use while stressed.
 
 ## Password-Light Access
 

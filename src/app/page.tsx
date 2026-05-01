@@ -311,6 +311,38 @@ const communityInterestWatchlist = [
   "Black/African American Cultural Center events",
 ];
 
+const socialDecoderChecks = [
+  "What is the sender probably asking for directly?",
+  "What might be implied but not said out loud?",
+  "What tone does it seem to have: friendly, neutral, urgent, frustrated, joking, or unclear?",
+  "Does this need a reply now, later, or not at all?",
+  "What is a safe, kind response that does not over-share?",
+  "What should be checked with a trusted person before replying?",
+];
+
+const socialDecoderSources = [
+  {
+    name: "Email",
+    detail:
+      "Use with CSU email and Gmail triage so confusing messages get a plain-language social read.",
+  },
+  {
+    name: "Texts",
+    detail:
+      "Start with copy/paste or share-sheet text Josephine chooses. Do not silently read Mac Messages.",
+  },
+  {
+    name: "Professors and staff",
+    detail:
+      "Decode formality, hidden deadlines, office-hours invitations, and what reply is expected.",
+  },
+  {
+    name: "Peers and roommates",
+    detail:
+      "Decode tone, plans, invitations, conflict signals, and when to ask a clarifying question.",
+  },
+];
+
 const housingAccommodationNotes = [
   "Approved housing accommodation: single room in a suite.",
   "Confirm with SDC or Housing whether the accommodation needs annual renewal.",
@@ -579,6 +611,7 @@ const planningAgentIdeas = [
   "Weekly planning agent: school, food, health, work, social, money, and travel load.",
   "Document organizer agent: routes PDFs to Drive folders and creates reminders.",
   "Escalation agent: flags overdue support items and suggests who to contact.",
+  "Social decoder agent: explains tone, implied asks, urgency, and safe reply options for selected emails or texts.",
 ];
 
 const academicSupportResources: AcademicSupportResource[] = [
@@ -932,6 +965,17 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 14,
       maxGapDays: 30,
       lastCompletedAt: daysAgo(16),
+      status: "due",
+    },
+    {
+      id: "social-decoder-review",
+      title: "Decode one confusing message",
+      category: "social",
+      description:
+        "Use the Social Decoder on a text or email that feels unclear before replying or ignoring it.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(8),
       status: "due",
     },
     {
@@ -2465,6 +2509,29 @@ export default function Home() {
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
                   {communityInterestWatchlist.map((item) => (
                     <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3">
+                <strong className="text-sm text-teal-950">Social Decoder</strong>
+                <p className="mt-1 text-xs text-teal-950">
+                  Review selected emails or pasted texts for tone, implied asks,
+                  urgency, and safe reply options.
+                </p>
+                <div className="mt-3 grid gap-2">
+                  {socialDecoderSources.map((source) => (
+                    <article
+                      className="rounded-md bg-white p-2 text-sm text-stone-700"
+                      key={source.name}
+                    >
+                      <strong className="block text-stone-950">{source.name}</strong>
+                      <span>{source.detail}</span>
+                    </article>
+                  ))}
+                </div>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-teal-950">
+                  {socialDecoderChecks.map((check) => (
+                    <li key={check}>{check}</li>
                   ))}
                 </ul>
               </div>
