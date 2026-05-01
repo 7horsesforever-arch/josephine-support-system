@@ -25,6 +25,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Server-side escalation endpoint placeholder at `/api/escalations`.
 - Server-side Canvas assignment import endpoint at `/api/canvas/import`.
 - Server-side Microsoft Graph mail import endpoint at `/api/microsoft/mail/import`.
+- Server-side Gmail import endpoint at `/api/google/gmail/import`.
 - Server-side school email triage endpoint at `/api/email/triage`.
 
 ## Supabase Setup
@@ -69,6 +70,7 @@ npm run build
 - Add caregiver SMS fail-safe alerts.
 - Connect the Canvas import endpoint to an authenticated UI flow.
 - Connect Microsoft OAuth so CSU email can be imported without handling passwords.
+- Connect Google OAuth so `7horsesforever@gmail.com` can be imported without handling passwords.
 - Add an authenticated UI for email triage results.
 
 ## Deploy on Vercel

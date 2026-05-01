@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 type SchoolEmailMessage = {
   id: string;
+  source: "microsoft_graph" | "google_gmail";
   source_message_id: string;
   sender_name: string | null;
   sender_email: string | null;
@@ -14,6 +15,7 @@ type SchoolEmailMessage = {
 
 type EmailTriageRow = {
   user_id: string;
+  source: SchoolEmailMessage["source"];
   source_message_id: string;
   priority: "low" | "normal" | "high" | "urgent";
   category: "deadline" | "meeting" | "admin" | "coursework" | "support" | "other";
@@ -173,7 +175,7 @@ export async function POST(request: NextRequest) {
 
   const { data: messages, error: messagesError } = await supabase
     .from("school_email_messages")
-    .select("id,source_message_id,sender_name,sender_email,subject,body_preview,received_at,importance")
+    .select("id,source,source_message_id,sender_name,sender_email,subject,body_preview,received_at,importance")
     .eq("user_id", user.id)
     .order("received_at", { ascending: false })
     .limit(clampLimit(body.limit));
@@ -190,6 +192,7 @@ export async function POST(request: NextRequest) {
 
     return {
       user_id: user.id,
+      source: typedMessage.source,
       source_message_id: typedMessage.source_message_id,
       priority,
       category,
@@ -204,7 +207,7 @@ export async function POST(request: NextRequest) {
     const { error: upsertError } = await supabase
       .from("school_email_triage")
       .upsert(triageRows, {
-        onConflict: "user_id,source_message_id",
+        onConflict: "user_id,source,source_message_id",
       });
 
     if (upsertError) {

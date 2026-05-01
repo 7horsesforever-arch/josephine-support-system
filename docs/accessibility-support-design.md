@@ -15,7 +15,7 @@ This app is being designed for a student who benefits from reduced reading load,
 
 The email triage layer should act like a small copilot team:
 
-- Inbox scout: imports recent CSU mail metadata and previews through Microsoft Graph.
+- Inbox scout: imports recent CSU mail metadata/previews through Microsoft Graph and personal Gmail metadata/snippets through Google OAuth.
 - Priority sorter: marks urgent/high/normal/low based on deadlines, meetings, admin issues, and support language.
 - Plain-language summarizer: turns the subject and preview into a short sentence.
 - Action planner: suggests one next action, such as adding a task, checking Canvas, or asking for caregiver/advisor help.
@@ -25,9 +25,10 @@ The email triage layer should act like a small copilot team:
 
 - Use Supabase magic-link sign-in for the app.
 - Use Microsoft OAuth for CSU email.
+- Use Google OAuth for personal Gmail.
 - Use Canvas OAuth or a temporary Canvas token only for a private test.
-- Do not ask the user to re-enter school passwords inside this app.
-- Do not store Microsoft, Canvas, or CSU passwords.
+- Do not ask the user to re-enter school or Google passwords inside this app.
+- Do not store Microsoft, Google, Canvas, or CSU passwords.
 
 ## Sensitive Context
 

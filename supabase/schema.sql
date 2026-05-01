@@ -57,7 +57,7 @@ create table if not exists public.school_assignments (
 create table if not exists public.school_email_messages (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  source text not null default 'microsoft_graph' check (source in ('microsoft_graph')),
+  source text not null default 'microsoft_graph' check (source in ('microsoft_graph', 'google_gmail')),
   source_message_id text not null,
   sender_name text,
   sender_email text,
@@ -74,6 +74,7 @@ create table if not exists public.school_email_messages (
 create table if not exists public.school_email_triage (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  source text not null default 'microsoft_graph' check (source in ('microsoft_graph', 'google_gmail')),
   source_message_id text not null,
   priority text not null check (priority in ('low', 'normal', 'high', 'urgent')),
   category text not null check (category in ('deadline', 'meeting', 'admin', 'coursework', 'support', 'other')),
@@ -81,8 +82,35 @@ create table if not exists public.school_email_triage (
   suggested_action text not null,
   due_hint text,
   created_at timestamptz not null default now(),
-  unique (user_id, source_message_id)
+  unique (user_id, source, source_message_id)
 );
+
+alter table public.school_email_messages
+  drop constraint if exists school_email_messages_source_check;
+
+alter table public.school_email_messages
+  add constraint school_email_messages_source_check
+  check (source in ('microsoft_graph', 'google_gmail'));
+
+alter table public.school_email_triage
+  add column if not exists source text not null default 'microsoft_graph';
+
+alter table public.school_email_triage
+  drop constraint if exists school_email_triage_source_check;
+
+alter table public.school_email_triage
+  add constraint school_email_triage_source_check
+  check (source in ('microsoft_graph', 'google_gmail'));
+
+alter table public.school_email_triage
+  drop constraint if exists school_email_triage_user_id_source_message_id_key;
+
+alter table public.school_email_triage
+  drop constraint if exists school_email_triage_user_id_source_source_message_id_key;
+
+alter table public.school_email_triage
+  add constraint school_email_triage_user_id_source_source_message_id_key
+  unique (user_id, source, source_message_id);
 
 create index if not exists support_tasks_assigned_user_id_idx on public.support_tasks(assigned_user_id);
 create index if not exists support_tasks_created_by_idx on public.support_tasks(created_by);
@@ -90,7 +118,9 @@ create index if not exists support_tasks_status_idx on public.support_tasks(stat
 create index if not exists support_history_user_id_created_at_idx on public.support_history(user_id, created_at desc);
 create index if not exists school_assignments_user_id_due_at_idx on public.school_assignments(user_id, due_at);
 create index if not exists school_email_messages_user_id_received_at_idx on public.school_email_messages(user_id, received_at desc);
+create index if not exists school_email_messages_user_id_source_received_at_idx on public.school_email_messages(user_id, source, received_at desc);
 create index if not exists school_email_triage_user_id_priority_idx on public.school_email_triage(user_id, priority, created_at desc);
+create index if not exists school_email_triage_user_id_source_priority_idx on public.school_email_triage(user_id, source, priority, created_at desc);
 create index if not exists caregiver_links_student_user_id_idx on public.caregiver_links(student_user_id);
 create index if not exists caregiver_links_caregiver_user_id_idx on public.caregiver_links(caregiver_user_id);
 

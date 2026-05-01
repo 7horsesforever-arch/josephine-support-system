@@ -15,14 +15,15 @@ Josephine's support system should treat her MacBook with Touch ID as the primary
 - A passkey should be registered from Josephine's MacBook while Touch ID is enabled.
 - The passkey belongs to the device/keychain, not to the app database.
 - The app should continue to offer a secure email fallback for account recovery or device replacement.
-- Do not require repeated school, Microsoft, Canvas, or RamWeb passwords inside the app.
+- Do not require repeated school, Microsoft, Google, Canvas, or RamWeb passwords inside the app.
 
 ## School Account Boundary
 
 - School assignments and email should use OAuth or approved access tokens, not stored passwords.
 - The app must not collect, save, replay, or display CSU passwords.
-- Microsoft and Canvas connections should be revocable and scoped to the smallest permissions needed.
+- Microsoft, Google, and Canvas connections should be revocable and scoped to the smallest permissions needed.
 - Any imported school data should remain user-scoped under Row Level Security.
+- Josephine's personal Gmail address, `7horsesforever@gmail.com`, should use Google OAuth and email-read scopes only.
 
 ## Setup Checklist
 

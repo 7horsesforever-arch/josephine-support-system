@@ -5,7 +5,7 @@
 - Support task titles, categories, reminder intervals, completion dates, and status.
 - Completion/action history.
 - Imported school assignment title, course name, due date, points, status, and Canvas link.
-- Imported school email metadata and previews from Microsoft Graph: sender, subject, body preview, received time, importance, read state, and web link.
+- Imported school and personal email metadata/previews from Microsoft Graph and Gmail: sender, subject, body preview/snippet, received time, importance/read state, source, and web link.
 - Email triage output: priority, category, short summary, suggested action, and possible due-date hint.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
@@ -18,6 +18,7 @@
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.
 - Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
+- Google passwords or Gmail OAuth access tokens beyond the short import request.
 - Sensitive caregiver notes unless the app has explicit consent, authentication, and deletion controls.
 
 ## Access Model
@@ -37,6 +38,7 @@
 - SMS provider secrets belong in server-only environment variables and server routes/functions.
 - Canvas tokens should be exchanged or used server-side only. Do not commit them, store them in browser storage, or paste them into docs.
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
+- Gmail access should use delegated Google OAuth scopes such as `gmail.readonly`; never collect, store, or replay the user's Google password.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage
@@ -54,4 +56,5 @@
 - Add caregiver invitations rather than manually editing caregiver links long term.
 - Prefer Canvas OAuth for production assignment imports. Personal access tokens are acceptable only for a temporary private test.
 - Prefer Microsoft OAuth authorization-code flow for school email imports. A password-based email connection is not acceptable for production.
+- Prefer Google OAuth authorization-code flow for personal Gmail imports. A password-based Gmail connection is not acceptable for production.
 - Keep accommodation support in UI behavior and triage rules wherever possible, rather than storing diagnosis labels.
