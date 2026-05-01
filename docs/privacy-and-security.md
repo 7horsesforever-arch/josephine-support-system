@@ -8,6 +8,7 @@
 - Imported school and personal email metadata/previews from Microsoft Graph and Gmail: sender, subject, body preview/snippet, received time, importance/read state, source, and web link.
 - Email triage output: priority, category, short summary, suggested action, and possible due-date hint.
 - Email draft output: recipient, subject, body, status, source, and drafting agent name.
+- A public credit union login URL for opening the banking site in a separate tab.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -16,6 +17,7 @@
 - Diagnoses or detailed medical history.
 - Disability labels, neurotype labels, or clinical support details unless there is a specific, consented accommodation workflow that requires storing them. Private design notes may reference Josephine's needs, but app database rows should avoid them by default.
 - School portal passwords or recovery codes.
+- Banking usernames, passwords, account numbers, routing numbers, card numbers, balances, or bill-pay credentials.
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.
 - Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
@@ -42,6 +44,7 @@
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
 - Gmail access should use delegated Google OAuth scopes such as `gmail.readonly`; never collect, store, or replay the user's Google password.
 - Email drafting agents may prepare editable replies, but they must not send, delete, archive, or mark mail read without explicit review.
+- Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage

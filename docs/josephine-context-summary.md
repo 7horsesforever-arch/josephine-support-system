@@ -45,6 +45,7 @@ The app should help turn those accommodations into practical reminders and revie
 - Keep reading load low: short summaries, clear headings, and one main action at a time.
 - Keep writing load low: suggested replies/actions should be draftable, editable, and never sent automatically.
 - Keep numeric load low: convert dates, times, and point values into plain-language urgency.
+- Keep money management concrete and guarded: open the credit union directly, show reminders/checklists, and require support before moving money or changing bill-pay settings.
 - Keep visual processing load low: avoid clutter, dense tables, tiny status differences, and layouts that require scanning many competing zones.
 - Keep speed pressure low: use calm states, forgiving snoozes, and recovery flows instead of punitive overdue language.
 - Support executive function: prioritize, sequence, remind, and provide recovery paths after missed tasks.
@@ -57,6 +58,13 @@ The app should help turn those accommodations into practical reminders and revie
 - Organize messages by urgency, deadline, meetings, admin/financial items, coursework, and support/accommodation topics.
 - Summaries should be plain-language and action-oriented.
 - The app should surface possible deadlines and suggested next steps without pretending to make final academic or administrative decisions.
+
+## Financial Support
+
+- Provide a clear link to the credit union account for balances and bill pay.
+- Use task reminders for weekly money checks and upcoming bills.
+- Do not store banking credentials, account numbers, card numbers, balances, or payment details in the app.
+- Do not automate payments or money movement.
 
 ## Safety Boundary
 

@@ -9,7 +9,13 @@ import {
   supabase,
 } from "@/lib/supabase";
 
-type TaskCategory = "school" | "communications" | "admin" | "health" | "life";
+type TaskCategory =
+  | "school"
+  | "communications"
+  | "financial"
+  | "admin"
+  | "health"
+  | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
 type ActionType = "done" | "already_did_it" | "snooze" | "need_help" | "created";
 type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
@@ -118,6 +124,7 @@ const storageKey = "josephine-support-state-v1";
 const primaryAccessEmail = "chilton18@gmail.com";
 const devicePasskeyName = "Josephine MacBook Touch ID";
 const defaultCanvasBaseUrl = "https://colostate.instructure.com";
+const creditUnionUrl = process.env.NEXT_PUBLIC_CREDIT_UNION_URL?.trim() ?? "";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
@@ -161,6 +168,17 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(5),
+      status: "ok",
+    },
+    {
+      id: "money-bills-check",
+      title: "Money and bills check",
+      category: "financial",
+      description:
+        "Normal reminder 7 days after completion. Fail-safe at 14 days.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(6),
       status: "ok",
     },
   ];
@@ -266,6 +284,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
   if (
     category === "school" ||
     category === "communications" ||
+    category === "financial" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -274,6 +293,17 @@ function normalizeTaskCategory(category: string): TaskCategory {
   }
 
   return "health";
+}
+
+function categoryLabel(category: TaskCategory) {
+  return {
+    school: "School",
+    communications: "Communications",
+    financial: "Financial",
+    admin: "Admin",
+    health: "Health",
+    life: "Life",
+  }[category];
 }
 
 function taskFromRow(row: TaskRow): SupportTask {
@@ -1177,6 +1207,7 @@ export default function Home() {
               <option value="health">Health</option>
               <option value="school">School</option>
               <option value="communications">Communications</option>
+              <option value="financial">Financial</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -1230,7 +1261,7 @@ export default function Home() {
                     <div className="grid gap-3 sm:flex sm:items-start sm:justify-between">
                       <div>
                         <span className="inline-flex min-h-6 items-center rounded-full bg-teal-50 px-3 text-xs font-bold capitalize text-teal-800">
-                          {task.category}
+                          {categoryLabel(task.category)}
                         </span>
                         <h3 className="mt-3 text-2xl font-bold">{task.title}</h3>
                         <p className="mt-1 text-stone-600">
@@ -1415,6 +1446,40 @@ export default function Home() {
                     No assignments imported yet.
                   </p>
                 )}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Money & Bills</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Open the credit union in a separate secure tab for balances,
+                transfers, and bill pay. This app should not store banking
+                passwords, account numbers, or bill-pay credentials.
+              </p>
+              {creditUnionUrl ? (
+                <a
+                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={creditUnionUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Credit Union
+                </a>
+              ) : (
+                <button
+                  className="mt-4 min-h-10 w-full cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
+                  type="button"
+                  disabled
+                >
+                  Credit Union Link Not Set
+                </button>
+              )}
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">Weekly routine</strong>
+                <span>
+                  Check balance, confirm upcoming bills, and ask for support
+                  before moving money or changing payment settings.
+                </span>
               </div>
             </section>
 
