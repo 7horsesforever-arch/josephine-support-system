@@ -6,12 +6,14 @@
 - Completion/action history.
 - Imported school assignment title, course name, due date, points, status, and Canvas link.
 - Imported school email metadata and previews from Microsoft Graph: sender, subject, body preview, received time, importance, read state, and web link.
+- Email triage output: priority, category, short summary, suggested action, and possible due-date hint.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
 ## Data We Should Avoid Storing
 
 - Diagnoses or detailed medical history.
+- Disability labels unless there is a specific, consented accommodation workflow that requires storing them.
 - School portal passwords or recovery codes.
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.
@@ -48,3 +50,4 @@
 - Add caregiver invitations rather than manually editing caregiver links long term.
 - Prefer Canvas OAuth for production assignment imports. Personal access tokens are acceptable only for a temporary private test.
 - Prefer Microsoft OAuth authorization-code flow for school email imports. A password-based email connection is not acceptable for production.
+- Keep accommodation support in UI behavior and triage rules wherever possible, rather than storing diagnosis labels.
