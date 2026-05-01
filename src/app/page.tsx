@@ -257,6 +257,9 @@ const helpCompassUrl = "https://helpcompass.colostate.edu/";
 const ramCardUrl = "https://www.ramcash.colostate.edu/";
 const transitUrl =
   "https://pts.colostate.edu/active-transportation-and-transit-commuter-services/transit-and-shuttles/";
+const transfortUrl = "https://ridetransfort.com/";
+const transfortBusTrackerUrl = "https://clever-web.fcgov.com/home";
+const csuCampusMapUrl = "https://maps.colostate.edu/";
 const parkingUrl = "https://pts.colostate.edu/parking-services/";
 const mailServicesUrl = "https://mailservices.colostate.edu/";
 const authNetworkErrorMessage =
@@ -666,7 +669,7 @@ const campusLogisticsItems = [
   {
     name: "Transit",
     detail:
-      "Use Around the Horn, Transfort, MAX, and courtesy shuttle info for backup transportation.",
+      "Use Around the Horn, Transfort, MAX, Bus Tracker, and stop-text arrivals for backup transportation.",
     href: transitUrl,
   },
   {
@@ -680,6 +683,37 @@ const campusLogisticsItems = [
     detail:
       "Know where to go, how to pay, and what to bring before the clean-clothes crisis.",
     href: null,
+  },
+];
+
+const realTimeTransitTools = [
+  {
+    name: "Transfort Bus Tracker",
+    status: "Real-time",
+    detail:
+      "Open the Fort Collins tracker to see live bus locations and estimated arrivals by route or stop.",
+    href: transfortBusTrackerUrl,
+  },
+  {
+    name: "CSU Campus Map",
+    status: "Campus routes",
+    detail:
+      "Use CSU's interactive campus map for live campus bus route tracking when she is moving between CSU locations.",
+    href: csuCampusMapUrl,
+  },
+  {
+    name: "Ride Transfort",
+    status: "Routes and alerts",
+    detail:
+      "Check route schedules, rider alerts, and the RideTransfort app for instant updates on delays.",
+    href: transfortUrl,
+  },
+  {
+    name: "Text a stop ID",
+    status: "No app needed",
+    detail:
+      "At a Transfort stop, text the four-digit stop ID to 970-829-1700 for next arrivals.",
+    href: transfortUrl,
   },
 ];
 
@@ -3616,6 +3650,37 @@ export default function Home() {
                     ) : null}
                   </article>
                 ))}
+              </div>
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Real-time transit
+                </h3>
+                <div className="mt-3 grid gap-3">
+                  {realTimeTransitTools.map((tool) => (
+                    <article
+                      className="rounded-md border border-teal-100 bg-teal-50/60 p-3"
+                      key={tool.name}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <strong className="text-sm">{tool.name}</strong>
+                        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-teal-900">
+                          {tool.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-stone-700">
+                        {tool.detail}
+                      </p>
+                      <a
+                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                        href={tool.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open
+                      </a>
+                    </article>
+                  ))}
+                </div>
               </div>
             </section>
 

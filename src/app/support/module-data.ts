@@ -286,9 +286,18 @@ export const supportModules: SupportModule[] = [
           "RamCard and RamCash.",
           "Meal plan and dining access.",
           "Parking permit and where to park on class days.",
-          "Around the Horn, Transfort, MAX, and backup transportation.",
+          "Around the Horn, Transfort, MAX, Bus Tracker, and stop-text arrivals.",
           "Laundry location, payment method, detergent, and backup clothes routine.",
           "Mailing address and package pickup routine.",
+        ],
+      },
+      {
+        title: "Real-Time Transit",
+        items: [
+          "Use Transfort Bus Tracker for live bus locations and estimated arrivals.",
+          "Use CSU transit and shuttle info for Around the Horn, MAX, and campus route planning.",
+          "At a Transfort stop, text the four-digit stop ID to 970-829-1700 for next arrivals.",
+          "Future deeper integration should use an official feed or written permission before storing live transit data.",
         ],
       },
       {
@@ -308,6 +317,12 @@ export const supportModules: SupportModule[] = [
         label: "Transit",
         href: "https://pts.colostate.edu/active-transportation-and-transit-commuter-services/transit-and-shuttles/",
       },
+      {
+        label: "Transfort Bus Tracker",
+        href: "https://clever-web.fcgov.com/home",
+      },
+      { label: "Ride Transfort", href: "https://ridetransfort.com/" },
+      { label: "CSU Campus Map", href: "https://maps.colostate.edu/" },
       { label: "Mail Services", href: "https://mailservices.colostate.edu/" },
     ],
   },

@@ -33,6 +33,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Vehicle support reminders for mileage checks, fuel, wash/cleanout, and oil-service planning.
 - Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
 - Viper Cam placeholder for a private barn camera link or future secure stream.
+- Real-time transit links for Transfort Bus Tracker, CSU campus routes, RideTransfort alerts, and text-stop arrivals.
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 - Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
 - Caregiver/admin page at `/support/admin`, linked quietly from the bottom of the dashboard and protected for `chilton18@gmail.com` through Supabase Google login.
