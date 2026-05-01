@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSupportModule, supportModules } from "../module-data";
 import { HealthRoutineDashboard } from "../health-routine-dashboard";
 import { MessagesWorkspace } from "../messages-workspace";
+import { MoneyPlaidDashboard } from "../money-plaid-dashboard";
 import { SchoolFocusTimer } from "../school-focus-timer";
 
 const healthMetricCards = [
@@ -532,6 +533,8 @@ export default async function SupportModulePage({
         {supportModule.slug === "messages" ? <MessagesWorkspace /> : null}
 
         {supportModule.slug === "food" ? <FoodDashboard /> : null}
+
+        {supportModule.slug === "money" ? <MoneyPlaidDashboard /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (

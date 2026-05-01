@@ -407,8 +407,17 @@ export const supportModules: SupportModule[] = [
     title: "Money",
     eyebrow: "Financial",
     summary:
-      "Read-only balance checks, weekly money resets, and bill reminders without moving money in the app.",
+      "Canvas Credit Union via Plaid, read-only balance checks, weekly money resets, and bill reminders without moving money in the app.",
     sections: [
+      {
+        title: "Canvas Credit Union",
+        items: [
+          "Connect Canvas Credit Union through Plaid for read-only balance visibility.",
+          "Use Plaid Link so banking credentials are handled by Plaid, not stored in this app.",
+          "Show account names, last four digits when available, and balances only.",
+          "Refresh balances from the Money page when Josephine wants a current check.",
+        ],
+      },
       {
         title: "Weekly Reset",
         items: [
