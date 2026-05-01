@@ -257,6 +257,58 @@ const miniFridgeShoppingList = [
   "Sparkling water or electrolyte drinks",
 ];
 
+const academicSupportResources = [
+  {
+    name: "Assistive Technology Resource Center",
+    shortName: "ATRC",
+    useFor:
+      "Choosing tools for reading, writing, note-taking, organization, and access.",
+    timing: "Request a meeting before assignments pile up.",
+    contact: "970-491-6258 · atrc@colostate.edu",
+    href: "https://www.chhs.colostate.edu/atrc/student-services/",
+  },
+  {
+    name: "TILT Tutoring",
+    shortName: "TILT",
+    useFor: "Course tutoring, study strategy, and getting unstuck early.",
+    timing: "Schedule several days before a quiz, test, or major due date.",
+    contact: "Use CSU TILT tutoring resources.",
+    href: "https://tilt.colostate.edu/learning/tutoring/",
+  },
+  {
+    name: "Student Disability Center",
+    shortName: "SDC",
+    useFor: "Accommodation questions, support planning, and access issues.",
+    timing: "Contact as soon as an accommodation problem appears.",
+    contact: "970-491-6385",
+    href: "https://disabilitycenter.colostate.edu/",
+  },
+  {
+    name: "Testing Center",
+    shortName: "Testing",
+    useFor: "Scheduling accommodated exams.",
+    timing: "Book early; testing accommodations usually need advance scheduling.",
+    contact: "Use CSU testing instructions from the course or SDC.",
+    href: null,
+  },
+  {
+    name: "Key Living and Learning Community",
+    shortName: "Key LLC",
+    useFor: "Peer/community support and help navigating first-year routines.",
+    timing: "Use for planning, accountability, and campus connection.",
+    contact: "Use Key community staff and programming.",
+    href: "https://key.lc.colostate.edu/",
+  },
+  {
+    name: "Opportunities for Postsecondary Success",
+    shortName: "OPS",
+    useFor: "Structured support for postsecondary success and follow-through.",
+    timing: "Use for recurring planning and accountability.",
+    contact: "Use Josephine's OPS contact once confirmed.",
+    href: "https://www.chhs.colostate.edu/ccp/programs/opportunities-for-postsecondary-success/",
+  },
+];
+
 function daysAgo(count: number) {
   const date = new Date();
   date.setHours(9, 0, 0, 0);
@@ -330,6 +382,17 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 14,
       maxGapDays: 21,
       lastCompletedAt: daysAgo(12),
+      status: "due",
+    },
+    {
+      id: "request-atrc-meeting",
+      title: "Request ATRC meeting",
+      category: "school",
+      description:
+        "Follow up on the assistive technology referral before assignments get busy.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(8),
       status: "due",
     },
   ];
@@ -1785,6 +1848,46 @@ export default function Home() {
                   ))}
                 </ol>
               ) : null}
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Academic Resources</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Match assignments with support early, especially when assistive
+                technology, tutoring, accommodations, or testing plans are needed.
+              </p>
+              <div className="mt-4 grid gap-3">
+                {academicSupportResources.map((resource) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={resource.shortName}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{resource.shortName}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {resource.name}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{resource.useFor}</p>
+                    <p className="mt-1 text-xs text-stone-500">{resource.timing}</p>
+                    <p className="mt-1 text-xs text-stone-500">{resource.contact}</p>
+                    {resource.href ? (
+                      <a
+                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                        href={resource.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open Resource
+                      </a>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-stone-500">
+                Private referral codes, student IDs, and accommodation documents
+                belong in secure notes or private document storage, not app code.
+              </p>
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">

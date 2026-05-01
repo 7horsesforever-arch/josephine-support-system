@@ -31,6 +31,17 @@ Josephine's college learning plan may include shortened assignments, extended de
 
 The app should help turn those accommodations into practical reminders and review prompts, for example: "Does this assignment need an extension request?", "Would audio or typing support help?", or "Is this a good item to review with support?"
 
+## Academic Support Resources
+
+- Assistive Technology Resource Center (ATRC): help Josephine explore tools for reading, writing, note-taking, organization, and access. The app should prompt for an early ATRC meeting before assignments accumulate.
+- TILT tutoring: support for course tutoring, study strategy, and getting unstuck early.
+- Student Disability Center: support for accommodation questions, access barriers, and follow-up planning.
+- Testing Center: support for scheduling accommodated exams with enough lead time.
+- Key Living and Learning Community: peer/community support and first-year routine help.
+- Opportunities for Postsecondary Success (OPS): structured planning and accountability support once contact details are confirmed.
+
+Assignment agents should recommend resources based on the work type, deadline runway, testing needs, and the amount of setup time each resource requires.
+
 ## Access And Account Context
 
 - Primary app access should be device-first on Josephine's MacBook with Touch ID/passkeys.
