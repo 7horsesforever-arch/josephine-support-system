@@ -35,6 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Viper Cam placeholder for a private barn camera link or future secure stream.
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 - Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
+- Admin and caregiver sustainability reviews for monthly maintenance, semester resets, biannual agent review, annual production review, and consent-based check-ins.
 
 ## Supabase Setup
 

@@ -269,7 +269,50 @@ const dashboardJumpLinks = [
   { label: "Money", href: "#money" },
   { label: "Housing", href: "#housing" },
   { label: "Viper", href: "#viper-cam" },
+  { label: "Admin", href: "#admin-caregiver" },
   { label: "Done log", href: "#done-log" },
+];
+
+const sustainabilityReviewPlan = [
+  {
+    name: "Monthly maintenance",
+    cadence: "Monthly",
+    detail:
+      "Check Canvas import, email drafting, Plaid balances, overdue tasks, broken links, and whether the dashboard feels too noisy.",
+  },
+  {
+    name: "Semester reset",
+    cadence: "Before each semester",
+    detail:
+      "Refresh classes, syllabi, accommodation letters, exam dates, tutoring resources, housing, parking, and campus routines.",
+  },
+  {
+    name: "Biannual agent review",
+    cadence: "Twice a year",
+    detail:
+      "Review privacy, security, stale content, integrations, app complexity, and whether Ask JoJo is answering from the right places.",
+  },
+  {
+    name: "Annual production review",
+    cadence: "Before each school year",
+    detail:
+      "Rotate old tokens, verify backups, review OAuth/Plaid/Supabase settings, confirm costs, and re-confirm connected-service consent.",
+  },
+];
+
+const caregiverCheckInPrompts = [
+  "What helped this week?",
+  "What felt too noisy or annoying in the app?",
+  "Is anything overdue because it is confusing, scary, or has too many steps?",
+  "Do any accommodations, classes, housing, food, money, or health supports need follow-up?",
+  "What should be removed, hidden, or made easier next?",
+];
+
+const caregiverBoundaryRules = [
+  "Check-ins should be consent-based and focused on support, not surveillance.",
+  "Do not expose private emails, messages, grades, bank details, or health details in caregiver summaries by default.",
+  "Use high-level status: working, needs setup, needs help, stale, or review soon.",
+  "Josephine should be able to see what is shared and turn off caregiver summaries later.",
 ];
 
 const campusDiningLocations = [
@@ -1225,7 +1268,71 @@ function createStarterTasks(): SupportTask[] {
       lastCompletedAt: daysAgo(18),
       status: "due",
     },
+    {
+      id: "monthly-app-maintenance",
+      title: "Monthly app maintenance",
+      category: "admin",
+      description:
+        "Check Canvas import, email drafting, Plaid balances, overdue tasks, broken links, and whether the dashboard feels too noisy.",
+      normalIntervalDays: 30,
+      maxGapDays: 45,
+      lastCompletedAt: daysAgo(33),
+      status: "due",
+    },
+    {
+      id: "semester-reset-review",
+      title: "Semester reset review",
+      category: "admin",
+      description:
+        "Before each term, refresh classes, syllabi, accommodation letters, exam dates, housing, parking, food, and campus routines.",
+      normalIntervalDays: 120,
+      maxGapDays: 150,
+      lastCompletedAt: daysAgo(125),
+      status: "due",
+    },
+    {
+      id: "biannual-agent-review",
+      title: "Biannual agent review",
+      category: "admin",
+      description:
+        "Review privacy, security, stale content, integrations, app complexity, and whether Ask JoJo is answering from the right places.",
+      normalIntervalDays: 180,
+      maxGapDays: 210,
+      lastCompletedAt: daysAgo(181),
+      status: "due",
+    },
+    {
+      id: "annual-production-review",
+      title: "Annual production review",
+      category: "admin",
+      description:
+        "Rotate old tokens, verify backups, review OAuth/Plaid/Supabase settings, confirm costs, and re-confirm connected-service consent.",
+      normalIntervalDays: 365,
+      maxGapDays: 395,
+      lastCompletedAt: daysAgo(366),
+      status: "due",
+    },
+    {
+      id: "caregiver-check-in",
+      title: "Caregiver check-in",
+      category: "admin",
+      description:
+        "Do a consent-based support check-in: what helped, what is noisy, what feels stuck, and what should be simplified.",
+      normalIntervalDays: 14,
+      maxGapDays: 30,
+      lastCompletedAt: daysAgo(15),
+      status: "due",
+    },
   ];
+}
+
+function addMissingStarterTasks(currentTasks: SupportTask[]) {
+  const existingIds = new Set(currentTasks.map((task) => task.id));
+  const missingStarterTasks = createStarterTasks().filter(
+    (task) => !existingIds.has(task.id),
+  );
+
+  return [...currentTasks, ...missingStarterTasks];
 }
 
 function createInitialHistory(): HistoryEntry[] {
@@ -1549,10 +1656,12 @@ export default function Home() {
         window.queueMicrotask(() => {
           if (Array.isArray(parsedState.tasks)) {
             setTasks(
-              parsedState.tasks.map((task: SupportTask) => ({
-                ...task,
-                category: normalizeTaskCategory(task.category),
-              })),
+              addMissingStarterTasks(
+                parsedState.tasks.map((task: SupportTask) => ({
+                  ...task,
+                  category: normalizeTaskCategory(task.category),
+                })),
+              ),
             );
           }
           if (Array.isArray(parsedState.history)) setHistory(parsedState.history);
@@ -1655,7 +1764,18 @@ export default function Home() {
       }
 
       if ((savedTasks ?? []).length > 0) {
-        setTasks(savedTasks.map(taskFromRow));
+        const currentTasks = savedTasks.map(taskFromRow);
+        const nextTasks = addMissingStarterTasks(currentTasks);
+        const currentTaskIds = new Set(currentTasks.map((task) => task.id));
+        const missingTasks = nextTasks.filter((task) => !currentTaskIds.has(task.id));
+
+        setTasks(nextTasks);
+
+        if (missingTasks.length > 0) {
+          await supabase!
+            .from("support_tasks")
+            .upsert(missingTasks.map((task) => taskToRow(task, activeUserId)));
+        }
       } else {
         const starterTasks = createStarterTasks();
         setTasks(starterTasks);
@@ -3934,6 +4054,57 @@ export default function Home() {
                   private storage when ready.
                 </p>
               )}
+            </section>
+
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="admin-caregiver"
+            >
+              <h2 className="text-lg font-bold">Admin & Caregiver</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                A support-first place to keep the app healthy without turning it
+                into a surveillance dashboard.
+              </p>
+              <SupportPageLink href="/support/admin" />
+
+              <div className="mt-4 grid gap-3">
+                {sustainabilityReviewPlan.map((item) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={item.name}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{item.name}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {item.cadence}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3">
+                <strong className="text-sm text-teal-950">
+                  Caregiver check-in prompts
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
+                  {caregiverCheckInPrompts.map((prompt) => (
+                    <li key={prompt}>{prompt}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                <strong className="text-sm text-amber-950">
+                  Sharing boundaries
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
+                  {caregiverBoundaryRules.map((rule) => (
+                    <li key={rule}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
             </section>
 
             <section

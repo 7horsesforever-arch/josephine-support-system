@@ -416,6 +416,43 @@ export const supportModules: SupportModule[] = [
       },
     ],
   },
+  {
+    slug: "admin",
+    title: "Admin & Caregiver",
+    eyebrow: "Sustainability",
+    summary:
+      "Review rhythms, caregiver check-ins, privacy boundaries, and app maintenance so the system stays useful.",
+    sections: [
+      {
+        title: "Review Rhythm",
+        items: [
+          "Monthly: check Canvas import, email drafting, Plaid balances, overdue tasks, broken links, and dashboard noise.",
+          "Before each semester: refresh classes, syllabi, accommodation letters, exam dates, housing, parking, food, and campus routines.",
+          "Twice a year: review privacy, security, stale content, integrations, app complexity, and Ask JoJo answer quality.",
+          "Before each school year: rotate old tokens, verify backups, review OAuth/Plaid/Supabase settings, confirm costs, and re-confirm connected-service consent.",
+        ],
+      },
+      {
+        title: "Caregiver Check-In",
+        items: [
+          "What helped this week?",
+          "What felt too noisy or annoying in the app?",
+          "Is anything overdue because it is confusing, scary, or has too many steps?",
+          "Do any accommodations, classes, housing, food, money, or health supports need follow-up?",
+          "What should be removed, hidden, or made easier next?",
+        ],
+      },
+      {
+        title: "Privacy Boundaries",
+        items: [
+          "Check-ins should be consent-based and focused on support, not surveillance.",
+          "Do not expose private emails, messages, grades, bank details, or health details in caregiver summaries by default.",
+          "Use high-level status: working, needs setup, needs help, stale, or review soon.",
+          "Josephine should be able to see what is shared and turn off caregiver summaries later.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function getSupportModule(slug: string) {
