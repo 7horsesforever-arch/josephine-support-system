@@ -1463,6 +1463,54 @@ export default function Home() {
 
           <aside className="grid gap-4">
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Communications Agent</h2>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Draft replies from triaged CSU email and Gmail. Drafts stay
+                    in review until Josephine edits and approves them.
+                  </p>
+                </div>
+                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+                  Review first
+                </span>
+              </div>
+              <button
+                className="mt-4 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                type="button"
+                onClick={generateEmailDrafts}
+                disabled={isEmailDrafting}
+              >
+                {isEmailDrafting ? "Drafting" : "Generate Draft Replies"}
+              </button>
+              <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
+              {emailDrafts.length > 0 ? (
+                <ol className="mt-4 grid gap-3">
+                  {emailDrafts.map((draft) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={draft.id}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{draft.subject}</strong>
+                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">
+                          {draft.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <span className="mt-1 block text-xs text-stone-500">
+                        To {draft.recipientEmail ?? "sender"} ·{" "}
+                        {draft.source === "google_gmail" ? "Gmail" : "CSU email"}
+                      </span>
+                      <p className="mt-3 whitespace-pre-line text-sm text-stone-700">
+                        {draft.body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-bold">School Connections</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Save Canvas once for the semester or school year. The token is
@@ -1772,54 +1820,6 @@ export default function Home() {
                   the codebase.
                 </p>
               )}
-            </section>
-
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold">Communications Agent</h2>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Draft replies from triaged CSU email and Gmail. Drafts stay
-                    in review until Josephine edits and approves them.
-                  </p>
-                </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
-                  Review first
-                </span>
-              </div>
-              <button
-                className="mt-4 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
-                type="button"
-                onClick={generateEmailDrafts}
-                disabled={isEmailDrafting}
-              >
-                {isEmailDrafting ? "Drafting" : "Generate Draft Replies"}
-              </button>
-              <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
-              {emailDrafts.length > 0 ? (
-                <ol className="mt-4 grid gap-3">
-                  {emailDrafts.map((draft) => (
-                    <li
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={draft.id}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong className="text-sm">{draft.subject}</strong>
-                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">
-                          {draft.status.replace("_", " ")}
-                        </span>
-                      </div>
-                      <span className="mt-1 block text-xs text-stone-500">
-                        To {draft.recipientEmail ?? "sender"} ·{" "}
-                        {draft.source === "google_gmail" ? "Gmail" : "CSU email"}
-                      </span>
-                      <p className="mt-3 whitespace-pre-line text-sm text-stone-700">
-                        {draft.body}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
