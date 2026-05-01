@@ -1,7 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+import { createClient } from "@/utils/supabase/client"
 
 type PasskeyResult = {
   data?: unknown | null
@@ -28,17 +25,7 @@ type PasskeyReadyAuth = {
   }
 }
 
-const supabaseOptions = {
-  auth: {
-    experimental: {
-      passkey: true,
-    },
-  },
-} as NonNullable<Parameters<typeof createClient>[2]>
-
-export const supabase = supabaseUrl && supabasePublishableKey
-  ? createClient(supabaseUrl, supabasePublishableKey, supabaseOptions)
-  : null
+export const supabase = createClient()
 
 export const isSupabaseConfigured = supabase !== null
 
