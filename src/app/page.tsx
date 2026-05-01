@@ -2,7 +2,12 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import {
+  isSupabaseConfigured,
+  registerDevicePasskey,
+  signInWithDevicePasskey,
+  supabase,
+} from "@/lib/supabase";
 
 type TaskCategory = "hygiene" | "school" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
@@ -53,6 +58,8 @@ type HistoryRow = {
 
 const dayMs = 24 * 60 * 60 * 1000;
 const storageKey = "josephine-support-state-v1";
+const primaryAccessEmail = "chilton18@gmail.com";
+const devicePasskeyName = "Josephine MacBook Touch ID";
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -251,6 +258,10 @@ export default function Home() {
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [syncMessage, setSyncMessage] = useState("Checking saved data...");
+  const [passkeyStatus, setPasskeyStatus] = useState(
+    "This MacBook can become the primary access device after one secure email sign-in.",
+  );
+  const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
 
   const userId = session?.user.id;
 
@@ -553,6 +564,20 @@ export default function Home() {
     setSyncMessage("Private data saved to Supabase.");
   }
 
+  async function setUpDevicePasskey() {
+    setIsPasskeySubmitting(true);
+    setPasskeyStatus("Starting Touch ID passkey setup...");
+
+    const { error } = await registerDevicePasskey(devicePasskeyName);
+
+    setIsPasskeySubmitting(false);
+    setPasskeyStatus(
+      error?.message
+        ? error.message
+        : "Touch ID passkey is ready on this MacBook. Keep the secure email link as backup.",
+    );
+  }
+
   if (isSupabaseConfigured && !authReady) {
     return <LoadingScreen />;
   }
@@ -585,13 +610,31 @@ export default function Home() {
               {summary.ready + summary.failsafe} to review
             </strong>
             {session ? (
-              <button
-                className="mt-3 min-h-9 rounded-md border border-stone-300 px-3 text-sm font-semibold text-stone-700 hover:bg-stone-100"
-                type="button"
-                onClick={() => supabase?.auth.signOut()}
-              >
-                Sign out
-              </button>
+              <div className="mt-3 grid gap-3 border-t border-stone-200 pt-3">
+                <div className="text-sm text-stone-600">
+                  <strong className="block text-stone-950">
+                    Device-first access
+                  </strong>
+                  <span>{passkeyStatus}</span>
+                </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    className="min-h-9 rounded-md bg-teal-700 px-3 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                    type="button"
+                    onClick={setUpDevicePasskey}
+                    disabled={isPasskeySubmitting}
+                  >
+                    {isPasskeySubmitting ? "Starting" : "Set Up Touch ID"}
+                  </button>
+                  <button
+                    className="min-h-9 rounded-md border border-stone-300 px-3 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+                    type="button"
+                    onClick={() => supabase?.auth.signOut()}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
             ) : null}
           </div>
         </header>
@@ -768,9 +811,10 @@ export default function Home() {
 }
 
 function AuthGate() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(primaryAccessEmail);
   const [message, setMessage] = useState("Sign in to open private task data.");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
 
   async function requestMagicLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -793,6 +837,20 @@ function AuthGate() {
     );
   }
 
+  async function signInWithPasskey() {
+    setIsPasskeySubmitting(true);
+    setMessage("Checking for a passkey on this device...");
+
+    const { error } = await signInWithDevicePasskey(email.trim() || undefined);
+
+    setIsPasskeySubmitting(false);
+    setMessage(
+      error?.message
+        ? error.message
+        : "Passkey accepted. Opening private support workspace...",
+    );
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 text-stone-950">
       <section className="w-full max-w-md rounded-lg border border-stone-300 bg-white p-6 shadow-sm">
@@ -801,13 +859,34 @@ function AuthGate() {
         </p>
         <h1 className="mt-2 text-3xl font-black">Sign in</h1>
         <p className="mt-2 text-stone-600">{message}</p>
+        <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950">
+          <strong className="block">Device-first access</strong>
+          <span>
+            Josephine&apos;s MacBook with Touch ID should be the easiest way
+            back in. Use the secure email link once, then set up a passkey on
+            this device. School passwords are never stored here.
+          </span>
+        </div>
+        <button
+          className="mt-5 min-h-11 w-full rounded-md border border-teal-700 px-4 font-semibold text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+          type="button"
+          onClick={signInWithPasskey}
+          disabled={isPasskeySubmitting}
+        >
+          {isPasskeySubmitting ? "Checking" : "Use Touch ID passkey"}
+        </button>
+        <div className="my-5 flex items-center gap-3 text-xs font-bold uppercase text-stone-500">
+          <span className="h-px flex-1 bg-stone-200" />
+          Secure email backup
+          <span className="h-px flex-1 bg-stone-200" />
+        </div>
         <form className="mt-5 grid gap-3" onSubmit={requestMagicLink}>
           <input
             className="min-h-11 rounded-md border border-stone-300 px-3"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="email@example.com"
+            placeholder={primaryAccessEmail}
             required
           />
           <button

@@ -19,6 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - One-tap actions: Done, Already Did It, Snooze, Need Help.
 - Completion-based next reminder and fail-safe dates.
 - Supabase Auth gate when Supabase is configured.
+- Device-first access note with passkey-ready Touch ID setup.
 - User-scoped Supabase persistence with Row Level Security.
 - Browser-only local mode only when Supabase is not configured.
 - Server-side escalation endpoint placeholder at `/api/escalations`.
@@ -43,9 +44,13 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
 The schema uses authenticated-user policies. Do not enter real sensitive data until you have confirmed sign-in and RLS behavior in Supabase.
 
+Passkey support is wired as a ready path for Josephine's MacBook with Touch ID. Keep the secure email link enabled as the backup sign-in path, then enable Supabase passkey/WebAuthn support before registering a passkey from the signed-in dashboard.
+
 ## Privacy And Security
 
 Read `docs/privacy-and-security.md` before adding real school, health, phone, email, or caregiver data.
+
+Read `docs/device-first-access.md` before changing sign-in, passkey, Microsoft, Canvas, or school portal access.
 
 Read `docs/accessibility-support-design.md` before changing task, email, or assignment workflows.
 
@@ -60,6 +65,7 @@ npm run build
 
 - Run the Supabase schema.
 - Verify auth sign-in and private mode.
+- Enable Supabase passkeys and register the MacBook Touch ID passkey.
 - Add caregiver SMS fail-safe alerts.
 - Connect the Canvas import endpoint to an authenticated UI flow.
 - Connect Microsoft OAuth so CSU email can be imported without handling passwords.

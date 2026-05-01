@@ -23,6 +23,8 @@
 ## Access Model
 
 - Supabase Auth is required before database data is shown.
+- Device-first access is preferred on Josephine's MacBook with Touch ID.
+- Passkeys should be used when Supabase passkey/WebAuthn support is enabled, with secure email link sign-in kept as recovery.
 - Row Level Security is enabled on app tables.
 - A student can read and write their own tasks and history.
 - A caregiver can read a student's data only through an explicit `caregiver_links` row.
@@ -35,6 +37,7 @@
 - SMS provider secrets belong in server-only environment variables and server routes/functions.
 - Canvas tokens should be exchanged or used server-side only. Do not commit them, store them in browser storage, or paste them into docs.
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
+- Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage
 
@@ -45,6 +48,7 @@
 
 - Run `supabase/schema.sql`.
 - Confirm auth sign-in works.
+- Register a Touch ID passkey from Josephine's MacBook only after passkeys are enabled in Supabase.
 - Confirm a signed-out browser cannot read or write task rows.
 - Add a deletion/export process for Josephine's data.
 - Add caregiver invitations rather than manually editing caregiver links long term.
