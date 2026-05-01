@@ -293,7 +293,6 @@ const dashboardJumpLinks = [
   { label: "Money", href: "#money" },
   { label: "Housing", href: "#housing" },
   { label: "Viper", href: "#viper-cam" },
-  { label: "Done log", href: "#done-log" },
 ];
 
 const safetyAlertResponseSteps = [
@@ -1569,16 +1568,6 @@ function statusLabel(status: TaskStatus) {
     needs_help: "Needs help",
     escalated: "Backup check",
   }[status];
-}
-
-function historyLabel(type: ActionType) {
-  return {
-    done: "marked done",
-    already_did_it: "already did it",
-    snooze: "snoozed",
-    need_help: "asked for help",
-    created: "created",
-  }[type];
 }
 
 function actionClasses(type: ActionType) {
@@ -3003,7 +2992,7 @@ export default function Home() {
             label="Backup checks"
             danger
           />
-          <SummaryMetric value={history.length} label="Done log" />
+          <SummaryMetric value={history.length} label="Did it" />
         </section>
 
         <section className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
@@ -4531,31 +4520,15 @@ export default function Home() {
               )}
             </section>
 
-            <section
-              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
-              id="done-log"
-            >
-              <h2 className="mb-4 text-lg font-bold">Done Log</h2>
-              <ol className="grid gap-3">
-                {history.slice(0, 12).map((entry) => (
-                  <li
-                    className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
-                    key={entry.id}
-                  >
-                    <strong className="block">{entry.taskTitle}</strong>
-                    <span className="block text-stone-600">
-                      {historyLabel(entry.type)}
-                    </span>
-                    <span className="block text-sm text-stone-500">
-                      {formatDateTime(entry.createdAt)}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </section>
           </aside>
         </section>
-        <footer className="flex justify-end pb-2 pt-4">
+        <footer className="flex justify-end gap-2 pb-2 pt-4">
+          <Link
+            className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
+            href="/support/did-it"
+          >
+            Did it
+          </Link>
           <Link
             className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
             href="/support/admin"

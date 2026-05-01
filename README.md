@@ -19,6 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Weekly room reset reminder with an after-cleaning supply check for Amazon list review.
 - One-tap actions: Done, Already Did It, Snooze, Need Help.
 - Completion-based next reminder and fail-safe dates.
+- Dedicated Did it page at `/support/did-it` instead of a front-page done-log module.
 - Supabase Auth gate when Supabase is configured.
 - Device-first access note with passkey-ready Touch ID setup.
 - User-scoped Supabase persistence with Row Level Security.
