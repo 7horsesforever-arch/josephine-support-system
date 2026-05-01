@@ -463,7 +463,7 @@ const viperCamSafetyNotes = [
 
 const medicalSupportPlan = [
   {
-    name: "Insurance and cards",
+    name: "Insurance stuff",
     cadence: "Before fall and after changes",
     detail:
       "Keep insurance card, pharmacy card, and CSU health requirement status easy to find.",
@@ -505,9 +505,9 @@ const emergencyPlanItems = [
     detail: "Dusk-to-dawn campus walking escort when she feels unsafe walking alone.",
   },
   {
-    name: "Caregiver support",
-    contact: "Family contact list",
-    detail: "Keep trusted contacts available without exposing private phone numbers in app code.",
+    name: "Family backup",
+    contact: "Trusted people",
+    detail: "Keep the people she trusts easy to find without putting phone numbers in code.",
   },
 ];
 
@@ -539,7 +539,7 @@ const campusLogisticsItems = [
   {
     name: "Laundry",
     detail:
-      "Keep the laundry location, payment method, detergent, and backup clothes routine visible.",
+      "Know where to go, how to pay, and what to bring before the clean-clothes crisis.",
     href: null,
   },
 ];
@@ -550,16 +550,16 @@ const semesterLaunchItems = [
   "Capture exam dates, final exam dates, and SDC testing deadlines.",
   "Buy or rent textbooks and confirm audiobook/accessible format needs.",
   "Save professor office hours, TA contacts, and tutoring resources.",
-  "Set weekly planning block, study blocks, meal anchors, and sleep anchors.",
+  "Pick a weekly planning time, study blocks, meal anchors, and sleep anchors.",
 ];
 
 const calendarRoutineItems = [
-  "Weekly planning review",
+  "Weekly reset",
   "Class schedule and room check",
   "Study blocks before due dates",
   "Meals and hydration anchors",
   "Sleep and wake routine",
-  "Work shifts and recovery time",
+  "Work shifts and downtime",
   "Appointments and transportation buffers",
 ];
 
@@ -585,7 +585,7 @@ const packingInventoryItems = [
 ];
 
 const travelSupportItems = [
-  "Plan trips home and Viper visits around academic deadlines.",
+  "Plan trips home and Viper visits around due dates.",
   "Keep packing lists for Colorado-to-California travel.",
   "Track flight, shuttle, or driving details in one place.",
   "Add recovery time after long travel days.",
@@ -599,7 +599,7 @@ const socialBelongingItems = [
 ];
 
 const supportScriptIdeas = [
-  "Professor: ask for clarification, extension, office hours, or accommodation follow-up.",
+  "Professor: ask for clarification, office hours, an extension, or accommodation follow-up.",
   "RA or housing: ask about room, roommate/suitemate, maintenance, or package issues.",
   "Supervisor: ask about schedule, hours, availability, or time-off needs.",
   "SDC: report accommodation problems or ask how to use an approved support.",
@@ -607,11 +607,11 @@ const supportScriptIdeas = [
 ];
 
 const planningAgentIdeas = [
-  "Semester setup agent: syllabi, due dates, textbooks, testing, and accommodation letters.",
-  "Weekly planning agent: school, food, health, work, social, money, and travel load.",
-  "Document organizer agent: routes PDFs to Drive folders and creates reminders.",
-  "Escalation agent: flags overdue support items and suggests who to contact.",
-  "Social decoder agent: explains tone, implied asks, urgency, and safe reply options for selected emails or texts.",
+  "Semester setup helper: syllabi, due dates, textbooks, testing, and accommodation letters.",
+  "Weekly planning helper: school, food, health, work, friends, money, and travel load.",
+  "Document helper: routes PDFs to Drive folders and creates reminders.",
+  "Support helper: flags overdue items and suggests who to contact.",
+  "Social decoder: explains tone, implied asks, urgency, and safe reply options for selected emails or texts.",
 ];
 
 const academicSupportResources: AcademicSupportResource[] = [
@@ -697,7 +697,7 @@ function createStarterTasks(): SupportTask[] {
       title: "Shower",
       category: "health",
       description:
-        "Normal reminder 2 days after completion. Fail-safe at 7 days.",
+        "Shows up every couple of days. If it slips a week, it moves into backup-check mode.",
       normalIntervalDays: 2,
       maxGapDays: 7,
       lastCompletedAt: daysAgo(3),
@@ -708,7 +708,7 @@ function createStarterTasks(): SupportTask[] {
       title: "Brush teeth at night",
       category: "health",
       description:
-        "Normal reminder 1 day after completion. Fail-safe at 2 days.",
+        "Small night reset. If it gets skipped, the app brings it back gently.",
       normalIntervalDays: 1,
       maxGapDays: 2,
       lastCompletedAt: daysAgo(1),
@@ -719,7 +719,7 @@ function createStarterTasks(): SupportTask[] {
       title: "Laundry",
       category: "life",
       description:
-        "Normal reminder 7 days after completion. Fail-safe at 14 days.",
+        "Weekly-ish clothes reset so laundry does not become an emergency.",
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(5),
@@ -727,10 +727,10 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "money-bills-check",
-      title: "Money and bills check",
+      title: "Money check-in",
       category: "financial",
       description:
-        "Normal reminder 7 days after completion. Fail-safe at 14 days.",
+        "Quick look at balance, bills, and anything that needs backup before it gets stressful.",
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(6),
@@ -738,10 +738,10 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "housing-documents-check",
-      title: "Housing documents check",
+      title: "Housing paperwork check",
       category: "housing",
       description:
-        "Normal reminder 14 days after completion. Fail-safe at 30 days.",
+        "Keep contracts, move-in notes, room info, and housing dates from getting buried.",
       normalIntervalDays: 14,
       maxGapDays: 30,
       lastCompletedAt: daysAgo(10),
@@ -752,7 +752,7 @@ function createStarterTasks(): SupportTask[] {
       title: "Mini-fridge restock",
       category: "food",
       description:
-        "Normal reminder 14 days after completion. Fail-safe at 21 days.",
+        "Restock easy snacks, backup meals, and drinks for low-energy days.",
       normalIntervalDays: 14,
       maxGapDays: 21,
       lastCompletedAt: daysAgo(12),
@@ -837,7 +837,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "medical-insurance-check",
-      title: "Check health insurance setup",
+      title: "Health insurance check",
       category: "medical",
       description:
         "Confirm insurance requirement status, insurance card, pharmacy card, and CSU Health Network portal access.",
@@ -881,7 +881,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "campus-logistics-check",
-      title: "Campus logistics check",
+      title: "Campus basics check",
       category: "logistics",
       description:
         "Check RamCard, parking permit, transit backup, laundry, mail/packages, and package pickup routine.",
@@ -892,7 +892,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "weekly-planning-review",
-      title: "Weekly planning review",
+      title: "Weekly reset",
       category: "calendar",
       description:
         "Balance assignments, meals, sleep, work, appointments, transportation, and social plans for the week.",
@@ -903,7 +903,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "semester-launch-checklist",
-      title: "Semester launch checklist",
+      title: "Semester launch",
       category: "school",
       description:
         "Review syllabi, textbooks, accommodation letters, exam dates, office hours, and Canvas imports at the start of term.",
@@ -914,7 +914,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "important-documents-check",
-      title: "Organize important documents",
+      title: "Organize docs",
       category: "documents",
       description:
         "Make sure IDs, insurance, SDC, housing, financial, vehicle, work, and travel documents are in the right Drive folders.",
@@ -925,7 +925,7 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "room-inventory-check",
-      title: "Room and packing inventory",
+      title: "Room inventory",
       category: "logistics",
       description:
         "Update what she has, what she needs, what is stored at home, and what should travel back to school.",
@@ -994,7 +994,7 @@ function createStarterTasks(): SupportTask[] {
       title: "Send accommodation letters",
       category: "school",
       description:
-        "Use the SDC portal at the start of each semester so instructors are formally notified before accommodations are needed.",
+        "Send letters through the SDC portal early so support is ready before it is needed.",
       normalIntervalDays: 120,
       maxGapDays: 150,
       lastCompletedAt: daysAgo(130),
@@ -1119,7 +1119,7 @@ function statusLabel(status: TaskStatus) {
     due: "Ready",
     snoozed: "Snoozed",
     needs_help: "Needs help",
-    escalated: "Fail-safe",
+    escalated: "Backup check",
   }[status];
 }
 
@@ -1325,7 +1325,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
-  const [syncMessage, setSyncMessage] = useState("Checking saved data...");
+  const [syncMessage, setSyncMessage] = useState("Checking your saved setup...");
   const [passkeyStatus, setPasskeyStatus] = useState(
     "This MacBook can become the primary access device after one secure email sign-in.",
   );
@@ -1335,19 +1335,19 @@ export default function Home() {
   const [canvasTokenExpiresAt, setCanvasTokenExpiresAt] = useState(schoolYearExpiration);
   const [canvasConnection, setCanvasConnection] = useState<CanvasConnection | null>(null);
   const [canvasMessage, setCanvasMessage] = useState(
-    "Canvas assignment import is ready. Save a Canvas API token once, then import without re-entering it.",
+    "Canvas is ready when you are. Save it once, then pull assignments without doing the setup again.",
   );
   const [isCanvasImporting, setIsCanvasImporting] = useState(false);
   const [isCanvasConnectionSaving, setIsCanvasConnectionSaving] = useState(false);
   const [emailDraftMessage, setEmailDraftMessage] = useState(
-    "Communications drafting agents will prepare replies for review after email is imported and triaged.",
+    "Once email is connected, drafts and social read-throughs will stay here for review.",
   );
   const [isEmailDrafting, setIsEmailDrafting] = useState(false);
   const [housingMessage, setHousingMessage] = useState(
-    "Housing documents will live in private storage with reminders for contracts, move-in steps, and renewal dates.",
+    "Housing docs can stay tucked away safely, with reminders for the dates that matter.",
   );
   const [financialMessage, setFinancialMessage] = useState(
-    "Connect Canvas Credit Union with Plaid to show masked accounts and balances.",
+    "Connect Canvas Credit Union when you want a quick, read-only money check.",
   );
   const [isPlaidLoading, setIsPlaidLoading] = useState(false);
 
@@ -1430,7 +1430,7 @@ export default function Home() {
 
     async function loadUserData() {
       setSyncStatus("loading");
-      setSyncMessage("Loading private task data...");
+      setSyncMessage("Loading your dashboard...");
       window.localStorage.removeItem(storageKey);
 
       const { error: profileError } = await supabase!.from("profiles").upsert({
@@ -1441,7 +1441,7 @@ export default function Home() {
 
       if (profileError && !ignore) {
         setSyncStatus("error");
-        setSyncMessage("Sign-in works, but the private database schema needs setup.");
+        setSyncMessage("Sign-in works. The database setup still needs one update.");
         return;
       }
 
@@ -1608,7 +1608,7 @@ export default function Home() {
       }
 
       setSyncStatus("supabase");
-      setSyncMessage("Private data saved to Supabase.");
+      setSyncMessage("Saved.");
     }
 
     loadUserData();
@@ -1915,12 +1915,12 @@ export default function Home() {
       .upsert(taskToRow(task, userId));
     if (error) {
       setSyncStatus("error");
-      setSyncMessage("Saved on screen. Supabase sync needs attention.");
+      setSyncMessage("Saved here. Cloud sync needs a quick look.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Private data saved to Supabase.");
+    setSyncMessage("Saved.");
   }
 
   async function saveHistoryToSupabase(entry: HistoryEntry) {
@@ -1934,12 +1934,12 @@ export default function Home() {
       .insert(historyToRow(entry, userId));
     if (error) {
       setSyncStatus("error");
-      setSyncMessage("Saved on screen. Supabase sync needs attention.");
+      setSyncMessage("Saved here. Cloud sync needs a quick look.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Private data saved to Supabase.");
+    setSyncMessage("Saved.");
   }
 
   const summary = useMemo(() => {
@@ -1999,7 +1999,7 @@ export default function Home() {
       id: crypto.randomUUID(),
       title,
       category: String(form.get("category")) as TaskCategory,
-      description: `Normal reminder ${normalIntervalDays} day(s) after completion. Fail-safe at ${maxGapDays} day(s).`,
+      description: `Comes back ${normalIntervalDays} day(s) after it is done. Backup check at ${maxGapDays} day(s).`,
       normalIntervalDays,
       maxGapDays,
       lastCompletedAt: now,
@@ -2050,12 +2050,12 @@ export default function Home() {
 
     if (deleteHistoryError || deleteTasksError || taskError || historyError) {
       setSyncStatus("error");
-      setSyncMessage("Reset on screen. Supabase sync needs attention.");
+      setSyncMessage("Reset here. Cloud sync needs a quick look.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Private data saved to Supabase.");
+    setSyncMessage("Saved.");
   }
 
   async function setUpDevicePasskey() {
@@ -2272,7 +2272,7 @@ export default function Home() {
         <header className="grid gap-4 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase text-teal-800">
-              Daily Support
+              My Campus Hub
             </p>
             <h1 className="text-5xl font-black leading-none sm:text-7xl">
               Josephine
@@ -2293,7 +2293,7 @@ export default function Home() {
               <div className="mt-3 grid gap-3 border-t border-stone-200 pt-3">
                 <div className="text-sm text-stone-600">
                   <strong className="block text-stone-950">
-                    Device-first access
+                    This MacBook
                   </strong>
                   <span>{passkeyStatus}</span>
                 </div>
@@ -2326,10 +2326,10 @@ export default function Home() {
           <SummaryMetric value={summary.ready} label="Ready today" />
           <SummaryMetric
             value={summary.failsafe}
-            label="Fail-safe checks"
+            label="Backup checks"
             danger
           />
-          <SummaryMetric value={history.length} label="History entries" />
+          <SummaryMetric value={history.length} label="Done log" />
         </section>
 
         <section className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
@@ -2341,7 +2341,7 @@ export default function Home() {
                 : syncStatus === "loading"
                   ? "Loading"
                   : syncStatus === "error"
-                    ? "Setup needed"
+                    ? "Needs setup"
                     : "Local mode"}
           </span>
           <span className="ml-2">{syncMessage}</span>
@@ -2355,7 +2355,7 @@ export default function Home() {
             <input
               className="min-h-10 rounded-md border border-stone-300 px-3"
               name="title"
-              placeholder="Add a support task"
+              placeholder="Add something to remember"
               required
             />
             <select
@@ -2396,7 +2396,7 @@ export default function Home() {
               type="number"
               min="1"
               defaultValue="3"
-              aria-label="Fail-safe interval in days"
+              aria-label="Backup check interval in days"
             />
             <button
               className="min-h-10 rounded-md bg-teal-700 px-4 font-semibold text-white hover:bg-teal-800"
@@ -2410,13 +2410,13 @@ export default function Home() {
         <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-bold">Today&apos;s Tasks</h2>
+              <h2 className="text-lg font-bold">Today&apos;s List</h2>
               <button
                 className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-teal-800 hover:bg-stone-200"
                 type="button"
                 onClick={resetDemoData}
               >
-                Reset demo data
+                Reset starter list
               </button>
             </div>
 
@@ -2447,7 +2447,7 @@ export default function Home() {
                     </div>
 
                     <p className="mt-4 border-t border-stone-200 pt-4 text-sm text-stone-600">
-                      Next reminder {formatDate(schedule.nextDueAt)} · fail-safe{" "}
+                      Comes back {formatDate(schedule.nextDueAt)} · backup check{" "}
                       {formatDate(schedule.escalateAfterAt)}
                     </p>
 
@@ -2479,19 +2479,19 @@ export default function Home() {
 
           <aside className="grid content-start gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <h2 className="text-lg font-bold">Support Modules</h2>
+              <h2 className="text-lg font-bold">Life Stuff</h2>
               <p className="mt-1 text-sm text-stone-600">
-                Organized areas for school, daily life, documents, safety,
-                connection, and the next layer of support behind today&apos;s tasks.
+                School, food, money, friends, documents, safety, Viper, and the
+                things that make college easier to keep track of.
               </p>
             </div>
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-bold">Communications Agent</h2>
+                  <h2 className="text-lg font-bold">Messages</h2>
                   <p className="mt-2 text-sm text-stone-600">
-                    Draft replies from triaged CSU email and Gmail. Drafts stay
-                    in review until Josephine edits and approves them.
+                    Sort email, draft replies, and decode confusing tone before
+                    anything gets sent.
                   </p>
                 </div>
                 <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
@@ -2504,14 +2504,14 @@ export default function Home() {
                 onClick={generateEmailDrafts}
                 disabled={isEmailDrafting}
               >
-                {isEmailDrafting ? "Drafting" : "Generate Draft Replies"}
+                {isEmailDrafting ? "Drafting" : "Draft Replies"}
               </button>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">
-                  Community watchlist
+                  Stuff to watch for
                 </strong>
                 <p className="mt-1 text-xs text-stone-600">
-                  Surface emails and announcements connected to these interests.
+                  Pull these out of the noise when they show up.
                 </p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
                   {communityInterestWatchlist.map((item) => (
@@ -2522,8 +2522,8 @@ export default function Home() {
               <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3">
                 <strong className="text-sm text-teal-950">Social Decoder</strong>
                 <p className="mt-1 text-xs text-teal-950">
-                  Review selected emails or pasted texts for tone, implied asks,
-                  urgency, and safe reply options.
+                  Use this for emails or texts that feel confusing, loaded, or
+                  hard to answer.
                 </p>
                 <div className="mt-3 grid gap-2">
                   {socialDecoderSources.map((source) => (
@@ -2570,10 +2570,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Academic Resources</h2>
+              <h2 className="text-lg font-bold">School Help</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Match assignments with support early, especially when assistive
-                technology, tutoring, accommodations, or testing plans are needed.
+                Match assignments with the right people and tools before a due
+                date gets too close.
               </p>
               <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
                 <strong className="text-sm text-amber-950">
@@ -2587,7 +2587,7 @@ export default function Home() {
               </div>
               <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
                 <strong className="text-sm text-teal-950">
-                  Semester accommodation setup
+                  Start-of-semester setup
                 </strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
                   {accommodationReadinessSteps.map((step) => (
@@ -2650,23 +2650,23 @@ export default function Home() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Open Resource
+                        Open
                       </a>
                     ) : null}
                   </article>
                 ))}
               </div>
               <p className="mt-3 text-xs text-stone-500">
-                Private referral codes, student IDs, and accommodation documents
-                belong in secure notes or private document storage, not app code.
+                Private referral codes, student IDs, and accommodation files
+                should stay in secure notes or private Drive storage.
               </p>
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Medical & Prescriptions</h2>
+              <h2 className="text-lg font-bold">Health</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Keep health logistics visible without storing clinical details
-                unless Josephine explicitly wants a secure workflow for them.
+                Appointments, insurance, refills, and the boring-but-important
+                health stuff in one place.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
@@ -2713,10 +2713,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Emergency Plan</h2>
+              <h2 className="text-lg font-bold">Help Now</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Make urgent support simple: who to call, when to call, and what
-                to do when Josephine needs help now.
+                The numbers and next steps to use when something feels urgent,
+                unsafe, or too big to handle alone.
               </p>
               <div className="mt-4 grid gap-3">
                 {emergencyPlanItems.map((item) => (
@@ -2761,10 +2761,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Campus Logistics</h2>
+              <h2 className="text-lg font-bold">Campus Basics</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Keep the ordinary campus systems together so small frictions do
-                not become full-day problems.
+                RamCard, parking, buses, laundry, mail, and the everyday systems
+                that are annoying when they disappear.
               </p>
               <div className="mt-4 grid gap-3">
                 {campusLogisticsItems.map((item) => (
@@ -2790,9 +2790,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Semester Launch</h2>
+              <h2 className="text-lg font-bold">Semester Start</h2>
               <p className="mt-2 text-sm text-stone-600">
-                First-week setup for fewer surprises later.
+                A first-week checklist so the semester starts with fewer
+                surprises.
               </p>
               <ol className="mt-4 grid gap-2 text-sm text-stone-700">
                 {semesterLaunchItems.map((item) => (
@@ -2804,10 +2805,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Calendar & Routines</h2>
+              <h2 className="text-lg font-bold">Weekly Rhythm</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Build the week around class, recovery, meals, sleep, work, and
-                support time.
+                Class, meals, sleep, study time, work, appointments, and actual
+                breathing room.
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
                 {calendarRoutineItems.map((item) => (
@@ -2819,14 +2820,14 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Documents & Packing</h2>
+              <h2 className="text-lg font-bold">Docs & Packing</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Google Drive should hold the files. The app should hold the
-                reminders, categories, and selected links.
+                Drive holds the files. This keeps the folders and reminders
+                from becoming a mystery.
               </p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">
-                  Important document folders
+                  Important folders
                 </strong>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
                   {importantDocumentFolders.map((folder) => (
@@ -2838,7 +2839,7 @@ export default function Home() {
               </div>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">
-                  Room and packing inventory
+                  Room inventory
                 </strong>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
                   {packingInventoryItems.map((item) => (
@@ -2851,9 +2852,9 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Travel & Visits</h2>
+              <h2 className="text-lg font-bold">Home & Viper Visits</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Plan trips home, holidays, and Viper visits around school load
+                Trips home, holidays, and Viper time planned around due dates
                 and recovery time.
               </p>
               <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
@@ -2864,10 +2865,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Social & Belonging</h2>
+              <h2 className="text-lg font-bold">People & Belonging</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Keep connection low-pressure and visible so it does not depend
-                on memory or high-energy days.
+                Low-pressure ways to find her people without needing a perfect
+                social-energy day.
               </p>
               <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-stone-700">
                 {socialBelongingItems.map((item) => (
@@ -2877,10 +2878,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Scripts & Agents</h2>
+              <h2 className="text-lg font-bold">Scripts & Helpers</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Suggested messages and planning agents stay review-only. They
-                should help Josephine start, not speak for her automatically.
+                Drafts and planning helpers give her a starting point. Nothing
+                speaks for her or sends itself.
               </p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">Help scripts</strong>
@@ -2891,7 +2892,7 @@ export default function Home() {
                 </ul>
               </div>
               <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">Agent roadmap</strong>
+                <strong className="text-sm text-amber-950">Helper roadmap</strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
                   {planningAgentIdeas.map((idea) => (
                     <li key={idea}>{idea}</li>
@@ -2901,17 +2902,16 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">School Connections</h2>
+              <h2 className="text-lg font-bold">Canvas</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Save Canvas once for the semester or school year. The token is
-                encrypted server-side, never saved in this browser, and can be
-                removed here.
+                Save Canvas once, then pull assignments without hunting through
+                the portal every time.
               </p>
               <div className="mt-3 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
                   {canvasConnection?.connected
-                    ? "Canvas is saved"
-                    : "Canvas is not saved yet"}
+                    ? "Canvas is connected"
+                    : "Canvas is not connected yet"}
                 </strong>
                 {canvasConnection?.connected ? (
                   <span>
@@ -2925,8 +2925,8 @@ export default function Home() {
                   </span>
                 ) : (
                   <span>
-                    Paste a Canvas API token once, choose an expiration, then
-                    save or import.
+                    Paste a Canvas token once, pick an expiration, then save or
+                    import.
                   </span>
                 )}
               </div>
@@ -2971,7 +2971,7 @@ export default function Home() {
                     onClick={saveCanvasConnection}
                     disabled={isCanvasConnectionSaving || !canvasAccessToken.trim()}
                   >
-                    {isCanvasConnectionSaving ? "Saving" : "Save Connection"}
+                    {isCanvasConnectionSaving ? "Saving" : "Save Canvas"}
                   </button>
                   <button
                     className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
@@ -2979,7 +2979,7 @@ export default function Home() {
                     onClick={revokeCanvasConnection}
                     disabled={!canvasConnection?.connected}
                   >
-                    Remove Saved
+                    Remove
                   </button>
                 </div>
                 <button
@@ -2990,8 +2990,8 @@ export default function Home() {
                   {isCanvasImporting
                     ? "Importing"
                     : canvasConnection?.connected && !canvasAccessToken.trim()
-                      ? "Import With Saved Canvas"
-                      : "Save And Import Assignments"}
+                      ? "Import Assignments"
+                      : "Save Canvas & Import"}
                 </button>
               </form>
               <p className="mt-3 text-xs text-stone-500">
@@ -3003,7 +3003,7 @@ export default function Home() {
 
               <div className="mt-5 border-t border-stone-200 pt-4">
                 <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Upcoming From Canvas
+                  Coming Up From Canvas
                 </h3>
                 {assignments.length > 0 ? (
                   <ol className="mt-3 grid gap-3">
@@ -3047,8 +3047,8 @@ export default function Home() {
                 <div>
                   <h2 className="text-lg font-bold">Viper Cam</h2>
                   <p className="mt-2 text-sm text-stone-600">
-                    Give Josephine a calm way to check on Viper from Colorado
-                    while he is with family in California.
+                    A quick check-in on Viper when Colorado feels far away from
+                    California.
                   </p>
                 </div>
                 <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
@@ -3068,7 +3068,7 @@ export default function Home() {
               ) : (
                 <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                   <strong className="block text-stone-950">
-                    Camera link not set yet
+                    Camera link coming later
                   </strong>
                   <span>
                     After equipment is chosen, set `NEXT_PUBLIC_VIPER_CAM_URL`
@@ -3106,8 +3106,8 @@ export default function Home() {
                 <div>
                   <h2 className="text-lg font-bold">Food</h2>
                   <p className="mt-2 text-sm text-stone-600">
-                    Plan meals around Braiden, campus dining backups, robot
-                    delivery, and a bi-weekly mini-fridge restock.
+                    Braiden first, backups ready, robot delivery when going out
+                    is not happening.
                   </p>
                 </div>
                 <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
@@ -3139,7 +3139,7 @@ export default function Home() {
                 target="_blank"
                 rel="noreferrer"
               >
-                Verify Today&apos;s Dining Hours
+                Check Today&apos;s Dining Hours
               </a>
 
               <div className="mt-5 border-t border-stone-200 pt-4">
@@ -3165,7 +3165,7 @@ export default function Home() {
 
               <div className="mt-5 border-t border-stone-200 pt-4">
                 <h3 className="text-sm font-bold uppercase text-stone-500">
-                  Bi-weekly Mini-fridge List
+                  Mini-fridge List
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
                   {miniFridgeShoppingList.map((item) => (
@@ -3178,10 +3178,10 @@ export default function Home() {
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Money & Bills</h2>
+              <h2 className="text-lg font-bold">Money</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Connect Canvas Credit Union through Plaid for read-only balances.
-                Open the credit union directly for transfers and bill pay.
+                Quick balance check here. Transfers and bill pay still happen
+                directly at the credit union.
               </p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
@@ -3261,7 +3261,7 @@ export default function Home() {
                     type="button"
                     disabled
                   >
-                    Credit Union Link Not Set
+                  Credit Union Link Missing
                   </button>
                 )}
                 <button
@@ -3275,10 +3275,10 @@ export default function Home() {
               </div>
               <p className="mt-3 text-sm text-stone-600">{financialMessage}</p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">Weekly routine</strong>
+                <strong className="block text-stone-950">Weekly money reset</strong>
                 <span>
-                  Check balance, confirm upcoming bills, and ask for support
-                  before moving money or changing payment settings.
+                  Check balance, look for upcoming bills, and get backup before
+                  moving money or changing payment settings.
                 </span>
               </div>
             </section>
@@ -3288,8 +3288,8 @@ export default function Home() {
                 <div>
                   <h2 className="text-lg font-bold">Vehicle</h2>
                   <p className="mt-2 text-sm text-stone-600">
-                    Keep Josephine&apos;s car usable at school with mileage-based
-                    reminders instead of relying on memory.
+                    Keep the Touareg campus-ready without having to remember
+                    every maintenance detail.
                   </p>
                 </div>
                 <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
@@ -3318,7 +3318,7 @@ export default function Home() {
               </div>
               <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
                 <strong className="text-sm text-amber-950">
-                  Maintenance agent path
+                  Maintenance helper path
                 </strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
                   {vehicleAgentIdeas.map((idea) => (
@@ -3333,8 +3333,8 @@ export default function Home() {
                 <div>
                   <h2 className="text-lg font-bold">Work</h2>
                   <p className="mt-2 text-sm text-stone-600">
-                    Support part-time job search, onboarding documents, hours,
-                    paychecks, and schedule fit with school.
+                    For future job searching, schedules, paychecks, and keeping
+                    work from taking over school.
                   </p>
                 </div>
                 <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
@@ -3392,7 +3392,7 @@ export default function Home() {
               </div>
 
               <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
-                <strong className="text-sm text-amber-950">Work agent path</strong>
+                <strong className="text-sm text-amber-950">Work helper path</strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
                   {workAgentIdeas.map((idea) => (
                     <li key={idea}>{idea}</li>
@@ -3404,16 +3404,14 @@ export default function Home() {
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-bold">Housing</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Keep residence hall contracts, move-in information, billing
-                notices, maintenance notes, and renewal dates in one protected
-                place.
+                Room info, move-in details, contracts, billing, maintenance, and
+                renewal dates together.
               </p>
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">Document storage</strong>
+                <strong className="block text-stone-950">Housing files</strong>
                 <span>
-                  Store PDFs in private Supabase Storage or another
-                  access-controlled folder. This app should save document
-                  metadata and private storage paths, not public copies.
+                  Store PDFs in private Drive or secure storage. This app keeps
+                  the reminders and links, not public copies.
                 </span>
               </div>
               <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
@@ -3464,15 +3462,14 @@ export default function Home() {
                 </ol>
               ) : (
                 <p className="mt-4 text-sm text-stone-600">
-                  No housing documents are stored yet. The attached CSU contract
-                  should be uploaded through private storage, not committed into
-                  the codebase.
+                  No housing docs linked yet. Upload the CSU contract through
+                  private storage when ready.
                 </p>
               )}
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-lg font-bold">History</h2>
+              <h2 className="mb-4 text-lg font-bold">Done Log</h2>
               <ol className="grid gap-3">
                 {history.slice(0, 12).map((entry) => (
                   <li
@@ -3499,7 +3496,7 @@ export default function Home() {
 
 function AuthGate() {
   const [email, setEmail] = useState(primaryAccessEmail);
-  const [message, setMessage] = useState("Sign in to open private task data.");
+  const [message, setMessage] = useState("Sign in to open Josephine's dashboard.");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
 
@@ -3545,7 +3542,7 @@ function AuthGate() {
     setMessage(
       error?.message
         ? error.message
-        : "Passkey accepted. Opening private support workspace...",
+        : "Passkey accepted. Opening Josephine's dashboard...",
     );
   }
 
@@ -3553,16 +3550,16 @@ function AuthGate() {
     <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 text-stone-950">
       <section className="w-full max-w-md rounded-lg border border-stone-300 bg-white p-6 shadow-sm">
         <p className="text-xs font-bold uppercase text-teal-800">
-          Private Daily Support
+          Josephine&apos;s Dashboard
         </p>
         <h1 className="mt-2 text-3xl font-black">Sign in</h1>
         <p className="mt-2 text-stone-600">{message}</p>
         <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950">
-          <strong className="block">Device-first access</strong>
+          <strong className="block">MacBook-first access</strong>
           <span>
-            Josephine&apos;s MacBook with Touch ID should be the easiest way
-            back in. Use the secure email link once, then set up a passkey on
-            this device. School passwords are never stored here.
+            Josephine&apos;s MacBook with Touch ID should be the easy way back in.
+            Use the secure email link once, then set up a passkey here. School
+            passwords are never stored.
           </span>
         </div>
         <button
@@ -3604,7 +3601,7 @@ function LoadingScreen() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 text-stone-950">
       <section className="rounded-lg border border-stone-300 bg-white p-6 shadow-sm">
-        <p className="font-semibold">Opening private support workspace...</p>
+        <p className="font-semibold">Opening Josephine&apos;s dashboard...</p>
       </section>
     </main>
   );
