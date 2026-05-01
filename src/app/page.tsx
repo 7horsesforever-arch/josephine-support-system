@@ -2268,7 +2268,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-stone-950">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <header className="grid gap-4 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase text-teal-800">
@@ -2407,7 +2407,7 @@ export default function Home() {
           </form>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-lg font-bold">Today&apos;s Tasks</h2>
@@ -2477,7 +2477,14 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="grid gap-4">
+          <aside className="grid content-start gap-4 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-bold">Support Modules</h2>
+              <p className="mt-1 text-sm text-stone-600">
+                Organized areas for school, daily life, documents, safety,
+                connection, and the next layer of support behind today&apos;s tasks.
+              </p>
+            </div>
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div>
