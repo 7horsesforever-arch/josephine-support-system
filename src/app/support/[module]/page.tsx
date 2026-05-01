@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSupportModule, supportModules } from "../module-data";
 import { HealthRoutineDashboard } from "../health-routine-dashboard";
+import { MessagesWorkspace } from "../messages-workspace";
 
 const healthMetricCards = [
   {
@@ -391,6 +392,8 @@ export default async function SupportModulePage({
         ) : null}
 
         {supportModule.slug === "adulting" ? <AdultingDashboard /> : null}
+
+        {supportModule.slug === "messages" ? <MessagesWorkspace /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (

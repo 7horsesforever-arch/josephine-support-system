@@ -24,6 +24,8 @@ export const supportModules: SupportModule[] = [
       {
         title: "What This Page Is For",
         items: [
+          "Connecting school email through Microsoft OAuth and personal Gmail through Google OAuth.",
+          "Keeping imported messages, triage, Social Decoder, and draft review on this page.",
           "Drafting replies to CSU email and Gmail without sending automatically.",
           "Decoding messages that feel confusing, tense, indirect, or hard to answer.",
           "Watching for Black Student Union, Delta Sigma Theta, and campus community updates.",
@@ -37,6 +39,7 @@ export const supportModules: SupportModule[] = [
           "What tone does it seem to have: friendly, neutral, urgent, frustrated, joking, or unclear?",
           "What is a safe, kind reply that does not over-share?",
           "Should this be checked with a trusted person before replying?",
+          "Can the reply be drafted here without leaving the Messages page?",
         ],
       },
       {
