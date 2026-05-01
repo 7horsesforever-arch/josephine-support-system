@@ -55,7 +55,7 @@
 - Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Plaid access tokens must be encrypted server-side with `PLAID_TOKEN_ENCRYPTION_KEY`; use Plaid Link rather than bank-password forms.
 - Housing documents should live in private storage with RLS-protected metadata. Do not commit contracts or residence documents to Git.
-- Academic accommodation and assistive-technology paperwork should live in private storage or secure notes. Public resource links and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
+- Academic accommodation, assistive-technology, and testing paperwork should live in private storage or secure notes. Public resource links, scheduling rules, and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
 - Food delivery should open the official campus ordering app/site. Do not store Grubhub, Starship, or payment credentials in this app.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 

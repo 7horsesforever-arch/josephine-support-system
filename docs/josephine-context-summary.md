@@ -36,7 +36,7 @@ The app should help turn those accommodations into practical reminders and revie
 - Assistive Technology Resource Center (ATRC): help Josephine explore tools for reading, writing, note-taking, organization, and access. The app should prompt for an early ATRC meeting before assignments accumulate.
 - TILT tutoring: support for course tutoring, study strategy, and getting unstuck early.
 - Student Disability Center: support for accommodation questions, access barriers, and follow-up planning.
-- Testing Center: support for scheduling accommodated exams with enough lead time.
+- SDC Accessible Testing Center: support for in-person accommodated exams and quizzes. Regular exams/quizzes must be scheduled at least 7 days before the exam date, final exams must be scheduled 1 month before the exam date, and appointments should match the class date/time unless the instructor gives written approval.
 - Key Living and Learning Community: peer/community support and first-year routine help.
 - Opportunities for Postsecondary Success (OPS): structured planning and accountability support once contact details are confirmed.
 

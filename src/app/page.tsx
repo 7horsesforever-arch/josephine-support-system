@@ -38,6 +38,16 @@ type SupportTask = {
   status: TaskStatus;
 };
 
+type AcademicSupportResource = {
+  name: string;
+  shortName: string;
+  useFor: string;
+  timing: string;
+  contact: string;
+  href: string | null;
+  details?: string[];
+};
+
 type HistoryEntry = {
   id: string;
   taskId: string | null;
@@ -257,7 +267,15 @@ const miniFridgeShoppingList = [
   "Sparkling water or electrolyte drinks",
 ];
 
-const academicSupportResources = [
+const testingCenterRules = [
+  "Schedule in-person exams and quizzes in the SDC student portal.",
+  "Regular exams and quizzes must be scheduled at least 7 days before the exam date.",
+  "Final exams must be scheduled 1 month before the exam date.",
+  "Schedule at the same date and time as class unless the instructor gives written approval.",
+  "Ask the Accessible Testing Center if accommodations are missing or unclear.",
+];
+
+const academicSupportResources: AcademicSupportResource[] = [
   {
     name: "Assistive Technology Resource Center",
     shortName: "ATRC",
@@ -284,12 +302,13 @@ const academicSupportResources = [
     href: "https://disabilitycenter.colostate.edu/",
   },
   {
-    name: "Testing Center",
+    name: "Accessible Testing Center",
     shortName: "Testing",
     useFor: "Scheduling accommodated exams.",
-    timing: "Book early; testing accommodations usually need advance scheduling.",
-    contact: "Use CSU testing instructions from the course or SDC.",
-    href: null,
+    timing: "Book regular exams 7 days ahead and finals 1 month ahead.",
+    contact: "sdctest@colostate.edu · 970-491-3574",
+    href: "https://disabilitycenter.colostate.edu/sdc-student-portal-information/",
+    details: testingCenterRules,
   },
   {
     name: "Key Living and Learning Community",
@@ -393,6 +412,17 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(8),
+      status: "due",
+    },
+    {
+      id: "schedule-sdc-exams",
+      title: "Schedule accommodated exams",
+      category: "school",
+      description:
+        "Use the SDC portal when accommodation letters and exam dates are available. Regular exams need 7 days notice; finals need 1 month.",
+      normalIntervalDays: 14,
+      maxGapDays: 30,
+      lastCompletedAt: daysAgo(16),
       status: "due",
     },
   ];
@@ -1856,6 +1886,16 @@ export default function Home() {
                 Match assignments with support early, especially when assistive
                 technology, tutoring, accommodations, or testing plans are needed.
               </p>
+              <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                <strong className="text-sm text-amber-950">
+                  SDC testing deadlines
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
+                  {testingCenterRules.slice(1, 4).map((rule) => (
+                    <li key={rule}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
               <div className="mt-4 grid gap-3">
                 {academicSupportResources.map((resource) => (
                   <article
@@ -1871,6 +1911,13 @@ export default function Home() {
                     <p className="mt-2 text-sm text-stone-700">{resource.useFor}</p>
                     <p className="mt-1 text-xs text-stone-500">{resource.timing}</p>
                     <p className="mt-1 text-xs text-stone-500">{resource.contact}</p>
+                    {resource.details ? (
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-stone-600">
+                        {resource.details.map((detail) => (
+                          <li key={detail}>{detail}</li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {resource.href ? (
                       <a
                         className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
