@@ -43,6 +43,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Deadline-only front-page module area; non-deadline support content lives on dedicated pages.
 - Caregiver/admin page at `/support/admin`, linked quietly from the bottom of the dashboard and protected for `chilton18@gmail.com` through Supabase Google login.
 - In-app safety alert response for self-harm or suicide-related concerns typed into Ask JoJo, with 988, CSU Tell Someone, and HelpCompass resources. This does not monitor browser history, Mac activity, texts, email, or daily behavior.
+- App-wide browser voice entry for writable fields, plus a server transcription endpoint at `/api/speech/transcribe` for future uploaded-audio workflows.
 
 ## Supabase Setup
 
@@ -66,6 +67,7 @@ PLAID_SECRET=
 PLAID_ENV=sandbox
 PLAID_PRODUCTS=transactions
 OPENAI_API_KEY=
+OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
 ```
 
 The schema uses authenticated-user policies. Do not enter real sensitive data until you have confirmed sign-in and RLS behavior in Supabase.
@@ -75,6 +77,8 @@ The schema uses authenticated-user policies. Do not enter real sensitive data un
 `PLAID_TOKEN_ENCRYPTION_KEY` is server-only and is required before saving Plaid access tokens. Use Plaid Link for the credit union connection; do not collect or store banking usernames or passwords.
 
 `OPENAI_API_KEY` is server-only and is used by `/api/safety/moderate` for Ask JoJo safety checks. The reviewable safety threshold, model, categories, and local trigger patterns live in `src/lib/safety/reviewable-config.ts`.
+
+`OPENAI_TRANSCRIPTION_MODEL` controls `/api/speech/transcribe`. The default is `gpt-4o-mini-transcribe`.
 
 Passkey support is wired as a ready path for Josephine's MacBook with Touch ID. Keep the secure email link enabled as the backup sign-in path, then enable Supabase passkey/WebAuthn support before registering a passkey from the signed-in dashboard.
 
@@ -89,6 +93,8 @@ Read `docs/josephine-context-summary.md` before making product decisions that af
 Read `docs/device-first-access.md` before changing sign-in, passkey, Microsoft, Canvas, or school portal access.
 
 Read `docs/accessibility-support-design.md` before changing task, email, or assignment workflows.
+
+Read `docs/speech-to-text.md` before changing voice entry, audio upload, or transcription workflows.
 
 ## Useful Commands
 

@@ -12,6 +12,7 @@ See `docs/josephine-context-summary.md` for the private context summary that sho
 - Translate email and assignment noise into short summaries and concrete next actions.
 - Use plain language over dense academic or technical language.
 - Prefer multi-modal support: short text, visual grouping, spoken/read-aloud friendly summaries, and hands-on next actions.
+- Support speech-to-text throughout the app so Josephine can dictate when typing is the barrier.
 - Use slower, mastery-oriented flows: repeat important context, make review easy, and avoid speed-pressure patterns.
 - Separate "review with support" from "do now" so stressful items do not become invisible.
 - Avoid storing diagnosis labels unless there is a specific, consented need.
@@ -40,6 +41,15 @@ The email triage layer should act like a small copilot team:
 - Show direct ask, possible implied ask, tone, urgency, suggested reply, and when to ask a trusted person.
 - Start with content Josephine explicitly selects, pastes, or imports. Do not silently read Mac Messages or private texts.
 - Keep the output supportive, nonjudgmental, and short enough to use while stressed.
+
+## Speech To Text Pattern
+
+- Provide app-wide dictation for writable fields.
+- Keep short dictation in the browser when possible.
+- Use server transcription only for chosen audio uploads or recordings.
+- Do not store raw audio by default.
+- Do not auto-send dictated text, drafts, emails, tasks, or messages.
+- Make it clear when speech recognition is unavailable in the current browser.
 
 ## Password-Light Access
 
