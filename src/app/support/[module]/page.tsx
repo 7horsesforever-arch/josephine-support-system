@@ -108,6 +108,75 @@ const adultingModuleCards = [
   },
 ];
 
+const schoolScheduleDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+const schoolScheduleFields = [
+  "Course name and section",
+  "Class time",
+  "Building and room",
+  "Instructor or TA",
+  "Office hours",
+  "Exam or lab pattern",
+];
+
+function SchoolScheduleDashboard() {
+  return (
+    <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-teal-800">
+            Class Schedule
+          </p>
+          <h2 className="mt-2 text-2xl font-black">Weekly School Map</h2>
+          <p className="mt-2 max-w-3xl text-sm text-stone-600">
+            This is the landing spot for Josephine&apos;s class schedule. Once
+            courses are known, each class can sit here with time, location,
+            professor, office hours, and testing notes.
+          </p>
+        </div>
+        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900">
+          Waiting for courses
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-5">
+        {schoolScheduleDays.map((day) => (
+          <article
+            className="min-h-36 rounded-lg border border-stone-200 bg-stone-50 p-3"
+            key={day}
+          >
+            <h3 className="text-sm font-bold text-stone-950">{day}</h3>
+            <div className="mt-3 rounded-md border border-dashed border-stone-300 bg-white p-3 text-sm text-stone-500">
+              Add classes here
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-[1fr_1fr]">
+        <article className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+          <h3 className="font-bold">What To Capture</h3>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-stone-700">
+            {schoolScheduleFields.map((field) => (
+              <li key={field}>{field}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-teal-950">
+          <h3 className="font-bold">How This Helps JoJo</h3>
+          <p className="mt-3 text-sm">
+            The schedule gives assignment planning more context: class days,
+            travel time, testing-center deadlines, tutoring windows, office
+            hours, meals, sleep, and recovery time can all be planned around the
+            real week.
+          </p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function AdultingDashboard() {
   return (
     <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
@@ -338,6 +407,8 @@ export default async function SupportModulePage({
             </article>
           ))}
         </section>
+
+        {supportModule.slug === "school" ? <SchoolScheduleDashboard /> : null}
       </div>
     </main>
   );
