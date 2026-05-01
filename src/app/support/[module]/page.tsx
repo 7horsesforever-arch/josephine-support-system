@@ -51,6 +51,130 @@ const healthConnectionCards = [
   },
 ];
 
+const adultingModuleCards = [
+  {
+    slug: "health",
+    label: "Health & Wellness",
+    status: "routines + body data",
+    surfaces: "Scrub It!, Brush It!, Wash It!, refills, appointments, sleep, and Oura charging.",
+  },
+  {
+    slug: "housing",
+    label: "Housing",
+    status: "room + dorm life",
+    surfaces: "Room reset, supply checks, move-in details, contracts, maintenance, and housing accommodation follow-up.",
+  },
+  {
+    slug: "food",
+    label: "Food",
+    status: "meals + restock",
+    surfaces: "Dining schedules, robot delivery instructions, mini-fridge restock, and low-energy food backups.",
+  },
+  {
+    slug: "money",
+    label: "Money",
+    status: "read-only finances",
+    surfaces: "Balance checks, bills, subscriptions, and caregiver-approved reward payouts.",
+  },
+  {
+    slug: "campus",
+    label: "Campus Basics",
+    status: "getting around",
+    surfaces: "RamCard, parking, transit, bus trackers, mail/packages, and campus logistics.",
+  },
+  {
+    slug: "docs",
+    label: "Docs & Packing",
+    status: "files + lists",
+    surfaces: "Drive folders, IDs, insurance cards, housing docs, packing lists, and room inventory.",
+  },
+  {
+    slug: "vehicle",
+    label: "Vehicle",
+    status: "car care",
+    surfaces: "Gas, mileage checks, oil-service planning, car wash, cleanout, and warning-light notes.",
+  },
+  {
+    slug: "travel",
+    label: "Home & Visits",
+    status: "travel planning",
+    surfaces: "Trips home, holidays, Viper visits, packing, transport details, and recovery time.",
+  },
+  {
+    slug: "work",
+    label: "Work",
+    status: "future job",
+    surfaces: "Handshake, applications, onboarding docs, schedules, hours, paychecks, and workload fit.",
+  },
+];
+
+function AdultingDashboard() {
+  return (
+    <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-teal-800">
+            Module Map
+          </p>
+          <h2 className="mt-2 text-2xl font-black">Adulting Command Center</h2>
+          <p className="mt-2 max-w-3xl text-sm text-stone-600">
+            Adulting is the roll-up for practical-life stuff. This page shows
+            the connected modules and what kind of time-sensitive items each one
+            can send to the dashboard.
+          </p>
+        </div>
+        <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+          {adultingModuleCards.length} connected pages
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {adultingModuleCards.map((card) => {
+          const supportCardModule = getSupportModule(card.slug);
+
+          return (
+            <article
+              className="rounded-lg border border-stone-200 bg-stone-50 p-4"
+              key={card.slug}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3 className="text-lg font-bold">{card.label}</h3>
+                <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-stone-600">
+                  {card.status}
+                </span>
+              </div>
+              <p className="mt-3 text-sm text-stone-700">
+                {supportCardModule?.summary ?? card.surfaces}
+              </p>
+              <div className="mt-4 rounded-md border border-stone-200 bg-white p-3">
+                <strong className="text-xs uppercase text-teal-800">
+                  Can surface when time-sensitive
+                </strong>
+                <p className="mt-2 text-sm text-stone-700">{card.surfaces}</p>
+              </div>
+              <Link
+                className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                href={`/support/${card.slug}`}
+              >
+                Open {card.label}
+              </Link>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+        <h3 className="font-bold">Dashboard rule</h3>
+        <p className="mt-2">
+          Adulting sends only due, overdue, or date-bound items to the front
+          page. Reference notes, instructions, and setup details stay on the
+          dedicated pages so the main dashboard stays calmer.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function HealthWellnessDashboard() {
   return (
     <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
@@ -196,6 +320,8 @@ export default async function SupportModulePage({
             <HealthRoutineDashboard />
           </>
         ) : null}
+
+        {supportModule.slug === "adulting" ? <AdultingDashboard /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (

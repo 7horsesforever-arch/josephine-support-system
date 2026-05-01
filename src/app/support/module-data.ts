@@ -118,6 +118,20 @@ export const supportModules: SupportModule[] = [
       "The practical life stuff with dates: health, car, housing, documents, money, food, and campus logistics.",
     sections: [
       {
+        title: "Connected Modules",
+        items: [
+          "Health & Wellness: body-care routines, sleep, Oura, Apple Health summaries, refills, and appointments.",
+          "Housing: room reset, supplies, move-in details, contracts, maintenance, and housing accommodation follow-up.",
+          "Food: dining schedules, robot delivery instructions, mini-fridge restock, and backup meals.",
+          "Money: read-only balance checks, bills, subscriptions, and caregiver-approved reward payouts.",
+          "Campus Basics: RamCard, parking, transit, bus trackers, mail/packages, and campus logistics.",
+          "Docs & Packing: Drive folders, IDs, insurance cards, housing docs, packing, and room inventory.",
+          "Vehicle: gas, mileage checks, oil-service planning, wash, cleanout, and warning-light notes.",
+          "Home & Visits: trips home, holidays, Viper visits, packing, transportation, and recovery time.",
+          "Work: Handshake, applications, onboarding docs, schedules, hours, paychecks, and school/work fit.",
+        ],
+      },
+      {
         title: "What Surfaces On The Dashboard",
         items: [
           "Health routines, refills, appointments, and sleep-related follow-up when they are due.",
