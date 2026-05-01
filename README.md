@@ -18,8 +18,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Starter tasks for shower, nighttime teeth brushing, and laundry.
 - One-tap actions: Done, Already Did It, Snooze, Need Help.
 - Completion-based next reminder and fail-safe dates.
-- Browser persistence with `localStorage`.
-- Supabase-ready sync layer that falls back to local mode if the database is not configured.
+- Supabase Auth gate when Supabase is configured.
+- User-scoped Supabase persistence with Row Level Security.
+- Browser-only local mode only when Supabase is not configured.
+- Server-side escalation endpoint placeholder at `/api/escalations`.
 
 ## Supabase Setup
 
@@ -36,7 +38,11 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-The current schema includes prototype read/write policies for the public app. Replace those with authenticated-user policies before storing sensitive real data.
+The schema uses authenticated-user policies. Do not enter real sensitive data until you have confirmed sign-in and RLS behavior in Supabase.
+
+## Privacy And Security
+
+Read `docs/privacy-and-security.md` before adding real school, health, phone, email, or caregiver data.
 
 ## Useful Commands
 
@@ -48,9 +54,9 @@ npm run build
 ## Next Steps
 
 - Run the Supabase schema.
-- Verify the app switches from local mode to Supabase mode.
-- Add authentication before entering sensitive live data.
+- Verify auth sign-in and private mode.
 - Add caregiver SMS fail-safe alerts.
+- Build the Canvas/school assignment import connection.
 
 ## Deploy on Vercel
 

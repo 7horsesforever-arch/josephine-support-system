@@ -1,11 +1,13 @@
 "use client";
 
+import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 type TaskCategory = "hygiene" | "school" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
 type ActionType = "done" | "already_did_it" | "snooze" | "need_help" | "created";
+type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
 
 type SupportTask = {
   id: string;
@@ -20,18 +22,16 @@ type SupportTask = {
 
 type HistoryEntry = {
   id: string;
+  taskId: string | null;
   taskTitle: string;
   type: ActionType;
   createdAt: string;
 };
 
-const dayMs = 24 * 60 * 60 * 1000;
-const storageKey = "josephine-support-state-v1";
-
-type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
-
 type TaskRow = {
   id: string;
+  assigned_user_id: string;
+  created_by: string;
   title: string;
   category: TaskCategory;
   description: string;
@@ -44,10 +44,15 @@ type TaskRow = {
 
 type HistoryRow = {
   id: string;
+  user_id: string;
+  task_id: string | null;
   task_title: string;
   action_type: ActionType;
   created_at: string;
 };
+
+const dayMs = 24 * 60 * 60 * 1000;
+const storageKey = "josephine-support-state-v1";
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -98,6 +103,7 @@ function createInitialHistory(): HistoryEntry[] {
   return [
     {
       id: "initial-shower",
+      taskId: "shower",
       taskTitle: "Shower",
       type: "done",
       createdAt: daysAgo(3),
@@ -201,9 +207,11 @@ function taskFromRow(row: TaskRow): SupportTask {
   };
 }
 
-function taskToRow(task: SupportTask): TaskRow {
+function taskToRow(task: SupportTask, userId: string): TaskRow {
   return {
     id: task.id,
+    assigned_user_id: userId,
+    created_by: userId,
     title: task.title,
     category: task.category,
     description: task.description,
@@ -218,15 +226,18 @@ function taskToRow(task: SupportTask): TaskRow {
 function historyFromRow(row: HistoryRow): HistoryEntry {
   return {
     id: row.id,
+    taskId: row.task_id,
     taskTitle: row.task_title,
     type: row.action_type,
     createdAt: row.created_at,
   };
 }
 
-function historyToRow(entry: HistoryEntry): HistoryRow {
+function historyToRow(entry: HistoryEntry, userId: string): HistoryRow {
   return {
     id: entry.id,
+    user_id: userId,
+    task_id: entry.taskId,
     task_title: entry.taskTitle,
     action_type: entry.type,
     created_at: entry.createdAt,
@@ -236,43 +247,99 @@ function historyToRow(entry: HistoryEntry): HistoryRow {
 export default function Home() {
   const [tasks, setTasks] = useState(createStarterTasks);
   const [history, setHistory] = useState(createInitialHistory);
-  const [storageReady, setStorageReady] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [syncMessage, setSyncMessage] = useState("Checking saved data...");
 
+  const userId = session?.user.id;
+
   useEffect(() => {
+    if (isSupabaseConfigured) return;
+
+    const storedState = window.localStorage.getItem(storageKey);
+    if (storedState) {
+      try {
+        const parsedState = JSON.parse(storedState) as {
+          tasks?: SupportTask[];
+          history?: HistoryEntry[];
+        };
+
+        window.queueMicrotask(() => {
+          if (Array.isArray(parsedState.tasks)) setTasks(parsedState.tasks);
+          if (Array.isArray(parsedState.history)) setHistory(parsedState.history);
+        });
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      }
+    }
+
+    window.queueMicrotask(() => {
+      setSyncStatus("local");
+      setSyncMessage("Saved in this browser. Supabase is not configured yet.");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isSupabaseConfigured || syncStatus !== "local") return;
+
+    window.localStorage.setItem(storageKey, JSON.stringify({ tasks, history }));
+  }, [history, syncStatus, tasks]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+
     let ignore = false;
 
-    async function loadSavedState() {
-      const storedState = window.localStorage.getItem(storageKey);
+    async function loadAuth() {
+      const {
+        data: { session: currentSession },
+      } = await supabase!.auth.getSession();
 
-      if (storedState) {
-        try {
-          const parsedState = JSON.parse(storedState) as {
-            tasks?: SupportTask[];
-            history?: HistoryEntry[];
-          };
-
-          if (Array.isArray(parsedState.tasks)) {
-            setTasks(parsedState.tasks);
-          }
-
-          if (Array.isArray(parsedState.history)) {
-            setHistory(parsedState.history);
-          }
-        } catch {
-          window.localStorage.removeItem(storageKey);
-        }
+      if (!ignore) {
+        setSession(currentSession);
+        setAuthReady(true);
       }
+    }
 
-      if (!isSupabaseConfigured || !supabase) {
-        setSyncStatus("local");
-        setSyncMessage("Saved in this browser. Supabase is not configured yet.");
-        setStorageReady(true);
+    loadAuth();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthReady(true);
+    });
+
+    return () => {
+      ignore = true;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !authReady || !userId) return;
+
+    let ignore = false;
+    const activeUserId = userId;
+
+    async function loadUserData() {
+      setSyncStatus("loading");
+      setSyncMessage("Loading private task data...");
+      window.localStorage.removeItem(storageKey);
+
+      const { error: profileError } = await supabase!.from("profiles").upsert({
+        id: activeUserId,
+        email: session?.user.email ?? null,
+        display_name: session?.user.email?.split("@")[0] ?? "Josephine",
+      });
+
+      if (profileError && !ignore) {
+        setSyncStatus("error");
+        setSyncMessage("Sign-in works, but the private database schema needs setup.");
         return;
       }
 
-      const { data: savedTasks, error: tasksError } = await supabase
+      const { data: savedTasks, error: tasksError } = await supabase!
         .from("support_tasks")
         .select("*")
         .order("title");
@@ -280,13 +347,12 @@ export default function Home() {
       if (ignore) return;
 
       if (tasksError) {
-        setSyncStatus("local");
-        setSyncMessage("Saved in this browser. Supabase tables are not connected yet.");
-        setStorageReady(true);
+        setSyncStatus("error");
+        setSyncMessage("Sign-in works, but support_tasks needs the secure schema.");
         return;
       }
 
-      const { data: savedHistory, error: historyError } = await supabase
+      const { data: savedHistory, error: historyError } = await supabase!
         .from("support_history")
         .select("*")
         .order("created_at", { ascending: false })
@@ -295,18 +361,19 @@ export default function Home() {
       if (ignore) return;
 
       if (historyError) {
-        setSyncStatus("local");
-        setSyncMessage("Saved in this browser. Supabase history is not connected yet.");
-        setStorageReady(true);
+        setSyncStatus("error");
+        setSyncMessage("Sign-in works, but support_history needs the secure schema.");
         return;
       }
 
       if ((savedTasks ?? []).length > 0) {
         setTasks(savedTasks.map(taskFromRow));
       } else {
-        const starter = createStarterTasks();
-        setTasks(starter);
-        await supabase.from("support_tasks").upsert(starter.map(taskToRow));
+        const starterTasks = createStarterTasks();
+        setTasks(starterTasks);
+        await supabase!
+          .from("support_tasks")
+          .upsert(starterTasks.map((task) => taskToRow(task, activeUserId)));
       }
 
       if ((savedHistory ?? []).length > 0) {
@@ -314,61 +381,60 @@ export default function Home() {
       } else {
         const starterHistory = createInitialHistory();
         setHistory(starterHistory);
-        await supabase
+        await supabase!
           .from("support_history")
-          .upsert(starterHistory.map(historyToRow));
+          .upsert(
+            starterHistory.map((entry) => historyToRow(entry, activeUserId)),
+          );
       }
 
       setSyncStatus("supabase");
-      setSyncMessage("Saved to Supabase.");
-      setStorageReady(true);
+      setSyncMessage("Private data saved to Supabase.");
     }
 
-    loadSavedState();
+    loadUserData();
 
     return () => {
       ignore = true;
     };
-  }, []);
-
-  useEffect(() => {
-    if (!storageReady) return;
-
-    window.localStorage.setItem(storageKey, JSON.stringify({ tasks, history }));
-  }, [history, storageReady, tasks]);
+  }, [authReady, session?.user.email, userId]);
 
   async function saveTaskToSupabase(task: SupportTask) {
-    if (!supabase) return;
-    if (syncStatus === "local" || syncStatus === "error") return;
+    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
+      return;
+    }
 
     setSyncStatus("syncing");
-    const { error } = await supabase.from("support_tasks").upsert(taskToRow(task));
+    const { error } = await supabase
+      .from("support_tasks")
+      .upsert(taskToRow(task, userId));
     if (error) {
       setSyncStatus("error");
-      setSyncMessage("Saved in this browser. Supabase sync needs attention.");
+      setSyncMessage("Saved on screen. Supabase sync needs attention.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Saved to Supabase.");
+    setSyncMessage("Private data saved to Supabase.");
   }
 
   async function saveHistoryToSupabase(entry: HistoryEntry) {
-    if (!supabase) return;
-    if (syncStatus === "local" || syncStatus === "error") return;
+    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
+      return;
+    }
 
     setSyncStatus("syncing");
     const { error } = await supabase
       .from("support_history")
-      .insert(historyToRow(entry));
+      .insert(historyToRow(entry, userId));
     if (error) {
       setSyncStatus("error");
-      setSyncMessage("Saved in this browser. Supabase sync needs attention.");
+      setSyncMessage("Saved on screen. Supabase sync needs attention.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Saved to Supabase.");
+    setSyncMessage("Private data saved to Supabase.");
   }
 
   const summary = useMemo(() => {
@@ -388,41 +454,28 @@ export default function Home() {
     const task = tasks.find((item) => item.id === taskId);
     if (!task) return;
 
-    let updatedTask = task;
+    const updatedTask =
+      type === "done" || type === "already_did_it"
+        ? { ...task, lastCompletedAt: now, status: "ok" as TaskStatus }
+        : type === "snooze"
+          ? { ...task, status: "snoozed" as TaskStatus }
+          : type === "need_help"
+            ? { ...task, status: "needs_help" as TaskStatus }
+            : task;
+
     setTasks((currentTasks) =>
-      currentTasks.map((item) => {
-        if (item.id !== taskId) return item;
-
-        if (type === "done" || type === "already_did_it") {
-          updatedTask = { ...item, lastCompletedAt: now, status: "ok" };
-          return updatedTask;
-        }
-
-        if (type === "snooze") {
-          updatedTask = { ...item, status: "snoozed" };
-          return updatedTask;
-        }
-
-        if (type === "need_help") {
-          updatedTask = { ...item, status: "needs_help" };
-          return updatedTask;
-        }
-
-        return item;
-      }),
+      currentTasks.map((item) => (item.id === taskId ? updatedTask : item)),
     );
 
-    const historyEntry = {
+    const historyEntry: HistoryEntry = {
       id: crypto.randomUUID(),
+      taskId,
       taskTitle: task.title,
       type,
       createdAt: now,
     };
 
-    setHistory((currentHistory) => [
-      historyEntry,
-      ...currentHistory,
-    ]);
+    setHistory((currentHistory) => [historyEntry, ...currentHistory]);
     void saveTaskToSupabase(updatedTask);
     void saveHistoryToSupabase(historyEntry);
   }
@@ -448,18 +501,16 @@ export default function Home() {
       status: "ok",
     };
 
-    setTasks((currentTasks) => [...currentTasks, task]);
-    const historyEntry = {
+    const historyEntry: HistoryEntry = {
       id: crypto.randomUUID(),
+      taskId: task.id,
       taskTitle: title,
-      type: "created" as ActionType,
+      type: "created",
       createdAt: now,
     };
 
-    setHistory((currentHistory) => [
-      historyEntry,
-      ...currentHistory,
-    ]);
+    setTasks((currentTasks) => [...currentTasks, task]);
+    setHistory((currentHistory) => [historyEntry, ...currentHistory]);
     void saveTaskToSupabase(task);
     void saveHistoryToSupabase(historyEntry);
     event.currentTarget.reset();
@@ -472,33 +523,42 @@ export default function Home() {
     setTasks(starterTasks);
     setHistory(starterHistory);
 
-    if (syncStatus === "local" || syncStatus === "error") return;
-    if (!supabase) return;
+    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
+      return;
+    }
 
     setSyncStatus("syncing");
     const { error: deleteHistoryError } = await supabase
       .from("support_history")
       .delete()
-      .neq("id", "");
+      .eq("user_id", userId);
     const { error: deleteTasksError } = await supabase
       .from("support_tasks")
       .delete()
-      .neq("id", "");
+      .eq("assigned_user_id", userId);
     const { error: taskError } = await supabase
       .from("support_tasks")
-      .upsert(starterTasks.map(taskToRow));
+      .upsert(starterTasks.map((task) => taskToRow(task, userId)));
     const { error: historyError } = await supabase
       .from("support_history")
-      .upsert(starterHistory.map(historyToRow));
+      .upsert(starterHistory.map((entry) => historyToRow(entry, userId)));
 
     if (deleteHistoryError || deleteTasksError || taskError || historyError) {
       setSyncStatus("error");
-      setSyncMessage("Reset locally. Supabase sync needs attention.");
+      setSyncMessage("Reset on screen. Supabase sync needs attention.");
       return;
     }
 
     setSyncStatus("supabase");
-    setSyncMessage("Saved to Supabase.");
+    setSyncMessage("Private data saved to Supabase.");
+  }
+
+  if (isSupabaseConfigured && !authReady) {
+    return <LoadingScreen />;
+  }
+
+  if (isSupabaseConfigured && !session) {
+    return <AuthGate />;
   }
 
   return (
@@ -513,7 +573,7 @@ export default function Home() {
               Josephine
             </h1>
           </div>
-          <div className="rounded-lg border border-stone-300 bg-white p-4 shadow-sm sm:min-w-56 sm:text-right">
+          <div className="rounded-lg border border-stone-300 bg-white p-4 shadow-sm sm:min-w-64 sm:text-right">
             <span className="block text-sm text-stone-600">
               {new Intl.DateTimeFormat(undefined, {
                 weekday: "long",
@@ -524,6 +584,15 @@ export default function Home() {
             <strong className="mt-1 block text-teal-800">
               {summary.ready + summary.failsafe} to review
             </strong>
+            {session ? (
+              <button
+                className="mt-3 min-h-9 rounded-md border border-stone-300 px-3 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+                type="button"
+                onClick={() => supabase?.auth.signOut()}
+              >
+                Sign out
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -543,18 +612,23 @@ export default function Home() {
         <section className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
           <span className="font-semibold text-stone-950">
             {syncStatus === "supabase"
-              ? "Supabase mode"
+              ? "Private mode"
               : syncStatus === "syncing"
                 ? "Syncing"
                 : syncStatus === "loading"
                   ? "Loading"
-                  : "Local mode"}
+                  : syncStatus === "error"
+                    ? "Setup needed"
+                    : "Local mode"}
           </span>
           <span className="ml-2">{syncMessage}</span>
         </section>
 
         <section className="rounded-lg border border-stone-300 bg-white p-3">
-          <form className="grid gap-2 lg:grid-cols-[1fr_150px_100px_100px_80px]" onSubmit={addTask}>
+          <form
+            className="grid gap-2 lg:grid-cols-[1fr_150px_100px_100px_80px]"
+            onSubmit={addTask}
+          >
             <input
               className="min-h-10 rounded-md border border-stone-300 px-3"
               name="title"
@@ -672,7 +746,10 @@ export default function Home() {
             <h2 className="mb-4 text-lg font-bold">History</h2>
             <ol className="grid gap-3">
               {history.slice(0, 12).map((entry) => (
-                <li className="border-b border-stone-200 pb-3 last:border-0 last:pb-0" key={entry.id}>
+                <li
+                  className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
+                  key={entry.id}
+                >
                   <strong className="block">{entry.taskTitle}</strong>
                   <span className="block text-stone-600">
                     {historyLabel(entry.type)}
@@ -686,6 +763,72 @@ export default function Home() {
           </aside>
         </section>
       </div>
+    </main>
+  );
+}
+
+function AuthGate() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("Sign in to open private task data.");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function requestMagicLink(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!supabase) return;
+
+    setIsSubmitting(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    setIsSubmitting(false);
+    setMessage(
+      error
+        ? error.message
+        : "Check your email for a secure sign-in link, then return here.",
+    );
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 text-stone-950">
+      <section className="w-full max-w-md rounded-lg border border-stone-300 bg-white p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase text-teal-800">
+          Private Daily Support
+        </p>
+        <h1 className="mt-2 text-3xl font-black">Sign in</h1>
+        <p className="mt-2 text-stone-600">{message}</p>
+        <form className="mt-5 grid gap-3" onSubmit={requestMagicLink}>
+          <input
+            className="min-h-11 rounded-md border border-stone-300 px-3"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="email@example.com"
+            required
+          />
+          <button
+            className="min-h-11 rounded-md bg-teal-700 px-4 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Sending" : "Send secure sign-in link"}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 text-stone-950">
+      <section className="rounded-lg border border-stone-300 bg-white p-6 shadow-sm">
+        <p className="font-semibold">Opening private support workspace...</p>
+      </section>
     </main>
   );
 }
