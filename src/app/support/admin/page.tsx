@@ -8,6 +8,7 @@ import {
   safetyAlertConfig,
   safetyAlertThreshold,
 } from "@/lib/safety/reviewable-config";
+import { RewardAdminPanel } from "./reward-admin-panel";
 
 const caregiverAdminEmail = "chilton18@gmail.com";
 
@@ -235,6 +236,8 @@ export default function AdminCaregiverPage() {
         </header>
 
         <section className="grid gap-4 md:grid-cols-2">
+          <RewardAdminPanel />
+
           <article className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm md:col-span-2">
             <h2 className="text-lg font-bold">Review Rhythm</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-2">

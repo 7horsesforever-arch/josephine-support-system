@@ -2,16 +2,23 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
-
-type ActionType = "done" | "already_did_it" | "snooze" | "need_help" | "created";
-
-type HistoryEntry = {
-  id: string;
-  taskId: string | null;
-  taskTitle: string;
-  type: ActionType;
-  createdAt: string;
-};
+import {
+  buildDayWindow,
+  calculateRoutineCompletion,
+  calculateWeeklyRewards,
+  currentRewardThreshold,
+  defaultRewardState,
+  dayKey,
+  isCompletion,
+  normalizeRewardState,
+  rewardRoutines,
+  rewardStateStorageKey,
+  routineDashboardWindowDays,
+  startOfLocalDay,
+  type ActionType,
+  type HistoryEntry,
+  type RewardState,
+} from "./routine-rewards";
 
 type SupportHistoryRow = {
   id: string;
@@ -24,45 +31,6 @@ type SupportHistoryRow = {
 type LoadState = "loading" | "ready" | "empty";
 
 const storageKey = "josephine-support-state-v1";
-const windowDays = 14;
-
-const routines = [
-  {
-    id: "brush-teeth-night",
-    title: "Brush It!",
-    cadenceDays: 1,
-    maxGapDays: 2,
-    expectedLabel: "daily",
-    helper: "The goal is a steady bedtime streak, not perfection.",
-  },
-  {
-    id: "laundry",
-    title: "Wash It!",
-    cadenceDays: 7,
-    maxGapDays: 14,
-    expectedLabel: "weekly-ish",
-    helper: "A weekly reset keeps clothes, towels, and sheets from becoming a huge pile.",
-  },
-];
-
-function startOfLocalDay(date: Date) {
-  const nextDate = new Date(date);
-  nextDate.setHours(0, 0, 0, 0);
-  return nextDate;
-}
-
-function addDays(date: Date, days: number) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + days);
-  return nextDate;
-}
-
-function dayKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 function shortDayLabel(date: Date) {
   return date.toLocaleDateString(undefined, {
@@ -97,6 +65,17 @@ function historyFromRow(row: SupportHistoryRow): HistoryEntry {
   };
 }
 
+function readRewardState() {
+  const storedState = window.localStorage.getItem(rewardStateStorageKey);
+  if (!storedState) return defaultRewardState;
+
+  try {
+    return normalizeRewardState(JSON.parse(storedState) as Partial<RewardState>);
+  } catch {
+    return defaultRewardState;
+  }
+}
+
 function getRoutineStatus(daysSinceLast: number | null, maxGapDays: number) {
   if (daysSinceLast === null) return "Ready to start";
   if (daysSinceLast === 0) return "Done today";
@@ -123,6 +102,8 @@ function getRoutineStatusClasses(status: string) {
 
 export function HealthRoutineDashboard() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [rewardState, setRewardState] =
+    useState<RewardState>(defaultRewardState);
   const [loadState, setLoadState] = useState<LoadState>("loading");
 
   useEffect(() => {
@@ -130,6 +111,7 @@ export function HealthRoutineDashboard() {
 
     async function loadHistory() {
       const localHistory = readLocalHistory();
+      setRewardState(readRewardState());
 
       if (isSupabaseConfigured && supabase) {
         const {
@@ -137,13 +119,13 @@ export function HealthRoutineDashboard() {
         } = await supabase.auth.getSession();
 
         if (session) {
-          const sinceDate = addDays(startOfLocalDay(new Date()), -windowDays);
+          const sinceDate = buildDayWindow(routineDashboardWindowDays)[0];
           const { data, error } = await supabase
             .from("support_history")
             .select("id,task_id,task_title,action_type,created_at")
             .in(
               "task_id",
-              routines.map((routine) => routine.id),
+              rewardRoutines.map((routine) => routine.id),
             )
             .in("action_type", ["done", "already_did_it"])
             .gte("created_at", sinceDate.toISOString())
@@ -163,8 +145,8 @@ export function HealthRoutineDashboard() {
       if (!ignore) {
         const filteredLocalHistory = localHistory.filter(
           (entry) =>
-            routines.some((routine) => routine.id === entry.taskId) &&
-            (entry.type === "done" || entry.type === "already_did_it"),
+            rewardRoutines.some((routine) => routine.id === entry.taskId) &&
+            isCompletion(entry),
         );
         setHistory(filteredLocalHistory);
         setLoadState(filteredLocalHistory.length > 0 ? "ready" : "empty");
@@ -179,11 +161,13 @@ export function HealthRoutineDashboard() {
   }, []);
 
   const days = useMemo(() => {
-    const today = startOfLocalDay(new Date());
-    return Array.from({ length: windowDays }, (_item, index) =>
-      addDays(today, index - (windowDays - 1)),
-    );
+    return buildDayWindow(routineDashboardWindowDays);
   }, []);
+  const rewardSummary = useMemo(
+    () => calculateWeeklyRewards(history, rewardState.settings),
+    [history, rewardState.settings],
+  );
+  const rewardThreshold = currentRewardThreshold(rewardState.settings);
 
   return (
     <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
@@ -193,7 +177,7 @@ export function HealthRoutineDashboard() {
             Routine Dashboard
           </p>
           <h2 className="mt-2 text-2xl font-black">
-            Brush It! and Wash It!
+            Scrub It!, Brush It!, and Wash It!
           </h2>
           <p className="mt-2 max-w-3xl text-sm text-stone-600">
             A simple 14-day view of consistency. Filled dots mean Josephine
@@ -209,25 +193,51 @@ export function HealthRoutineDashboard() {
         </span>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {routines.map((routine) => {
-          const routineHistory = history.filter(
-            (entry) => entry.taskId === routine.id,
+      <div className="mt-5 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-950">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold">Stars this week</h3>
+            <p className="mt-1 text-sm">
+              Earn 1 star for each routine that reaches {rewardThreshold}%
+              consistency this week.
+            </p>
+          </div>
+          <strong className="text-3xl">
+            {rewardSummary.starsEarned} / {rewardRoutines.length}
+          </strong>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          {rewardSummary.routineResults.map((result) => (
+            <div
+              className="rounded-md border border-yellow-200 bg-white p-3 text-sm"
+              key={result.routine.id}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <strong>{result.routine.title}</strong>
+                <span>{result.earnedStar ? "Star earned" : "Not yet"}</span>
+              </div>
+              <p className="mt-1 text-yellow-900">
+                {result.consistency}% of {rewardThreshold}% needed
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        {rewardRoutines.map((routine) => {
+          const {
+            completedDayKeys,
+            completedDays,
+            expectedCompletions,
+            consistency,
+            lastCompletedAt,
+          } = calculateRoutineCompletion(
+            history,
+            routine,
+            days,
+            rewardThreshold,
           );
-          const completedDayKeys = new Set(
-            routineHistory.map((entry) => dayKey(new Date(entry.createdAt))),
-          );
-          const completedDays = days.filter((day) =>
-            completedDayKeys.has(dayKey(day)),
-          ).length;
-          const expectedCompletions = Math.ceil(windowDays / routine.cadenceDays);
-          const consistency = Math.min(
-            100,
-            Math.round((completedDays / expectedCompletions) * 100),
-          );
-          const lastCompletedAt = routineHistory
-            .map((entry) => new Date(entry.createdAt))
-            .sort((first, second) => second.getTime() - first.getTime())[0];
           const daysSinceLast = lastCompletedAt
             ? Math.floor(
                 (startOfLocalDay(new Date()).getTime() -

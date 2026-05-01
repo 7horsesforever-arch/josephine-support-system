@@ -17,6 +17,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Daily task dashboard for Josephine.
 - Starter tasks for Scrub It!, Brush It!, and Wash It! routines.
 - Weekly Oura Ring charge reminder, with a Health & Wellness data dashboard ready for Oura and Apple Health summaries.
+- Reward stars for Scrub It!, Brush It!, and Wash It!, with caregiver-admin cashout controls that record manual credit-union payouts.
 - Weekly room reset reminder with an after-cleaning supply check for Amazon list review.
 - One-tap actions: Done, Already Did It, Snooze, Need Help.
 - Completion-based next reminder and fail-safe dates.

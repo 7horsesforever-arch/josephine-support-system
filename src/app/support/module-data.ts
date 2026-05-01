@@ -196,6 +196,15 @@ export const supportModules: SupportModule[] = [
         ],
       },
       {
+        title: "Rewards",
+        items: [
+          "Scrub It!, Brush It!, and Wash It! can each earn one star per week.",
+          "The starting bar is intentionally low and can increase over time toward 100% consistency.",
+          "Stars can be banked and traded for caregiver-approved cash payouts recorded in the admin page.",
+          "Cash movement happens directly through the credit union, not automatically inside the app.",
+        ],
+      },
+      {
         title: "Keep Easy To Find",
         items: [
           "Insurance status, insurance card, and pharmacy card.",
@@ -374,6 +383,7 @@ export const supportModules: SupportModule[] = [
           "Use Plaid for read-only balances.",
           "Do not store bank usernames, passwords, account numbers, or card numbers.",
           "Transfers and bill pay happen directly at the credit union.",
+          "Reward cash payouts should be approved in admin and then moved manually through the credit union.",
         ],
       },
     ],
