@@ -14,6 +14,7 @@ import {
   signInWithDevicePasskey,
   supabase,
 } from "@/lib/supabase";
+import { supportModules } from "./support/module-data";
 
 type TaskCategory =
   | "school"
@@ -202,6 +203,20 @@ type CanvasConnectionStatusRow = {
   expires_at: string;
   last_imported_at: string | null;
   updated_at: string;
+};
+
+type AskJojoSource = {
+  title: string;
+  category: string;
+  text: string;
+  href?: string;
+  priority?: number;
+};
+
+type AskJojoAnswer = {
+  intro: string;
+  steps: string[];
+  sources: AskJojoSource[];
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -702,6 +717,104 @@ function SupportPageLink({ href }: { href: string }) {
       Open full page
     </Link>
   );
+}
+
+const askJojoStopWords = new Set([
+  "a",
+  "about",
+  "and",
+  "are",
+  "can",
+  "do",
+  "for",
+  "from",
+  "her",
+  "how",
+  "i",
+  "in",
+  "is",
+  "it",
+  "jojo",
+  "me",
+  "my",
+  "of",
+  "on",
+  "or",
+  "she",
+  "should",
+  "the",
+  "to",
+  "what",
+  "when",
+  "where",
+  "with",
+]);
+
+function tokenizeAskJojoText(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 2 && !askJojoStopWords.has(word));
+}
+
+function firstUsefulSentence(text: string) {
+  const [firstSentence] = text.split(/[.!?]\s+/);
+  return firstSentence.length > 180
+    ? `${firstSentence.slice(0, 177).trim()}...`
+    : firstSentence;
+}
+
+function answerAskJojo(question: string, sources: AskJojoSource[]): AskJojoAnswer {
+  const trimmedQuestion = question.trim();
+
+  if (!trimmedQuestion) {
+    return {
+      intro: "Ask JoJo can look across tasks, school, messages, housing, money, food, health, safety, and the support pages.",
+      steps: [
+        "Try: What is due soon?",
+        "Try: How do I schedule an SDC test?",
+        "Try: What should I do if an email feels confusing?",
+      ],
+      sources: sources.slice(0, 3),
+    };
+  }
+
+  const tokens = tokenizeAskJojoText(trimmedQuestion);
+  const scoredSources = sources
+    .map((source, index) => {
+      const searchableText = `${source.title} ${source.category} ${source.text}`.toLowerCase();
+      const score =
+        tokens.reduce((total, token) => {
+          if (source.title.toLowerCase().includes(token)) return total + 5;
+          if (source.category.toLowerCase().includes(token)) return total + 3;
+          return searchableText.includes(token) ? total + 1 : total;
+        }, source.priority ?? 0) - index * 0.001;
+
+      return { source, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 5)
+    .map(({ source }) => source);
+
+  if (scoredSources.length === 0) {
+    return {
+      intro:
+        "I do not see a strong match in the app yet. Try asking with a section name like school, Canvas, SDC, housing, food, money, messages, Viper, car, or health.",
+      steps: [
+        "If this is urgent or safety-related, use Help Now instead of waiting on the app.",
+        "If this is a new area, add it as a task or module note so JoJo can find it next time.",
+      ],
+      sources: sources.slice(0, 3),
+    };
+  }
+
+  return {
+    intro: `Here is what JoJo found for "${trimmedQuestion}".`,
+    steps: scoredSources.slice(0, 3).map((source) => firstUsefulSentence(source.text)),
+    sources: scoredSources,
+  };
 }
 
 function daysAgo(count: number) {
@@ -1382,6 +1495,7 @@ export default function Home() {
     "Connect Canvas Credit Union when you want a quick, read-only money check.",
   );
   const [isPlaidLoading, setIsPlaidLoading] = useState(false);
+  const [askJojoQuestion, setAskJojoQuestion] = useState("");
 
   const userId = session?.user.id;
 
@@ -1986,6 +2100,85 @@ export default function Home() {
     );
   }, [tasks]);
 
+  const askJojoSources = useMemo<AskJojoSource[]>(() => {
+    const moduleSources = supportModules.flatMap((supportModule) => [
+      {
+        title: supportModule.title,
+        category: supportModule.eyebrow,
+        text: supportModule.summary,
+        href: `/support/${supportModule.slug}`,
+        priority: 1,
+      },
+      ...supportModule.sections.map((section) => ({
+        title: `${supportModule.title}: ${section.title}`,
+        category: supportModule.eyebrow,
+        text: section.items.join(" "),
+        href: `/support/${supportModule.slug}`,
+        priority: 2,
+      })),
+    ]);
+
+    const taskSources = tasks.map((task) => {
+      const schedule = getTaskSchedule(task);
+      return {
+        title: `Task: ${task.title}`,
+        category: categoryLabel(task.category),
+        text: `${task.description} Status: ${statusLabel(schedule.status)}. Comes back ${formatDate(schedule.nextDueAt)}. Backup check ${formatDate(schedule.escalateAfterAt)}.`,
+        priority: schedule.status === "escalated" ? 4 : schedule.status === "due" ? 3 : 1,
+      };
+    });
+
+    const assignmentSources = assignments.map((assignment) => ({
+      title: `Assignment: ${assignment.title}`,
+      category: "Canvas",
+      text: `${assignment.courseName}. ${
+        assignment.dueAt
+          ? `Due ${formatDateTime(assignment.dueAt)}.`
+          : "No due date listed."
+      } ${assignment.pointsPossible ? `${assignment.pointsPossible} points.` : ""}`,
+      href: assignment.url ?? undefined,
+      priority: 5,
+    }));
+
+    const emailSources = emailDrafts.map((draft) => ({
+      title: `Draft: ${draft.subject}`,
+      category: draft.source === "google_gmail" ? "Gmail" : "CSU email",
+      text: `Draft status: ${draft.status}. To ${draft.recipientEmail ?? "sender"}. ${draft.body}`,
+      priority: 4,
+    }));
+
+    const housingSources = housingDocuments.map((document) => ({
+      title: `Housing doc: ${document.title}`,
+      category: "Housing",
+      text: `${document.documentType}. Status: ${document.status}. ${
+        document.importantDate ? `Important date: ${formatDate(new Date(document.importantDate))}.` : ""
+      } ${document.notes ?? ""}`,
+      href: document.fileUrl ?? undefined,
+      priority: 3,
+    }));
+
+    const financialSources = financialAccounts.map((account) => ({
+      title: `Money: ${account.name}`,
+      category: "Financial",
+      text: `${account.officialName ?? account.name}. Available balance: ${formatCurrency(account.availableBalance, account.isoCurrencyCode)}. Current balance: ${formatCurrency(account.currentBalance, account.isoCurrencyCode)}. Read-only balance view.`,
+      priority: 4,
+    }));
+
+    return [
+      ...assignmentSources,
+      ...taskSources,
+      ...emailSources,
+      ...housingSources,
+      ...financialSources,
+      ...moduleSources,
+    ];
+  }, [assignments, emailDrafts, financialAccounts, housingDocuments, tasks]);
+
+  const askJojoAnswer = useMemo(
+    () => answerAskJojo(askJojoQuestion, askJojoSources),
+    [askJojoQuestion, askJojoSources],
+  );
+
   function recordAction(taskId: string, type: ActionType) {
     const now = new Date().toISOString();
     const task = tasks.find((item) => item.id === taskId);
@@ -2377,6 +2570,88 @@ export default function Home() {
                     : "Local mode"}
           </span>
           <span className="ml-2">{syncMessage}</span>
+        </section>
+
+        <section className="rounded-lg border border-teal-700 bg-white p-5 shadow-sm">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div>
+              <p className="text-xs font-bold uppercase text-teal-800">
+                Agent helper
+              </p>
+              <h2 className="mt-1 text-3xl font-black">Ask JoJo</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Ask one plain-language question and JoJo will look across the
+                app: tasks, Canvas, messages, money, housing, support pages, and
+                safety notes.
+              </p>
+              <label className="mt-4 block text-sm font-semibold text-stone-700">
+                What do you need help finding?
+                <input
+                  className="mt-2 min-h-12 w-full rounded-md border border-stone-300 px-3 text-base font-normal"
+                  value={askJojoQuestion}
+                  onChange={(event) => setAskJojoQuestion(event.target.value)}
+                  placeholder="Ask JoJo about SDC tests, assignments, food, money, emails..."
+                />
+              </label>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {[
+                  "What is due soon?",
+                  "How do I schedule an SDC test?",
+                  "What if an email feels confusing?",
+                ].map((question) => (
+                  <button
+                    className="min-h-9 rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                    key={question}
+                    type="button"
+                    onClick={() => setAskJojoQuestion(question)}
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+              <strong className="text-sm text-stone-950">JoJo says</strong>
+              <p className="mt-2 text-sm text-stone-700">{askJojoAnswer.intro}</p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-stone-700">
+                {askJojoAnswer.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ul>
+              <div className="mt-4 border-t border-stone-200 pt-3">
+                <span className="text-xs font-bold uppercase text-stone-500">
+                  Pulled from
+                </span>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {askJojoAnswer.sources.slice(0, 5).map((source) =>
+                    source.href ? (
+                      <a
+                        className="inline-flex min-h-8 items-center rounded-md bg-white px-3 text-xs font-semibold text-teal-800 ring-1 ring-stone-200 hover:bg-teal-50"
+                        href={source.href}
+                        key={`${source.title}-${source.href}`}
+                        target={source.href.startsWith("http") ? "_blank" : undefined}
+                        rel={source.href.startsWith("http") ? "noreferrer" : undefined}
+                      >
+                        {source.title}
+                      </a>
+                    ) : (
+                      <span
+                        className="inline-flex min-h-8 items-center rounded-md bg-white px-3 text-xs font-semibold text-stone-700 ring-1 ring-stone-200"
+                        key={source.title}
+                      >
+                        {source.title}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-stone-500">
+                JoJo only answers from information already in this app. It does
+                not send messages, change accounts, or contact anyone.
+              </p>
+            </div>
+          </div>
         </section>
 
         <section className="rounded-lg border border-stone-300 bg-white p-3">
