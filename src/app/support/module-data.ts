@@ -756,23 +756,104 @@ export const supportModules: SupportModule[] = [
       "Room info, housing documents, move-in details, billing, maintenance, and the single-room accommodation.",
     sections: [
       {
-        title: "Track Here",
+        title: "Home Base",
         items: [
-          "Residence hall contract.",
-          "Move-in details.",
-          "Room assignment and suite information.",
-          "Housing billing and renewal dates.",
-          "Maintenance notes.",
-          "Weekly room reset and supply check.",
+          "Planned hall: Braiden Hall.",
+          "Keep room assignment, suite details, mailbox/package pickup, front desk, RA name, and emergency contacts here once assigned.",
+          "Use this page as the calm place to answer: where do I live, who do I ask, what do I need to do next?",
+          "Keep private details in Drive or Supabase storage; do not hard-code room number, contract files, or billing documents.",
         ],
       },
       {
-        title: "Accommodation",
+        title: "Single-Room Accommodation",
         items: [
           "Approved housing accommodation: single room in a suite.",
-          "Confirm whether it needs annual renewal or housing-cycle follow-up.",
-          "Keep eligibility paperwork in private Drive or secure storage.",
+          "Confirm with SDC and Housing whether the approval carries forward automatically or needs annual housing-cycle follow-up.",
+          "Before room selection or renewal, check that the accommodation is visible where Housing needs it.",
+          "Store eligibility paperwork in private Drive or secure storage, not app code.",
+          "If the assigned room does not match the accommodation, contact SDC and Housing promptly and ask for the next written step.",
         ],
+      },
+      {
+        title: "Housing Portal Checklist",
+        items: [
+          "Open the CSU Housing Portal to apply for housing, review the contract, room assignment, roommate/suite information, and room-selection tasks.",
+          "Track application status, deposit/application fee items, contract status, room selection, and move-in appointment when available.",
+          "Save screenshots or confirmations to the Housing folder in Google Drive after major portal steps.",
+          "Watch CSU email for housing updates because official housing messages may not appear anywhere else.",
+        ],
+      },
+      {
+        title: "Move-In Details",
+        items: [
+          "Track move-in date, time window, parking/unloading plan, check-in location, RamCard access, and who is bringing which items.",
+          "Make a Braiden-specific packing list: bedding, towels, shower caddy, laundry, cleaning supplies, chargers, meds, documents, and low-energy food backups.",
+          "After arrival, complete any room condition report or damage check as soon as the portal or staff asks for it.",
+          "Take photos of room condition before unpacking in case damage questions come up later.",
+        ],
+      },
+      {
+        title: "Documents To Store",
+        items: [
+          "Residence hall contract and confirmation.",
+          "Room assignment and suite information.",
+          "Housing bills, payment dates, and deposit/application fee receipts.",
+          "Move-in instructions and parking/unloading maps.",
+          "Accommodation confirmation and any written Housing/SDC follow-up.",
+          "Maintenance requests, work-order confirmations, and resolution notes.",
+        ],
+      },
+      {
+        title: "When Something Is Wrong",
+        items: [
+          "For roommate or suite conflict, start with the RA unless the situation feels unsafe.",
+          "For routine maintenance, use the Housing maintenance/contact flow and describe the issue clearly.",
+          "For urgent safety issues, fire, immediate danger, or medical emergency, call or text 911.",
+          "For accommodation barriers, contact SDC and Housing in writing so there is a record.",
+        ],
+      },
+      {
+        title: "Weekly Room Reset",
+        items: [
+          "Clean trash, recycling, dishes, desk, floor, laundry pile, sheets/towels, and mini-fridge.",
+          "Check supplies: detergent, dryer sheets, trash bags, wipes, paper towels, toiletries, snacks, and meds.",
+          "After cleaning, ask whether anything needs to go on the Amazon review list.",
+          "Small-week version: trash out, laundry gathered, one surface clear, food check done.",
+        ],
+      },
+    ],
+    links: [
+      {
+        label: "Housing & Dining Hub",
+        href: "https://thehub.colostate.edu/housing-dining/",
+      },
+      {
+        label: "Housing Portal",
+        href: "https://colostate.starrezhousing.com/StarRezPortalX",
+      },
+      {
+        label: "Apply For Housing",
+        href: "https://housing.colostate.edu/housing/halls/apply/",
+      },
+      {
+        label: "Explore Residence Halls",
+        href: "https://housing.colostate.edu/housing/explore/",
+      },
+      {
+        label: "Residence Hall Rates",
+        href: "https://housing.colostate.edu/housing/halls/rates/",
+      },
+      {
+        label: "Braiden Hall",
+        href: "https://housing.colostate.edu/housing/halls/braiden/",
+      },
+      {
+        label: "Housing Contact",
+        href: "https://thehub.colostate.edu/contact-us-by-e-mail/",
+      },
+      {
+        label: "Maintenance Request",
+        href: "https://thehub.colostate.edu/contact-us-by-e-mail/",
       },
     ],
   },
