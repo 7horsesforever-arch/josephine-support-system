@@ -73,6 +73,13 @@ The app should help turn those accommodations into practical reminders and revie
 - Do not commit housing contracts or residence documents to the codebase.
 - Turn important housing dates into reminders and review-with-support tasks.
 
+## Food Support
+
+- Start with Braiden Hall as Josephine's home-base dining option.
+- Include campus dining backups, current-hours links, and plain-language schedules because hours change during breaks and finals.
+- Include robot delivery instructions for low-energy, bad-weather, or "do not want to go out" moments.
+- Keep a bi-weekly mini-fridge shopping list for easy snacks, backup meals, and drinks.
+
 ## Safety Boundary
 
 Josephine's accommodation context should shape the app experience. It should not become a broad profile for unrelated decisions, and it should not be shared with external services except where Josephine/caregivers have clearly authorized a specific connection.

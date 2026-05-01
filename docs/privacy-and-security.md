@@ -10,6 +10,7 @@
 - Email draft output: recipient, subject, body, status, source, and drafting agent name.
 - A public credit union login URL for opening the banking site in a separate tab.
 - Housing document metadata: title, document type, status, private storage path or access-controlled URL, important date, and notes.
+- Food planning preferences such as campus dining shortcuts and mini-fridge shopping list items.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -20,6 +21,7 @@
 - School portal passwords or recovery codes.
 - Banking usernames, passwords, account numbers, routing numbers, card numbers, balances, or bill-pay credentials.
 - Public copies of housing contracts, lease documents, room assignments, or residence hall billing documents.
+- Meal-plan payment credentials or stored food-delivery payment credentials.
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.
 - Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
@@ -48,6 +50,7 @@
 - Email drafting agents may prepare editable replies, but they must not send, delete, archive, or mark mail read without explicit review.
 - Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Housing documents should live in private storage with RLS-protected metadata. Do not commit contracts or residence documents to Git.
+- Food delivery should open the official campus ordering app/site. Do not store Grubhub, Starship, or payment credentials in this app.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage

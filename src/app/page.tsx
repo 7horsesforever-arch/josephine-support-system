@@ -14,6 +14,7 @@ type TaskCategory =
   | "communications"
   | "financial"
   | "housing"
+  | "food"
   | "admin"
   | "health"
   | "life";
@@ -150,8 +151,72 @@ const primaryAccessEmail = "chilton18@gmail.com";
 const devicePasskeyName = "Josephine MacBook Touch ID";
 const defaultCanvasBaseUrl = "https://colostate.instructure.com";
 const creditUnionUrl = process.env.NEXT_PUBLIC_CREDIT_UNION_URL?.trim() ?? "";
+const diningHoursUrl = "https://housing.colostate.edu/dining/";
+const grubhubCampusUrl = "https://www.grubhub.com/campus";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
+
+const campusDiningLocations = [
+  {
+    name: "Braiden Dining Center",
+    focus: "Home base",
+    schedule: "Use first for breakfast, lunch, dinner, and between-class meals.",
+    note: "Braiden Hall contains Braiden Dining Center and RAMwich pickup.",
+  },
+  {
+    name: "Lory Student Center",
+    focus: "Class-day backup",
+    schedule: "Use between classes for quick meals and national-chain options.",
+    note: "CSU lists local favorites plus national chains in the LSC.",
+  },
+  {
+    name: "Academic Village / Ram's Horn",
+    focus: "South-campus option",
+    schedule: "Use when near Academic Village, Edwards, Summit, or Ingersoll.",
+    note: "Good alternate dining center when Braiden is crowded or closed.",
+  },
+  {
+    name: "Durrell Center",
+    focus: "Northwest-campus option",
+    schedule: "Use when near Moby, Durward, Westfall, or Laurel Village.",
+    note: "CSU map lists Durrell Dining Center and Durrell Express.",
+  },
+  {
+    name: "Corbett / Parmelee",
+    focus: "North-campus option",
+    schedule: "Use when near the Rec Center, Corbett, Parmelee, or north campus.",
+    note: "CSU map lists Corbett Marketplace and Parmelee Dining Center.",
+  },
+  {
+    name: "Allison Café",
+    focus: "Light meal option",
+    schedule: "Use for smaller breakfast or lunch when near Allison and LSC.",
+    note: "CSU map lists continental breakfast and Spoons Soups and Salads for lunch.",
+  },
+];
+
+const robotDeliverySteps = [
+  "Open Grubhub and choose the CSU campus dining option.",
+  "Pick a campus restaurant that offers robot delivery.",
+  "Set the delivery pin outside Braiden Hall or the closest safe outdoor pickup spot.",
+  "Watch the order tracker and go outside when the robot arrives.",
+  "Use this when going out feels too hard, the weather is bad, or energy is low.",
+];
+
+const miniFridgeShoppingList = [
+  "Greek yogurt cups",
+  "Cheese sticks or Babybel",
+  "Hummus cups",
+  "Baby carrots or snap peas",
+  "Apples, grapes, or berries",
+  "Microwave rice or pasta cups",
+  "Protein drinks or shelf-stable shakes",
+  "Turkey, tuna, or tofu snack packs",
+  "Granola bars",
+  "Crackers or pretzels",
+  "Peanut butter or sunflower butter",
+  "Sparkling water or electrolyte drinks",
+];
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -216,6 +281,17 @@ function createStarterTasks(): SupportTask[] {
       maxGapDays: 30,
       lastCompletedAt: daysAgo(10),
       status: "ok",
+    },
+    {
+      id: "mini-fridge-restock",
+      title: "Mini-fridge restock",
+      category: "food",
+      description:
+        "Normal reminder 14 days after completion. Fail-safe at 21 days.",
+      normalIntervalDays: 14,
+      maxGapDays: 21,
+      lastCompletedAt: daysAgo(12),
+      status: "due",
     },
   ];
 }
@@ -322,6 +398,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
     category === "communications" ||
     category === "financial" ||
     category === "housing" ||
+    category === "food" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -338,6 +415,7 @@ function categoryLabel(category: TaskCategory) {
     communications: "Communications",
     financial: "Financial",
     housing: "Housing",
+    food: "Food",
     admin: "Admin",
     health: "Health",
     life: "Life",
@@ -1284,6 +1362,7 @@ export default function Home() {
               <option value="communications">Communications</option>
               <option value="financial">Financial</option>
               <option value="housing">Housing</option>
+              <option value="food">Food</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -1522,6 +1601,82 @@ export default function Home() {
                     No assignments imported yet.
                   </p>
                 )}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Food</h2>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Plan meals around Braiden, campus dining backups, robot
+                    delivery, and a bi-weekly mini-fridge restock.
+                  </p>
+                </div>
+                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+                  Braiden first
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                {campusDiningLocations.map((location) => (
+                  <article
+                    className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                    key={location.name}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-sm">{location.name}</strong>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                        {location.focus}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-stone-700">{location.schedule}</p>
+                    <p className="mt-1 text-xs text-stone-500">{location.note}</p>
+                  </article>
+                ))}
+              </div>
+
+              <a
+                className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                href={diningHoursUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Verify Today&apos;s Dining Hours
+              </a>
+
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Robot Delivery
+                </h3>
+                <ol className="mt-3 grid gap-2 text-sm text-stone-700">
+                  {robotDeliverySteps.map((step) => (
+                    <li className="rounded-md bg-stone-50 p-2" key={step}>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+                <a
+                  className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={grubhubCampusUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Grubhub Campus
+                </a>
+              </div>
+
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Bi-weekly Mini-fridge List
+                </h3>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-stone-700">
+                  {miniFridgeShoppingList.map((item) => (
+                    <span className="rounded-md bg-stone-50 p-2" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </div>
             </section>
 
