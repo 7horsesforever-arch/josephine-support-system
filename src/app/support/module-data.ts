@@ -526,21 +526,96 @@ export const supportModules: SupportModule[] = [
       "Mileage checks, gas, wash/cleanout, and maintenance planning for the campus car.",
     sections: [
       {
-        title: "Core Reminders",
+        title: "Vehicle Profile",
         items: [
-          "Monthly odometer check.",
-          "Weekly gas check.",
-          "Monthly wash and cleanout.",
-          "Oil service planning around every 10,000 miles or 12 months.",
+          "Car: 2017 Volkswagen Touareg.",
+          "Role: campus car for errands, appointments, shopping, and getting around Fort Collins when transit is not the right fit.",
+          "Use monthly odometer checks so maintenance is based on real miles, not memory.",
+          "Keep the car plan simple: safe to drive, enough gas, clean enough, and service planned before it becomes urgent.",
         ],
       },
       {
-        title: "Future Helper",
+        title: "Core Reminders",
         items: [
-          "Use mileage logs and receipts to estimate next service.",
-          "Read service receipts from email if Josephine chooses to connect that workflow.",
-          "Do not connect location, insurance, telematics, or roadside accounts without explicit consent.",
+          "Monthly miles check: record odometer, fuel level, warning lights, tire-pressure concerns, and any new noises.",
+          "Weekly gas check: look at the tank before the week starts and refill before it gets below one quarter.",
+          "Monthly wash and cleanout: wash exterior, clear trash, check wipers, and refill windshield washer fluid if low.",
+          "Oil service planning: use odometer notes to schedule oil and filter service around every 10,000 miles or 12 months.",
         ],
+      },
+      {
+        title: "Monthly Miles Check",
+        items: [
+          "Write down the odometer reading.",
+          "Check whether the dashboard has any warning lights.",
+          "Notice tire-pressure alerts, new smells, new sounds, rough starts, or anything that feels different.",
+          "Add the reading to the vehicle log so the app can estimate the next service window.",
+        ],
+      },
+      {
+        title: "Gas Routine",
+        items: [
+          "Check fuel before Monday or before a busy day with appointments, shopping, or errands.",
+          "Refill before the tank drops below one quarter so she is not forced to solve gas while already stressed.",
+          "Keep a preferred gas station or two saved once she knows the Fort Collins routine.",
+          "If the low-fuel light comes on, make gas the next errand rather than a later errand.",
+        ],
+      },
+      {
+        title: "Wash And Cleanout",
+        items: [
+          "Monthly reset for the Touareg: wash exterior, throw away trash, bring in dishes or food wrappers, and clear the passenger/floor areas.",
+          "Check wiper blades, windshield washer fluid, napkins/tissues, sunglasses, phone charger, and emergency kit.",
+          "Use the cleanout as a supply check: what needs to be replaced, ordered, or moved back to the dorm?",
+          "If the week is hard, do the small version: trash out, gas checked, windshield clear.",
+        ],
+      },
+      {
+        title: "Oil Service Planning",
+        items: [
+          "Use the mileage log and last-service receipt to estimate the next oil/filter service.",
+          "Start planning before the dashboard reminder or due mileage becomes urgent.",
+          "Store service receipts in the Vehicle folder so the app can later read dates and odometer values.",
+          "Use a trusted service shop or official Volkswagen guidance before approving repairs or spending money.",
+        ],
+      },
+      {
+        title: "Documents To Store",
+        items: [
+          "Registration and insurance details in private storage, not app code.",
+          "Parking permit confirmation and license plate rules.",
+          "Service receipts, oil-change records, tire receipts, and repair estimates.",
+          "Roadside assistance information if the family chooses to store it securely.",
+          "Photos of warning lights or damage when something needs help.",
+        ],
+      },
+      {
+        title: "If Something Feels Wrong",
+        items: [
+          "If a warning light appears, take a photo and ask for help before ignoring it.",
+          "If the car smells like gas, overheats, loses power, has brake trouble, or feels unsafe, stop driving and ask for immediate help.",
+          "If stranded or unsafe, prioritize personal safety first: move to a safe place, call roadside help or a trusted person, and call 911 for immediate danger.",
+          "Do not approve expensive repairs alone; collect the estimate and review it with support.",
+        ],
+      },
+      {
+        title: "Maintenance Agent Path",
+        items: [
+          "Start with in-app mileage logs and receipt/document reminders.",
+          "Later, read service receipts from email if Josephine chooses to connect that workflow.",
+          "Use official/service-shop guidance before recommending repairs or spending money.",
+          "Do not connect insurance, telematics, location tracking, roadside accounts, or vehicle apps without Josephine's explicit consent.",
+        ],
+      },
+    ],
+    links: [
+      {
+        label: "CSU Parking",
+        href: "https://pts.colostate.edu/parking-services/",
+      },
+      {
+        label: "Parking Permits",
+        href: "https://pts.colostate.edu/parking/permits/",
       },
     ],
   },
