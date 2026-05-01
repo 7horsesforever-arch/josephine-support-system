@@ -9,7 +9,7 @@ import {
   supabase,
 } from "@/lib/supabase";
 
-type TaskCategory = "hygiene" | "school" | "admin" | "health" | "life";
+type TaskCategory = "school" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
 type ActionType = "done" | "already_did_it" | "snooze" | "need_help" | "created";
 type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
@@ -111,7 +111,7 @@ function createStarterTasks(): SupportTask[] {
     {
       id: "shower",
       title: "Shower",
-      category: "hygiene",
+      category: "health",
       description:
         "Normal reminder 2 days after completion. Fail-safe at 7 days.",
       normalIntervalDays: 2,
@@ -122,7 +122,7 @@ function createStarterTasks(): SupportTask[] {
     {
       id: "brush-teeth-night",
       title: "Brush teeth at night",
-      category: "hygiene",
+      category: "health",
       description:
         "Normal reminder 1 day after completion. Fail-safe at 2 days.",
       normalIntervalDays: 1,
@@ -239,11 +239,25 @@ function statusClasses(status: TaskStatus) {
   return "bg-blue-100 text-blue-800";
 }
 
+function normalizeTaskCategory(category: string): TaskCategory {
+  if (category === "hygiene") return "health";
+  if (
+    category === "school" ||
+    category === "admin" ||
+    category === "health" ||
+    category === "life"
+  ) {
+    return category;
+  }
+
+  return "health";
+}
+
 function taskFromRow(row: TaskRow): SupportTask {
   return {
     id: row.id,
     title: row.title,
-    category: row.category,
+    category: normalizeTaskCategory(row.category),
     description: row.description,
     normalIntervalDays: row.normal_interval_days,
     maxGapDays: row.max_gap_days,
@@ -258,7 +272,7 @@ function taskToRow(task: SupportTask, userId: string): TaskRow {
     assigned_user_id: userId,
     created_by: userId,
     title: task.title,
-    category: task.category,
+    category: normalizeTaskCategory(task.category),
     description: task.description,
     normal_interval_days: task.normalIntervalDays,
     max_gap_days: task.maxGapDays,
@@ -344,7 +358,14 @@ export default function Home() {
         };
 
         window.queueMicrotask(() => {
-          if (Array.isArray(parsedState.tasks)) setTasks(parsedState.tasks);
+          if (Array.isArray(parsedState.tasks)) {
+            setTasks(
+              parsedState.tasks.map((task: SupportTask) => ({
+                ...task,
+                category: normalizeTaskCategory(task.category),
+              })),
+            );
+          }
           if (Array.isArray(parsedState.history)) setHistory(parsedState.history);
         });
       } catch {
@@ -1026,12 +1047,11 @@ export default function Home() {
               className="min-h-10 rounded-md border border-stone-300 px-3"
               name="category"
               aria-label="Task category"
-              defaultValue="hygiene"
+              defaultValue="health"
             >
-              <option value="hygiene">Hygiene</option>
+              <option value="health">Health</option>
               <option value="school">School</option>
               <option value="admin">Admin</option>
-              <option value="health">Health</option>
               <option value="life">Life</option>
             </select>
             <input

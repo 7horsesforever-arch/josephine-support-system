@@ -20,7 +20,7 @@ create table if not exists public.support_tasks (
   assigned_user_id uuid not null references auth.users(id) on delete cascade,
   created_by uuid not null references auth.users(id) on delete cascade,
   title text not null,
-  category text not null check (category in ('hygiene', 'school', 'admin', 'health', 'life')),
+  category text not null check (category in ('school', 'admin', 'health', 'life')),
   description text not null default '',
   normal_interval_days integer not null check (normal_interval_days > 0),
   max_gap_days integer not null check (max_gap_days >= normal_interval_days),
@@ -28,6 +28,25 @@ create table if not exists public.support_tasks (
   status text not null default 'ok' check (status in ('ok', 'due', 'snoozed', 'needs_help', 'escalated')),
   updated_at timestamptz not null default now()
 );
+
+update public.support_tasks
+set category = 'health'
+where category = 'hygiene';
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_constraint
+    where conname = 'support_tasks_category_check'
+  ) then
+    alter table public.support_tasks drop constraint support_tasks_category_check;
+  end if;
+
+  alter table public.support_tasks
+    add constraint support_tasks_category_check
+    check (category in ('school', 'admin', 'health', 'life'));
+end $$;
 
 create table if not exists public.support_history (
   id text primary key,
