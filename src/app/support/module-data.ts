@@ -310,16 +310,37 @@ export const supportModules: SupportModule[] = [
         title: "Default Plan",
         items: [
           "Use Braiden first because it is the home-base dining option.",
+          "Braiden Dining Center and RAMwich pickup are the first places to check from Braiden Hall.",
           "Keep LSC, Academic Village, Durrell, Corbett/Parmelee, and Allison as backups.",
           "Verify hours during breaks, finals, and weird schedule days.",
+        ],
+      },
+      {
+        title: "Backup Dining Map",
+        items: [
+          "Lory Student Center: class-day backup for quick meals and campus restaurant options.",
+          "Academic Village / Ram's Horn: south-campus option when Braiden is crowded or closed.",
+          "Durrell Center: northwest-campus option near Moby, Durward, Westfall, or Laurel Village.",
+          "Corbett / Parmelee: north-campus option near the Rec Center and north residence halls.",
+          "Allison Cafe: lighter breakfast or lunch option when near Allison and LSC.",
         ],
       },
       {
         title: "Low-Energy Backup",
         items: [
           "Use robot delivery when the weather is bad or going out feels like too much.",
+          "Set the robot delivery pin outside Braiden Hall or the closest safe outdoor pickup spot.",
           "Keep mini-fridge food for backup meals and snacks.",
           "Restock every other week before the backup food disappears.",
+        ],
+      },
+      {
+        title: "Mini-fridge Staples",
+        items: [
+          "Greek yogurt cups, cheese sticks, hummus cups, and baby carrots or snap peas.",
+          "Apples, grapes, berries, granola bars, crackers, pretzels, and nut or seed butter.",
+          "Microwave rice or pasta cups, protein drinks, and turkey, tuna, or tofu snack packs.",
+          "Sparkling water or electrolyte drinks for easy hydration.",
         ],
       },
     ],

@@ -121,6 +121,141 @@ const schoolScheduleFields = [
   "Exam or lab pattern",
 ];
 
+const campusDiningLocations = [
+  {
+    name: "Braiden Dining Center",
+    focus: "Home base",
+    schedule: "Use first for breakfast, lunch, dinner, and between-class meals.",
+    note: "Braiden Hall contains Braiden Dining Center and RAMwich pickup.",
+  },
+  {
+    name: "Lory Student Center",
+    focus: "Class-day backup",
+    schedule: "Use between classes for quick meals and national-chain options.",
+    note: "CSU lists local favorites plus national chains in the LSC.",
+  },
+  {
+    name: "Academic Village / Ram's Horn",
+    focus: "South-campus option",
+    schedule: "Use when near Academic Village, Edwards, Summit, or Ingersoll.",
+    note: "Good alternate dining center when Braiden is crowded or closed.",
+  },
+  {
+    name: "Durrell Center",
+    focus: "Northwest-campus option",
+    schedule: "Use when near Moby, Durward, Westfall, or Laurel Village.",
+    note: "CSU map lists Durrell Dining Center and Durrell Express.",
+  },
+  {
+    name: "Corbett / Parmelee",
+    focus: "North-campus option",
+    schedule: "Use when near the Rec Center, Corbett, Parmelee, or north campus.",
+    note: "CSU map lists Corbett Marketplace and Parmelee Dining Center.",
+  },
+  {
+    name: "Allison Cafe",
+    focus: "Light meal option",
+    schedule: "Use for smaller breakfast or lunch when near Allison and LSC.",
+    note: "CSU map lists continental breakfast and Spoons Soups and Salads for lunch.",
+  },
+];
+
+const robotDeliverySteps = [
+  "Open Grubhub and choose the CSU campus dining option.",
+  "Pick a campus restaurant that offers robot delivery.",
+  "Set the delivery pin outside Braiden Hall or the closest safe outdoor pickup spot.",
+  "Watch the order tracker and go outside when the robot arrives.",
+  "Use this when going out feels too hard, the weather is bad, or energy is low.",
+];
+
+const miniFridgeShoppingList = [
+  "Greek yogurt cups",
+  "Cheese sticks or Babybel",
+  "Hummus cups",
+  "Baby carrots or snap peas",
+  "Apples, grapes, or berries",
+  "Microwave rice or pasta cups",
+  "Protein drinks or shelf-stable shakes",
+  "Turkey, tuna, or tofu snack packs",
+  "Granola bars",
+  "Crackers or pretzels",
+  "Peanut butter or sunflower butter",
+  "Sparkling water or electrolyte drinks",
+];
+
+function FoodDashboard() {
+  return (
+    <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-teal-800">
+            Campus Food Map
+          </p>
+          <h2 className="mt-2 text-2xl font-black">Braiden First</h2>
+          <p className="mt-2 max-w-3xl text-sm text-stone-600">
+            Use Braiden as the default, keep backups ready, and make low-energy
+            food decisions easier before hunger turns into a crisis.
+          </p>
+        </div>
+        <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+          Braiden first
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        {campusDiningLocations.map((location) => (
+          <article
+            className="rounded-lg border border-stone-200 bg-stone-50 p-4"
+            key={location.name}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-lg font-bold">{location.name}</h3>
+              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                {location.focus}
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-stone-700">{location.schedule}</p>
+            <p className="mt-2 text-sm text-stone-600">{location.note}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <article className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-teal-950">
+          <h3 className="text-lg font-bold">Robot Delivery</h3>
+          <ol className="mt-4 grid gap-2 text-sm">
+            {robotDeliverySteps.map((step) => (
+              <li className="rounded-md bg-white p-2" key={step}>
+                {step}
+              </li>
+            ))}
+          </ol>
+        </article>
+
+        <article className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+          <h3 className="text-lg font-bold">Bi-weekly Mini-fridge List</h3>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-stone-700 sm:grid-cols-3">
+            {miniFridgeShoppingList.map((item) => (
+              <span className="rounded-md bg-white p-2" key={item}>
+                {item}
+              </span>
+            ))}
+          </div>
+        </article>
+      </div>
+
+      <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+        <h3 className="font-bold">Hours rule</h3>
+        <p className="mt-2">
+          Always check dining hours during breaks, finals, holidays, and
+          weather days. The page keeps the links close, but CSU hours are the
+          source of truth.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function SchoolScheduleDashboard() {
   return (
     <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
@@ -395,6 +530,8 @@ export default async function SupportModulePage({
         {supportModule.slug === "adulting" ? <AdultingDashboard /> : null}
 
         {supportModule.slug === "messages" ? <MessagesWorkspace /> : null}
+
+        {supportModule.slug === "food" ? <FoodDashboard /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (
