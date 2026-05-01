@@ -31,6 +31,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Review-only communications drafting endpoint at `/api/email/drafts`.
 - Vehicle support reminders for mileage checks, fuel, wash/cleanout, and oil-service planning.
 - Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
+- Viper Cam placeholder for a private barn camera link or future secure stream.
 
 ## Supabase Setup
 
@@ -46,6 +47,7 @@ To enable Supabase mode:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_CREDIT_UNION_URL=
+NEXT_PUBLIC_VIPER_CAM_URL=
 CANVAS_TOKEN_ENCRYPTION_KEY=
 PLAID_TOKEN_ENCRYPTION_KEY=
 PLAID_CLIENT_ID=

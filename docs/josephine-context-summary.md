@@ -115,6 +115,15 @@ Assignment agents should recommend resources based on the work type, deadline ru
 - Track weekly work hours, pay-period checks, and schedule fit with coursework, sleep, meals, transportation, and accommodations.
 - A future work agent can summarize postings, compare schedules against academic load, draft supervisor messages, and flag pay/schedule questions for review.
 
+## Viper And Barn Camera Support
+
+- Josephine's horse Viper will be in California while Josephine is at school in Colorado.
+- Add a private Viper Cam link so Josephine can check in without needing camera credentials.
+- If the barn has reliable Wi-Fi and power, use a weather-resistant Wi-Fi or PoE camera.
+- If Wi-Fi or power is unreliable, use a solar LTE camera with a cellular data plan.
+- If embedding the feed directly in the app, use a secure server-side stream proxy and never expose camera credentials or public live-stream URLs.
+- Camera placement should respect privacy by aiming at Viper's stall/paddock rather than neighboring property or people-heavy areas.
+
 ## Safety Boundary
 
 Josephine's accommodation context should shape the app experience. It should not become a broad profile for unrelated decisions, and it should not be shared with external services except where Josephine/caregivers have clearly authorized a specific connection.
