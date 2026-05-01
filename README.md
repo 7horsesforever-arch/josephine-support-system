@@ -36,6 +36,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
 - Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
 - Admin and caregiver sustainability reviews for monthly maintenance, semester resets, biannual agent review, annual production review, and consent-based check-ins.
+- In-app safety alert response for self-harm or suicide-related concerns typed into Ask JoJo, with 988, CSU Tell Someone, and HelpCompass resources. This does not monitor browser history, Mac activity, texts, email, or daily behavior.
 
 ## Supabase Setup
 

@@ -235,6 +235,10 @@ const studentInsuranceUrl =
 const csuPoliceUrl = "https://police.colostate.edu/";
 const safeWalkUrl = "https://police.colostate.edu/safe-walk/";
 const csuSafetyUrl = "https://safety.colostate.edu/";
+const lifelineUrl = "https://988lifeline.org/";
+const lifelineChatUrl = "https://988lifeline.org/chat/";
+const csuTellSomeoneUrl = "https://supportandsafety.colostate.edu/tell-someone/";
+const helpCompassUrl = "https://helpcompass.colostate.edu/";
 const ramCardUrl = "https://www.ramcash.colostate.edu/";
 const transitUrl =
   "https://pts.colostate.edu/active-transportation-and-transit-commuter-services/transit-and-shuttles/";
@@ -313,6 +317,20 @@ const caregiverBoundaryRules = [
   "Do not expose private emails, messages, grades, bank details, or health details in caregiver summaries by default.",
   "Use high-level status: working, needs setup, needs help, stale, or review soon.",
   "Josephine should be able to see what is shared and turn off caregiver summaries later.",
+];
+
+const safetyAlertResponseSteps = [
+  "If Josephine or someone else may be in immediate danger, call or text 911 now and say there is a mental wellness concern.",
+  "For suicidal thoughts, self-harm urges, or emotional crisis support, call or text 988 or use 988 chat.",
+  "If this is a CSU concern but not immediate danger, use Tell Someone or contact Student Case Management.",
+  "A caregiver alert should share only the safety concern and next support step, not private messages or search history.",
+];
+
+const safetyAlertBoundaries = [
+  "Only watch what Josephine types into this app, such as Ask JoJo or future in-app search.",
+  "Do not monitor browser history, Mac activity, texts, email, or daily behavior in the background.",
+  "Show Josephine the alert and resources immediately.",
+  "External caregiver alerts should require explicit setup, clear consent, and an easy way to review or pause them.",
 ];
 
 const campusDiningLocations = [
@@ -798,6 +816,22 @@ function getDailyAffirmation(date: Date) {
   return dailyAffirmations[dayNumber % dailyAffirmations.length];
 }
 
+const safetyAlertPatterns = [
+  /\bsuicide\b/i,
+  /\bsuicidal\b/i,
+  /\bself[-\s]?harm\b/i,
+  /\bwant to die\b/i,
+  /\bend my life\b/i,
+  /\bkill myself\b/i,
+  /\bhurt myself\b/i,
+  /\boverdose\b/i,
+  /\bnot worth living\b/i,
+];
+
+function hasSafetyAlertSignal(input: string) {
+  return safetyAlertPatterns.some((pattern) => pattern.test(input));
+}
+
 const askJojoStopWords = new Set([
   "a",
   "about",
@@ -846,6 +880,51 @@ function firstUsefulSentence(text: string) {
 
 function answerAskJojo(question: string, sources: AskJojoSource[]): AskJojoAnswer {
   const trimmedQuestion = question.trim();
+
+  if (hasSafetyAlertSignal(trimmedQuestion)) {
+    return {
+      intro:
+        "This sounds safety-related. Pause here and use real support now instead of trying to solve it alone in the app.",
+      steps: safetyAlertResponseSteps,
+      sources: [
+        {
+          title: "Call or text 988",
+          category: "Crisis support",
+          text: "Free, confidential crisis support is available by calling or texting 988.",
+          href: lifelineUrl,
+          priority: 10,
+        },
+        {
+          title: "988 chat",
+          category: "Crisis support",
+          text: "Use 988 chat if typing feels easier than calling.",
+          href: lifelineChatUrl,
+          priority: 10,
+        },
+        {
+          title: "CSU Tell Someone",
+          category: "Campus safety",
+          text: "Use Tell Someone for CSU health, well-being, or safety concerns when it is not an immediate emergency.",
+          href: csuTellSomeoneUrl,
+          priority: 9,
+        },
+        {
+          title: "HelpCompass",
+          category: "Campus safety",
+          text: "Use HelpCompass for anonymous crisis navigation and help finding the right support.",
+          href: helpCompassUrl,
+          priority: 9,
+        },
+        {
+          title: "Help Now",
+          category: "Emergency",
+          text: "Use the app's Help Now section for emergency numbers and campus safety steps.",
+          href: "#help-now",
+          priority: 9,
+        },
+      ],
+    };
+  }
 
   if (!trimmedQuestion) {
     return {
@@ -3256,6 +3335,48 @@ export default function Home() {
                 unsafe, or too big to handle alone.
               </p>
               <SupportPageLink href="/support/safety" />
+              <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
+                <strong className="text-sm text-red-950">
+                  Mental health crisis or self-harm concern
+                </strong>
+                <p className="mt-2 text-sm text-red-950">
+                  If Josephine or someone else may be in immediate danger, call
+                  or text 911 now. For suicidal thoughts, self-harm urges, or
+                  emotional crisis support, call or text 988.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:bg-red-800"
+                    href="tel:988"
+                  >
+                    Call 988
+                  </a>
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
+                    href={lifelineChatUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    988 Chat
+                  </a>
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
+                    href={csuTellSomeoneUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Tell Someone
+                  </a>
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-white"
+                    href={helpCompassUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    HelpCompass
+                  </a>
+                </div>
+              </div>
               <div className="mt-4 grid gap-3">
                 {emergencyPlanItems.map((item) => (
                   <article
@@ -4101,6 +4222,23 @@ export default function Home() {
                 </strong>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-950">
                   {caregiverBoundaryRules.map((rule) => (
+                    <li key={rule}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
+                <strong className="text-sm text-red-950">
+                  Safety alert policy
+                </strong>
+                <p className="mt-2 text-sm text-red-950">
+                  Ask JoJo now shows crisis resources if Josephine types a
+                  self-harm or suicide-related concern into the app. Future
+                  caregiver alerts should be opt-in, visible to Josephine, and
+                  limited to high-level safety concerns.
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-red-950">
+                  {safetyAlertBoundaries.map((rule) => (
                     <li key={rule}>{rule}</li>
                   ))}
                 </ul>

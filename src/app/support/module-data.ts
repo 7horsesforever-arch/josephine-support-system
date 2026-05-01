@@ -157,22 +157,40 @@ export const supportModules: SupportModule[] = [
           "Something feels unsafe or urgent.",
           "Josephine needs a walking escort or campus safety backup.",
           "A problem feels too big to handle alone.",
+          "A self-harm or suicide-related concern appears in Ask JoJo or another in-app support flow.",
         ],
       },
       {
         title: "Numbers",
         items: [
           "Emergency: call or text 911.",
+          "Mental health crisis, suicidal thoughts, or self-harm urges: call or text 988.",
           "CSU Police non-emergency: 970-491-6425.",
           "SafeWalk: 970-491-1155.",
+          "CSU Tell Someone: 970-491-1350 for health, well-being, or safety concerns when it is not an immediate emergency.",
           "Family backup: keep trusted people easy to find without hard-coding private phone numbers.",
+        ],
+      },
+      {
+        title: "Safety Alert Boundary",
+        items: [
+          "Only watch what Josephine types into this app, such as Ask JoJo or future in-app search.",
+          "Do not monitor browser history, Mac activity, texts, email, or daily behavior in the background.",
+          "Show Josephine the alert and resources immediately.",
+          "External caregiver alerts should require explicit setup, clear consent, and an easy way to review or pause them.",
         ],
       },
     ],
     links: [
+      { label: "988 Lifeline", href: "https://988lifeline.org/" },
+      { label: "988 Chat", href: "https://988lifeline.org/chat/" },
       { label: "CSU Police", href: "https://police.colostate.edu/" },
       { label: "SafeWalk", href: "https://police.colostate.edu/safe-walk/" },
       { label: "CSU Safety", href: "https://safety.colostate.edu/" },
+      {
+        label: "CSU Tell Someone",
+        href: "https://supportandsafety.colostate.edu/tell-someone/",
+      },
     ],
   },
   {
@@ -449,6 +467,15 @@ export const supportModules: SupportModule[] = [
           "Do not expose private emails, messages, grades, bank details, or health details in caregiver summaries by default.",
           "Use high-level status: working, needs setup, needs help, stale, or review soon.",
           "Josephine should be able to see what is shared and turn off caregiver summaries later.",
+        ],
+      },
+      {
+        title: "Safety Alerts",
+        items: [
+          "Ask JoJo should show immediate crisis resources when a self-harm or suicide-related concern is typed into the app.",
+          "Safety alerts should not monitor browser history, Mac activity, texts, email, or daily behavior in the background.",
+          "Caregiver alerts should be opt-in, visible to Josephine, and limited to high-level safety concerns.",
+          "Immediate danger still means call or text 911; crisis support means call or text 988.",
         ],
       },
     ],
