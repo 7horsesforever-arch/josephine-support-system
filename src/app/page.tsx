@@ -260,6 +260,18 @@ const dailyAffirmations = [
   "I am allowed to take up space, ask questions, and be understood.",
 ];
 
+const dashboardJumpLinks = [
+  { label: "Today", href: "#today-list" },
+  { label: "Messages", href: "#messages" },
+  { label: "School", href: "#school-help" },
+  { label: "Canvas", href: "#canvas" },
+  { label: "Food", href: "#food" },
+  { label: "Money", href: "#money" },
+  { label: "Housing", href: "#housing" },
+  { label: "Viper", href: "#viper-cam" },
+  { label: "Done log", href: "#done-log" },
+];
+
 const campusDiningLocations = [
   {
     name: "Braiden Dining Center",
@@ -2700,9 +2712,31 @@ export default function Home() {
               </p>
             </div>
           </div>
+          <nav
+            className="mt-5 border-t border-stone-200 pt-4"
+            aria-label="Dashboard jump links"
+          >
+            <span className="text-xs font-bold uppercase text-stone-500">
+              Jump to
+            </span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {dashboardJumpLinks.map((link) => (
+                <a
+                  className="inline-flex min-h-9 items-center rounded-md bg-teal-700 px-3 text-sm font-semibold text-white hover:bg-teal-800"
+                  href={link.href}
+                  key={link.href}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </nav>
         </section>
 
-        <section className="rounded-lg border border-stone-300 bg-white p-3">
+        <section
+          className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-3"
+          id="add-task"
+        >
           <form
             className="grid gap-2 lg:grid-cols-[1fr_150px_100px_100px_80px]"
             onSubmit={addTask}
@@ -2763,7 +2797,7 @@ export default function Home() {
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div>
+          <div className="scroll-mt-6" id="today-list">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-lg font-bold">Today&apos;s List</h2>
               <button
@@ -2832,7 +2866,10 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="grid content-start gap-4 md:grid-cols-2">
+          <aside
+            className="grid scroll-mt-6 content-start gap-4 md:grid-cols-2"
+            id="life-stuff"
+          >
             <div className="md:col-span-2">
               <h2 className="text-lg font-bold">Life Stuff</h2>
               <p className="mt-1 text-sm text-stone-600">
@@ -2840,7 +2877,10 @@ export default function Home() {
                 things that make college easier to keep track of.
               </p>
             </div>
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="messages"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold">Messages</h2>
@@ -2925,7 +2965,10 @@ export default function Home() {
               ) : null}
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="school-help"
+            >
               <h2 className="text-lg font-bold">School Help</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Match assignments with the right people and tools before a due
@@ -3029,7 +3072,10 @@ export default function Home() {
               </p>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="health"
+            >
               <h2 className="text-lg font-bold">Health</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Appointments, insurance, refills, and the boring-but-important
@@ -3080,7 +3126,10 @@ export default function Home() {
               </a>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="help-now"
+            >
               <h2 className="text-lg font-bold">Help Now</h2>
               <p className="mt-2 text-sm text-stone-600">
                 The numbers and next steps to use when something feels urgent,
@@ -3129,7 +3178,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="campus-basics"
+            >
               <h2 className="text-lg font-bold">Campus Basics</h2>
               <p className="mt-2 text-sm text-stone-600">
                 RamCard, parking, buses, laundry, mail, and the everyday systems
@@ -3159,7 +3211,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="semester-start"
+            >
               <h2 className="text-lg font-bold">Semester Start</h2>
               <p className="mt-2 text-sm text-stone-600">
                 A first-week checklist so the semester starts with fewer
@@ -3174,7 +3229,10 @@ export default function Home() {
               </ol>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="weekly-rhythm"
+            >
               <h2 className="text-lg font-bold">Weekly Rhythm</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Class, meals, sleep, study time, work, appointments, and actual
@@ -3189,7 +3247,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="docs-packing"
+            >
               <h2 className="text-lg font-bold">Docs & Packing</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Drive holds the files. This keeps the folders and reminders
@@ -3222,7 +3283,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="home-viper-visits"
+            >
               <h2 className="text-lg font-bold">Home & Viper Visits</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Trips home, holidays, and Viper time planned around due dates
@@ -3235,7 +3299,10 @@ export default function Home() {
               </ul>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="people-belonging"
+            >
               <h2 className="text-lg font-bold">People & Belonging</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Low-pressure ways to find her people without needing a perfect
@@ -3248,7 +3315,10 @@ export default function Home() {
               </ul>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="scripts-helpers"
+            >
               <h2 className="text-lg font-bold">Scripts & Helpers</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Drafts and planning helpers give her a starting point. Nothing
@@ -3272,7 +3342,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="canvas"
+            >
               <h2 className="text-lg font-bold">Canvas</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Save Canvas once, then pull assignments without hunting through
@@ -3413,7 +3486,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="viper-cam"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold">Viper Cam</h2>
@@ -3473,7 +3549,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="food"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold">Food</h2>
@@ -3550,7 +3629,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="money"
+            >
               <h2 className="text-lg font-bold">Money</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Quick balance check here. Transfers and bill pay still happen
@@ -3657,7 +3739,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="vehicle"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold">Vehicle</h2>
@@ -3703,7 +3788,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="work"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold">Work</h2>
@@ -3777,7 +3865,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="housing"
+            >
               <h2 className="text-lg font-bold">Housing</h2>
               <p className="mt-2 text-sm text-stone-600">
                 Room info, move-in details, contracts, billing, maintenance, and
@@ -3845,7 +3936,10 @@ export default function Home() {
               )}
             </section>
 
-            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+            <section
+              className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+              id="done-log"
+            >
               <h2 className="mb-4 text-lg font-bold">Done Log</h2>
               <ol className="grid gap-3">
                 {history.slice(0, 12).map((entry) => (
