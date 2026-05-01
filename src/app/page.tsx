@@ -243,6 +243,7 @@ const dailyAffirmations = [
 const dashboardJumpLinks = [
   { label: "Today", href: "#today-list" },
   { label: "Deadlines", href: "#deadline-watch" },
+  { label: "Pages", href: "#page-bookmarks" },
   { label: "Add Task", href: "#add-task" },
 ];
 
@@ -2306,6 +2307,38 @@ export default function Home() {
         </section>
 
         <section
+          className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
+          id="page-bookmarks"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold">All Pages</h2>
+              <p className="mt-1 text-sm text-stone-600">
+                These are bookmarks to the full support pages. They are links
+                only, so the dashboard stays focused on deadlines.
+              </p>
+            </div>
+            <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+              Bookmarks
+            </span>
+          </div>
+          <nav
+            className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+            aria-label="Full support pages"
+          >
+            {supportPageShortcuts.map((shortcut) => (
+              <Link
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 bg-white px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+                href={shortcut.href}
+                key={shortcut.href}
+              >
+                {shortcut.label}
+              </Link>
+            ))}
+          </nav>
+        </section>
+
+        <section
           className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-3"
           id="add-task"
         >
@@ -2652,20 +2685,6 @@ export default function Home() {
           </aside>
         </section>
         <footer className="grid gap-3 pb-2 pt-4">
-          <nav
-            className="flex flex-wrap gap-2 text-xs"
-            aria-label="Full support pages"
-          >
-            {supportPageShortcuts.map((shortcut) => (
-              <Link
-                className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
-                href={shortcut.href}
-                key={shortcut.href}
-              >
-                {shortcut.label}
-              </Link>
-            ))}
-          </nav>
           <div className="flex justify-end gap-2">
             <Link
               className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
