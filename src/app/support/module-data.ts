@@ -363,6 +363,7 @@ export const supportModules: SupportModule[] = [
           "Meal plan and dining access.",
           "Parking permit and where to park on class days.",
           "Around the Horn, Transfort, MAX, Bus Tracker, and stop-text arrivals.",
+          "Night safety plan: SafeWalk, RamRide, rideshare backup, and when to call 911.",
           "Laundry location, payment method, detergent, and backup clothes routine.",
           "Mailing address and package pickup routine.",
         ],
@@ -374,6 +375,25 @@ export const supportModules: SupportModule[] = [
           "Use CSU transit and shuttle info for Around the Horn, MAX, and campus route planning.",
           "At a Transfort stop, text the four-digit stop ID to 970-829-1700 for next arrivals.",
           "Future deeper integration should use an official feed or written permission before storing live transit data.",
+        ],
+      },
+      {
+        title: "Night Safety & Safe Rides",
+        items: [
+          "SafeWalk: call 970-491-1155 for a CSUPD student officer to walk with her from dusk until dawn, 7 days a week.",
+          "Use SafeWalk for campus-to-campus walking, university property, or nearby locations within the posted service boundary.",
+          "RamRide: use the RamRide app or call 970-491-3333 for CSU's student safe-ride program; CSU lists Thursday 10 p.m.-2 a.m. and Friday/Saturday 10 p.m.-3 a.m. as operating windows.",
+          "If she feels followed, threatened, injured, or in immediate danger, call or text 911 instead of SafeWalk.",
+          "Backup plan: if SafeWalk or RamRide is not the right fit, use a trusted rideshare/taxi, call the RA/front desk, or call a trusted person before walking alone.",
+        ],
+      },
+      {
+        title: "Before Leaving At Night",
+        items: [
+          "Check phone battery and bring keys, RamCard, ID, and any meds or must-have items.",
+          "Share the destination with a trusted person if the trip feels stressful or unfamiliar.",
+          "Choose lit routes, avoid shortcuts through isolated areas, and wait indoors until the ride or escort arrives.",
+          "Use blue-light emergency call boxes or 911 if something changes and it feels unsafe.",
         ],
       },
       {
@@ -396,6 +416,15 @@ export const supportModules: SupportModule[] = [
       {
         label: "Transfort Bus Tracker",
         href: "https://clever-web.fcgov.com/home",
+      },
+      { label: "SafeWalk", href: "https://police.colostate.edu/safe-walk/" },
+      {
+        label: "CSU Safety Tips",
+        href: "https://safety.colostate.edu/safety-tips-for-students/",
+      },
+      {
+        label: "RamRide Apps",
+        href: "https://apps.colostate.edu/other.aspx",
       },
       { label: "Ride Transfort", href: "https://ridetransfort.com/" },
       { label: "CSU Campus Map", href: "https://maps.colostate.edu/" },
