@@ -56,10 +56,31 @@ type HistoryRow = {
   created_at: string;
 };
 
+type SchoolAssignment = {
+  id: string;
+  courseName: string;
+  title: string;
+  dueAt: string | null;
+  url: string | null;
+  pointsPossible: number | null;
+  workflowState: string | null;
+};
+
+type SchoolAssignmentRow = {
+  id: string;
+  course_name: string;
+  title: string;
+  due_at: string | null;
+  url: string | null;
+  points_possible: number | null;
+  workflow_state: string | null;
+};
+
 const dayMs = 24 * 60 * 60 * 1000;
 const storageKey = "josephine-support-state-v1";
 const primaryAccessEmail = "chilton18@gmail.com";
 const devicePasskeyName = "Josephine MacBook Touch ID";
+const defaultCanvasBaseUrl = "https://colostate.instructure.com";
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -251,9 +272,22 @@ function historyToRow(entry: HistoryEntry, userId: string): HistoryRow {
   };
 }
 
+function assignmentFromRow(row: SchoolAssignmentRow): SchoolAssignment {
+  return {
+    id: row.id,
+    courseName: row.course_name,
+    title: row.title,
+    dueAt: row.due_at,
+    url: row.url,
+    pointsPossible: row.points_possible,
+    workflowState: row.workflow_state,
+  };
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState(createStarterTasks);
   const [history, setHistory] = useState(createInitialHistory);
+  const [assignments, setAssignments] = useState<SchoolAssignment[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -262,6 +296,12 @@ export default function Home() {
     "This MacBook can become the primary access device after one secure email sign-in.",
   );
   const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
+  const [canvasBaseUrl, setCanvasBaseUrl] = useState(defaultCanvasBaseUrl);
+  const [canvasAccessToken, setCanvasAccessToken] = useState("");
+  const [canvasMessage, setCanvasMessage] = useState(
+    "Canvas assignment import is ready. Use OAuth or a short-lived Canvas API token, not the mobile QR code.",
+  );
+  const [isCanvasImporting, setIsCanvasImporting] = useState(false);
 
   const userId = session?.user.id;
 
@@ -399,6 +439,20 @@ export default function Home() {
           );
       }
 
+      const { data: savedAssignments, error: assignmentsError } = await supabase!
+        .from("school_assignments")
+        .select("id,course_name,title,due_at,url,points_possible,workflow_state")
+        .order("due_at", { ascending: true, nullsFirst: false })
+        .limit(8);
+
+      if (!ignore && assignmentsError) {
+        setCanvasMessage("Canvas table needs the latest Supabase schema before assignments can load.");
+      }
+
+      if (!ignore && savedAssignments) {
+        setAssignments(savedAssignments.map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
+      }
+
       setSyncStatus("supabase");
       setSyncMessage("Private data saved to Supabase.");
     }
@@ -409,6 +463,25 @@ export default function Home() {
       ignore = true;
     };
   }, [authReady, session?.user.email, userId]);
+
+  async function refreshAssignments() {
+    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("school_assignments")
+      .select("id,course_name,title,due_at,url,points_possible,workflow_state")
+      .order("due_at", { ascending: true, nullsFirst: false })
+      .limit(8);
+
+    if (error) {
+      setCanvasMessage("Imported, but assignments could not be refreshed from Supabase.");
+      return;
+    }
+
+    setAssignments((data ?? []).map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
+  }
 
   async function saveTaskToSupabase(task: SupportTask) {
     if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
@@ -576,6 +649,67 @@ export default function Home() {
         ? error.message
         : "Touch ID passkey is ready on this MacBook. Keep the secure email link as backup.",
     );
+  }
+
+  async function importCanvasAssignments(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!supabase || !userId) {
+      setCanvasMessage("Sign in before importing Canvas assignments.");
+      return;
+    }
+
+    const trimmedBaseUrl = canvasBaseUrl.trim();
+    const trimmedToken = canvasAccessToken.trim();
+
+    if (!trimmedBaseUrl || !trimmedToken) {
+      setCanvasMessage("Enter the Canvas URL and a Canvas API access token.");
+      return;
+    }
+
+    setIsCanvasImporting(true);
+    setCanvasMessage("Importing upcoming Canvas assignments...");
+
+    const {
+      data: { session: currentSession },
+    } = await supabase.auth.getSession();
+
+    if (!currentSession?.access_token) {
+      setIsCanvasImporting(false);
+      setCanvasMessage("App session expired. Sign in again before importing Canvas.");
+      return;
+    }
+
+    const response = await fetch("/api/canvas/import", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${currentSession.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        canvasBaseUrl: trimmedBaseUrl,
+        canvasAccessToken: trimmedToken,
+      }),
+    });
+
+    const payload = (await response.json()) as {
+      imported?: number;
+      coursesChecked?: number;
+      error?: string;
+    };
+
+    setIsCanvasImporting(false);
+
+    if (!response.ok) {
+      setCanvasMessage(payload.error ?? "Canvas import failed.");
+      return;
+    }
+
+    setCanvasAccessToken("");
+    setCanvasMessage(
+      `Imported ${payload.imported ?? 0} assignments from ${payload.coursesChecked ?? 0} Canvas courses. Token cleared from this screen.`,
+    );
+    await refreshAssignments();
   }
 
   if (isSupabaseConfigured && !authReady) {
@@ -785,24 +919,105 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-bold">History</h2>
-            <ol className="grid gap-3">
-              {history.slice(0, 12).map((entry) => (
-                <li
-                  className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
-                  key={entry.id}
+          <aside className="grid gap-4">
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">School Connections</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Canvas QR login is for the mobile app and expires quickly. This
+                import uses a Canvas API token only for this request, then clears
+                it from the screen.
+              </p>
+              <form className="mt-4 grid gap-3" onSubmit={importCanvasAssignments}>
+                <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                  Canvas URL
+                  <input
+                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                    value={canvasBaseUrl}
+                    onChange={(event) => setCanvasBaseUrl(event.target.value)}
+                    inputMode="url"
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-semibold text-stone-700">
+                  Canvas API token
+                  <input
+                    className="min-h-10 rounded-md border border-stone-300 px-3 font-normal"
+                    value={canvasAccessToken}
+                    onChange={(event) => setCanvasAccessToken(event.target.value)}
+                    type="password"
+                    autoComplete="off"
+                    placeholder="Paste token for one import"
+                  />
+                </label>
+                <button
+                  className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                  type="submit"
+                  disabled={isCanvasImporting}
                 >
-                  <strong className="block">{entry.taskTitle}</strong>
-                  <span className="block text-stone-600">
-                    {historyLabel(entry.type)}
-                  </span>
-                  <span className="block text-sm text-stone-500">
-                    {formatDateTime(entry.createdAt)}
-                  </span>
-                </li>
-              ))}
-            </ol>
+                  {isCanvasImporting ? "Importing" : "Import Assignments"}
+                </button>
+              </form>
+              <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
+
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Upcoming From Canvas
+                </h3>
+                {assignments.length > 0 ? (
+                  <ol className="mt-3 grid gap-3">
+                    {assignments.map((assignment) => (
+                      <li
+                        className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
+                        key={assignment.id}
+                      >
+                        <strong className="block">{assignment.title}</strong>
+                        <span className="block text-sm text-stone-600">
+                          {assignment.courseName}
+                        </span>
+                        <span className="block text-sm text-stone-500">
+                          {assignment.dueAt
+                            ? `Due ${formatDateTime(assignment.dueAt)}`
+                            : "No due date listed"}
+                        </span>
+                        {assignment.url ? (
+                          <a
+                            className="mt-1 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                            href={assignment.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Open in Canvas
+                          </a>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-3 text-sm text-stone-600">
+                    No assignments imported yet.
+                  </p>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="mb-4 text-lg font-bold">History</h2>
+              <ol className="grid gap-3">
+                {history.slice(0, 12).map((entry) => (
+                  <li
+                    className="border-b border-stone-200 pb-3 last:border-0 last:pb-0"
+                    key={entry.id}
+                  >
+                    <strong className="block">{entry.taskTitle}</strong>
+                    <span className="block text-stone-600">
+                      {historyLabel(entry.type)}
+                    </span>
+                    <span className="block text-sm text-stone-500">
+                      {formatDateTime(entry.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </section>
           </aside>
         </section>
       </div>

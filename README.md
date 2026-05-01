@@ -22,6 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Device-first access note with passkey-ready Touch ID setup.
 - User-scoped Supabase persistence with Row Level Security.
 - Browser-only local mode only when Supabase is not configured.
+- Authenticated Canvas import panel for upcoming assignments.
 - Server-side escalation endpoint placeholder at `/api/escalations`.
 - Server-side Canvas assignment import endpoint at `/api/canvas/import`.
 - Server-side Microsoft Graph mail import endpoint at `/api/microsoft/mail/import`.
