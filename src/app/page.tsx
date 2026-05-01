@@ -244,6 +244,9 @@ const healthNetworkUrl = "https://health.colostate.edu/";
 const healthPortalUrl = "https://portal.health.colostate.edu/";
 const studentInsuranceUrl =
   "https://thehub.colostate.edu/student-health-insurance-information/";
+const ouraApiDocsUrl = "https://cloud.ouraring.com/docs/authentication";
+const appleHealthKitDocsUrl =
+  "https://developer.apple.com/documentation/healthkit";
 const csuPoliceUrl = "https://police.colostate.edu/";
 const safeWalkUrl = "https://police.colostate.edu/safe-walk/";
 const csuSafetyUrl = "https://safety.colostate.edu/";
@@ -540,6 +543,12 @@ const viperCamSafetyNotes = [
 
 const medicalSupportPlan = [
   {
+    name: "Sleep Check",
+    cadence: "Daily",
+    detail:
+      "Use bedtime, wake time, sleep duration, and recovery notes to spot rough nights before they turn into rough weeks.",
+  },
+  {
     name: "Scrub It!",
     cadence: "Every couple of days",
     detail:
@@ -580,6 +589,41 @@ const medicalSupportPlan = [
     cadence: "Set once, review each semester",
     detail:
       "Know where to go for same-day care, after-hours support, and what symptoms mean call now.",
+  },
+];
+
+const sleepWellnessPlan = [
+  {
+    name: "Tonight plan",
+    detail:
+      "Pick a realistic bedtime, set a wind-down alarm, plug in devices, and make tomorrow's first step visible.",
+  },
+  {
+    name: "Morning check",
+    detail:
+      "Notice sleep duration, wake-up difficulty, energy, and whether the day needs a lighter plan.",
+  },
+  {
+    name: "Recovery signal",
+    detail:
+      "If sleep is short or restless, ask JoJo to reduce friction: easier food, fewer optional tasks, and earlier assignment starts.",
+  },
+];
+
+const sleepDataIntegrationPlan = [
+  {
+    name: "Oura Ring",
+    status: "Good web-app fit",
+    detail:
+      "Use Oura OAuth and the daily/sleep scopes to import sleep and readiness summaries with Josephine's permission.",
+    href: ouraApiDocsUrl,
+  },
+  {
+    name: "Apple Health",
+    status: "Needs native helper",
+    detail:
+      "Apple Health data comes through HealthKit permission on an Apple app, not directly from this web app. Use a future iOS/macOS helper, Shortcut export, or file import.",
+    href: appleHealthKitDocsUrl,
   },
 ];
 
@@ -3026,7 +3070,7 @@ export default function Home() {
               aria-label="Task category"
               defaultValue="health"
             >
-              <option value="health">Health</option>
+              <option value="health">Health & Wellness</option>
               <option value="school">School</option>
               <option value="communications">Communications</option>
               <option value="financial">Financial</option>
@@ -3349,10 +3393,10 @@ export default function Home() {
               className="scroll-mt-6 rounded-lg border border-stone-300 bg-white p-5 shadow-sm"
               id="health"
             >
-              <h2 className="text-lg font-bold">Health</h2>
+              <h2 className="text-lg font-bold">Health & Wellness</h2>
               <p className="mt-2 text-sm text-stone-600">
-                Appointments, insurance, refills, and the boring-but-important
-                health stuff in one place.
+                Sleep, appointments, insurance, refills, and the
+                boring-but-important health stuff in one place.
               </p>
               <SupportPageLink href="/support/health" />
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -3388,6 +3432,55 @@ export default function Home() {
                     <p className="mt-2 text-sm text-stone-700">{item.detail}</p>
                   </article>
                 ))}
+              </div>
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Sleep
+                </h3>
+                <div className="mt-3 grid gap-3">
+                  {sleepWellnessPlan.map((item) => (
+                    <article
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={item.name}
+                    >
+                      <strong className="text-sm">{item.name}</strong>
+                      <p className="mt-2 text-sm text-stone-700">
+                        {item.detail}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-5 border-t border-stone-200 pt-4">
+                <h3 className="text-sm font-bold uppercase text-stone-500">
+                  Wearable Data
+                </h3>
+                <div className="mt-3 grid gap-3">
+                  {sleepDataIntegrationPlan.map((item) => (
+                    <article
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={item.name}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{item.name}</strong>
+                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
+                          {item.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-stone-700">
+                        {item.detail}
+                      </p>
+                      <a
+                        className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Developer notes
+                      </a>
+                    </article>
+                  ))}
+                </div>
               </div>
               <a
                 className="mt-3 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"

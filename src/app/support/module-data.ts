@@ -112,11 +112,37 @@ export const supportModules: SupportModule[] = [
   },
   {
     slug: "health",
-    title: "Health",
+    title: "Health & Wellness",
     eyebrow: "Medical",
     summary:
-      "Appointments, insurance, prescriptions, urgent care, and health logistics.",
+      "Sleep, appointments, insurance, prescriptions, urgent care, and health logistics.",
     sections: [
+      {
+        title: "Sleep",
+        items: [
+          "Track bedtime, wake time, sleep duration, and how hard it was to get going.",
+          "Use rough-sleep days to make the day easier: simpler food, fewer optional tasks, and earlier assignment starts.",
+          "If several nights are short, restless, or shifted very late, make sleep part of the weekly caregiver or health check-in.",
+        ],
+      },
+      {
+        title: "Oura Ring",
+        items: [
+          "Oura can be connected through its API with Josephine's permission.",
+          "The useful scopes are daily summaries and sleep data, with readiness as a possible recovery signal.",
+          "Use OAuth for production so the connection can refresh without asking Josephine for a token repeatedly.",
+          "Do not store Oura tokens in browser storage; keep them encrypted server-side.",
+        ],
+      },
+      {
+        title: "Apple Health",
+        items: [
+          "Apple Health data is accessed through HealthKit permissions in a native Apple app, not directly from this web app.",
+          "A future iOS/macOS helper could request permission and send only high-level sleep summaries to this app.",
+          "A lower-tech fallback is Apple Health export, Shortcuts automation, or file import that Josephine chooses.",
+          "Only ask for the sleep fields this support system truly needs.",
+        ],
+      },
       {
         title: "Scrub It!",
         items: [
