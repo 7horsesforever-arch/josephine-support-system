@@ -44,6 +44,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Caregiver/admin page at `/support/admin`, linked quietly from the bottom of the dashboard and protected for `chilton18@gmail.com` through Supabase Google login.
 - In-app safety alert response for self-harm or suicide-related concerns typed into Ask JoJo, with 988, CSU Tell Someone, and HelpCompass resources. This does not monitor browser history, Mac activity, texts, email, or daily behavior.
 - App-wide browser voice entry for writable fields, plus a server transcription endpoint at `/api/speech/transcribe` for future uploaded-audio workflows.
+- Persistent Google Drive and OneDrive OAuth connection panel on `/support/docs`, with encrypted server-side token storage for Docs & Packing workflows.
 
 ## Supabase Setup
 
@@ -58,6 +59,7 @@ To enable Supabase mode:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_CREDIT_UNION_URL=
 NEXT_PUBLIC_VIPER_CAM_URL=
 CANVAS_TOKEN_ENCRYPTION_KEY=
@@ -66,6 +68,13 @@ PLAID_CLIENT_ID=
 PLAID_SECRET=
 PLAID_ENV=sandbox
 PLAID_PRODUCTS=transactions
+GOOGLE_DRIVE_CLIENT_ID=
+GOOGLE_DRIVE_CLIENT_SECRET=
+MICROSOFT_ONEDRIVE_CLIENT_ID=
+MICROSOFT_ONEDRIVE_CLIENT_SECRET=
+CLOUD_STORAGE_OAUTH_STATE_SECRET=
+CLOUD_STORAGE_GOOGLE_TOKEN_ENCRYPTION_KEY=
+CLOUD_STORAGE_ONEDRIVE_TOKEN_ENCRYPTION_KEY=
 OPENAI_API_KEY=
 OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
 ```
@@ -75,6 +84,10 @@ The schema uses authenticated-user policies. Do not enter real sensitive data un
 `CANVAS_TOKEN_ENCRYPTION_KEY` is server-only and is required before saving a Canvas token. Generate a strong value with `openssl rand -base64 32`, put it in `.env.local` and deployment environment variables, and do not commit it.
 
 `PLAID_TOKEN_ENCRYPTION_KEY` is server-only and is required before saving Plaid access tokens. Use Plaid Link for the credit union connection; do not collect or store banking usernames or passwords.
+
+`SUPABASE_SERVICE_ROLE_KEY` is server-only and is required for OAuth callbacks that need to save encrypted Google Drive and OneDrive tokens after the provider redirects back to the app. Never expose it to the browser.
+
+`CLOUD_STORAGE_OAUTH_STATE_SECRET`, `CLOUD_STORAGE_GOOGLE_TOKEN_ENCRYPTION_KEY`, and `CLOUD_STORAGE_ONEDRIVE_TOKEN_ENCRYPTION_KEY` are server-only. Generate each with `openssl rand -base64 32`. Configure Google OAuth to redirect to `/api/storage/oauth/callback/google_drive` and Microsoft OAuth to redirect to `/api/storage/oauth/callback/onedrive`.
 
 `OPENAI_API_KEY` is server-only and is used by `/api/safety/moderate` for Ask JoJo safety checks. The reviewable safety threshold, model, categories, and local trigger patterns live in `src/lib/safety/reviewable-config.ts`.
 

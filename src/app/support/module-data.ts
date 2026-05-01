@@ -474,6 +474,15 @@ export const supportModules: SupportModule[] = [
       "Drive folders, important documents, room inventory, and packing lists.",
     sections: [
       {
+        title: "Cloud Storage Connections",
+        items: [
+          "Connect Google Drive for personal documents and shared family files.",
+          "Connect OneDrive for school or Microsoft documents that need to follow her CSU workflow.",
+          "Keep logins persistent through encrypted OAuth refresh access so she does not have to re-enter passwords.",
+          "Use the connection panel above to reconnect or disconnect either account.",
+        ],
+      },
+      {
         title: "Drive Folders",
         items: [
           "ID and RamCard backup info.",

@@ -5,6 +5,7 @@ import { HealthRoutineDashboard } from "../health-routine-dashboard";
 import { MessagesWorkspace } from "../messages-workspace";
 import { MoneyPlaidDashboard } from "../money-plaid-dashboard";
 import { SchoolFocusTimer } from "../school-focus-timer";
+import { CloudStorageConnections } from "../cloud-storage-connections";
 
 const healthMetricCards = [
   {
@@ -531,6 +532,8 @@ export default async function SupportModulePage({
         {supportModule.slug === "adulting" ? <AdultingDashboard /> : null}
 
         {supportModule.slug === "messages" ? <MessagesWorkspace /> : null}
+
+        {supportModule.slug === "docs" ? <CloudStorageConnections /> : null}
 
         {supportModule.slug === "food" ? <FoodDashboard /> : null}
 

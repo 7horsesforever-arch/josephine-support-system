@@ -11,6 +11,7 @@
 - Social Decoder output for selected messages: possible tone, implied ask, urgency, suggested response, and review notes.
 - A public credit union login URL for opening the banking site in a separate tab.
 - Plaid financial connection metadata, encrypted Plaid access token, masked account names, account types, current/available balances, currency, and last synced time.
+- Cloud storage connection metadata for Google Drive and OneDrive: provider, account label/email, delegated scopes, encrypted access/refresh tokens, and last verified time.
 - Housing document metadata: title, document type, status, private storage path or access-controlled URL, important date, and notes.
 - Food planning preferences such as campus dining shortcuts and mini-fridge shopping list items.
 - Academic support resource names, public URLs, public contact information, and app-generated resource recommendations.
@@ -37,8 +38,8 @@
 - Long private email or Canvas message bodies.
 - Full text message history, Mac Messages database exports, or messages Josephine did not explicitly select for review.
 - Canvas access tokens beyond the short import request.
-- Microsoft passwords or Microsoft Graph access tokens beyond the short import request.
-- Google passwords or Gmail OAuth access tokens beyond the short import request.
+- Google passwords or plaintext Google/Gmail OAuth access tokens.
+- Microsoft passwords or plaintext OneDrive/Microsoft Graph OAuth access tokens.
 - Sensitive caregiver notes unless the app has explicit consent, authentication, and deletion controls.
 - Precise vehicle location, trip history, insurance policy numbers, license plate, VIN, or telematics data unless Josephine explicitly opts in and the app has a clear need.
 - Full tax forms, payroll credentials, Social Security number, bank direct-deposit details, employer portal passwords, or workplace documents committed to Git.
@@ -68,6 +69,7 @@
 - Social Decoder should analyze only selected/pasted/shared messages or explicitly imported email previews. Do not silently read local Mac texts, iMessage databases, or full message history.
 - Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Plaid access tokens must be encrypted server-side with `PLAID_TOKEN_ENCRYPTION_KEY`; use Plaid Link rather than bank-password forms.
+- Google Drive and OneDrive OAuth refresh tokens must be encrypted server-side with cloud-storage-specific encryption keys and revocable from Docs & Packing.
 - Housing documents should live in private storage with RLS-protected metadata. Do not commit contracts or residence documents to Git.
 - Academic accommodation, assistive-technology, testing, and housing-eligibility paperwork should live in private storage or secure notes. Public resource links, scheduling rules, and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
 - Food delivery should open the official campus ordering app/site. Do not store Grubhub, Starship, or payment credentials in this app.
