@@ -26,6 +26,8 @@ The email triage layer should act like a small copilot team:
 - Action planner: suggests one next action, such as adding a task, checking Canvas, or asking for caregiver/advisor help.
 - Reply drafter: prepares editable response drafts for reviewed messages.
 - Accommodation checker: flags when an item may need extension planning, assistive technology, tutoring, or caregiver/advisor review.
+- SDC readiness checker: flags semester accommodation letters, testing deadlines, flex-deadline communication, and possible instructor accommodation issues.
+- Community connector: surfaces Black Student Union, Delta Sigma Theta, and Cultural Resource Center announcements without auto-subscribing or contacting anyone.
 - Review guard: never sends, deletes, replies, or marks mail read without explicit review.
 
 ## Password-Light Access

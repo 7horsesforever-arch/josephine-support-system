@@ -13,6 +13,8 @@
 - Housing document metadata: title, document type, status, private storage path or access-controlled URL, important date, and notes.
 - Food planning preferences such as campus dining shortcuts and mini-fridge shopping list items.
 - Academic support resource names, public URLs, public contact information, and app-generated resource recommendations.
+- General accommodation workflow reminders, such as sending letters, checking the SDC portal, scheduling tests, and confirming housing follow-up.
+- Community-interest watch terms, such as Black Student Union and Delta Sigma Theta, for surfacing relevant email and campus announcements.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -55,7 +57,7 @@
 - Financial support should link out to the credit union. The app must not collect banking credentials, initiate payments, or move money.
 - Plaid access tokens must be encrypted server-side with `PLAID_TOKEN_ENCRYPTION_KEY`; use Plaid Link rather than bank-password forms.
 - Housing documents should live in private storage with RLS-protected metadata. Do not commit contracts or residence documents to Git.
-- Academic accommodation, assistive-technology, and testing paperwork should live in private storage or secure notes. Public resource links, scheduling rules, and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
+- Academic accommodation, assistive-technology, testing, and housing-eligibility paperwork should live in private storage or secure notes. Public resource links, scheduling rules, and contact details can be shown in the app, but referral IDs, student IDs, and protected attachment links should not be committed or hard-coded.
 - Food delivery should open the official campus ordering app/site. Do not store Grubhub, Starship, or payment credentials in this app.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 

@@ -275,6 +275,26 @@ const testingCenterRules = [
   "Ask the Accessible Testing Center if accommodations are missing or unclear.",
 ];
 
+const accommodationReadinessSteps = [
+  "Review approved accommodations in the SDC student portal under My Eligibilities.",
+  "Send accommodation letters to instructors at the start of every semester.",
+  "Use flexibility accommodations by communicating with instructors when an extension is needed.",
+  "Contact SDC quickly if an instructor does not provide an accommodation.",
+  "Review the SDC Accommodation Handbook before the semester gets busy.",
+];
+
+const communityInterestWatchlist = [
+  "Black Student Union",
+  "Delta Sigma Theta Sorority",
+  "Black/African American Cultural Center events",
+];
+
+const housingAccommodationNotes = [
+  "Approved housing accommodation: single room in a suite.",
+  "Confirm with SDC or Housing whether the accommodation needs annual renewal.",
+  "Track renewal, contract, room assignment, and move-in deadlines in Housing.",
+];
+
 const academicSupportResources: AcademicSupportResource[] = [
   {
     name: "Assistive Technology Resource Center",
@@ -291,7 +311,7 @@ const academicSupportResources: AcademicSupportResource[] = [
     useFor: "Course tutoring, study strategy, and getting unstuck early.",
     timing: "Schedule several days before a quiz, test, or major due date.",
     contact: "Use CSU TILT tutoring resources.",
-    href: "https://tilt.colostate.edu/learning/tutoring/",
+    href: "https://tilt.colostate.edu/learning/tutoring/freeacademicsupport/",
   },
   {
     name: "Student Disability Center",
@@ -325,6 +345,22 @@ const academicSupportResources: AcademicSupportResource[] = [
     timing: "Use for recurring planning and accountability.",
     contact: "Use Josephine's OPS contact once confirmed.",
     href: "https://www.chhs.colostate.edu/ccp/programs/opportunities-for-postsecondary-success/",
+  },
+  {
+    name: "CSU Health Network",
+    shortName: "Wellbeing",
+    useFor: "Mental health resources, skill-building, support groups, and HelpCompass.",
+    timing: "Use before stress turns into a crisis.",
+    contact: "Use CSU Health Network and HelpCompass resources.",
+    href: "https://health.colostate.edu/mental-health-resources/",
+  },
+  {
+    name: "Cultural Resource Centers",
+    shortName: "Community",
+    useFor: "Finding belonging, events, Black Student Union leads, and community support.",
+    timing: "Check weekly during the first semester.",
+    contact: "Start with CSU Cultural Resource Centers.",
+    href: "https://inclusiveexcellence.colostate.edu/cultural-and-resource-centers",
   },
 ];
 
@@ -415,6 +451,28 @@ function createStarterTasks(): SupportTask[] {
       status: "due",
     },
     {
+      id: "send-accommodation-letters",
+      title: "Send accommodation letters",
+      category: "school",
+      description:
+        "Use the SDC portal at the start of each semester so instructors are formally notified before accommodations are needed.",
+      normalIntervalDays: 120,
+      maxGapDays: 150,
+      lastCompletedAt: daysAgo(130),
+      status: "due",
+    },
+    {
+      id: "review-sdc-eligibilities",
+      title: "Review SDC eligibilities",
+      category: "school",
+      description:
+        "Check My Eligibilities in the SDC portal and make sure the support system reflects current approved accommodations.",
+      normalIntervalDays: 120,
+      maxGapDays: 150,
+      lastCompletedAt: daysAgo(118),
+      status: "ok",
+    },
+    {
       id: "schedule-sdc-exams",
       title: "Schedule accommodated exams",
       category: "school",
@@ -423,6 +481,28 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 14,
       maxGapDays: 30,
       lastCompletedAt: daysAgo(16),
+      status: "due",
+    },
+    {
+      id: "confirm-housing-accommodation",
+      title: "Confirm housing accommodation",
+      category: "housing",
+      description:
+        "Single room in a suite is approved. Confirm whether SDC or Housing needs annual follow-up before room selection or renewal.",
+      normalIntervalDays: 180,
+      maxGapDays: 365,
+      lastCompletedAt: daysAgo(210),
+      status: "due",
+    },
+    {
+      id: "community-interest-alerts",
+      title: "Set community interest alerts",
+      category: "communications",
+      description:
+        "Watch CSU email, campus announcements, and cultural center updates for Black Student Union and Delta Sigma Theta opportunities.",
+      normalIntervalDays: 14,
+      maxGapDays: 30,
+      lastCompletedAt: daysAgo(18),
       status: "due",
     },
   ];
@@ -1853,6 +1933,19 @@ export default function Home() {
               >
                 {isEmailDrafting ? "Drafting" : "Generate Draft Replies"}
               </button>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                <strong className="text-sm text-stone-950">
+                  Community watchlist
+                </strong>
+                <p className="mt-1 text-xs text-stone-600">
+                  Surface emails and announcements connected to these interests.
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                  {communityInterestWatchlist.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
               <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
               {emailDrafts.length > 0 ? (
                 <ol className="mt-4 grid gap-3">
@@ -1895,6 +1988,42 @@ export default function Home() {
                     <li key={rule}>{rule}</li>
                   ))}
                 </ul>
+              </div>
+              <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
+                <strong className="text-sm text-teal-950">
+                  Semester accommodation setup
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
+                  {accommodationReadinessSteps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ul>
+                <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold">
+                  <a
+                    className="text-teal-800 hover:text-teal-950"
+                    href="https://disabilitycenter.colostate.edu/sdc-student-portal-information/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    SDC Portal Help
+                  </a>
+                  <a
+                    className="text-teal-800 hover:text-teal-950"
+                    href="https://disabilitycenter.colostate.edu/accommodations-handbook/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Accommodation Handbook
+                  </a>
+                  <a
+                    className="text-teal-800 hover:text-teal-950"
+                    href="https://disabilitycenter.colostate.edu/policies-and-procedures/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Policies
+                  </a>
+                </div>
               </div>
               <div className="mt-4 grid gap-3">
                 {academicSupportResources.map((resource) => (
@@ -2275,6 +2404,16 @@ export default function Home() {
                   access-controlled folder. This app should save document
                   metadata and private storage paths, not public copies.
                 </span>
+              </div>
+              <div className="mt-3 rounded-md border border-teal-200 bg-teal-50 p-3">
+                <strong className="text-sm text-teal-950">
+                  Housing accommodation
+                </strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-teal-950">
+                  {housingAccommodationNotes.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
               </div>
               <p className="mt-3 text-sm text-stone-600">{housingMessage}</p>
               {housingDocuments.length > 0 ? (

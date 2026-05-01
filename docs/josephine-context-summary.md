@@ -31,6 +31,10 @@ Josephine's college learning plan may include shortened assignments, extended de
 
 The app should help turn those accommodations into practical reminders and review prompts, for example: "Does this assignment need an extension request?", "Would audio or typing support help?", or "Is this a good item to review with support?"
 
+Each semester, Josephine needs to send accommodation letters to instructors through the SDC Student Portal before accommodations will be provided. The app should prompt this early in the semester and remind her to review "My Eligibilities" when accommodations, courses, or housing needs change.
+
+If an instructor does not provide an accommodation, the app should route the issue back to SDC quickly. Instructors should not be treated as the final decision-maker for denying or changing accommodations.
+
 ## Academic Support Resources
 
 - Assistive Technology Resource Center (ATRC): help Josephine explore tools for reading, writing, note-taking, organization, and access. The app should prompt for an early ATRC meeting before assignments accumulate.
@@ -39,6 +43,8 @@ The app should help turn those accommodations into practical reminders and revie
 - SDC Accessible Testing Center: support for in-person accommodated exams and quizzes. Regular exams/quizzes must be scheduled at least 7 days before the exam date, final exams must be scheduled 1 month before the exam date, and appointments should match the class date/time unless the instructor gives written approval.
 - Key Living and Learning Community: peer/community support and first-year routine help.
 - Opportunities for Postsecondary Success (OPS): structured planning and accountability support once contact details are confirmed.
+- CSU Health Network and HelpCompass: mental health resources, skill-building, support groups, and crisis navigation. The app should link out and avoid storing clinical details.
+- Cultural Resource Centers: belonging and community connection. Josephine is interested in the Black Student Union and Delta Sigma Theta Sorority, so communications monitoring should surface relevant announcements, meetings, and campus events.
 
 Assignment agents should recommend resources based on the work type, deadline runway, testing needs, and the amount of setup time each resource requires.
 
@@ -80,6 +86,8 @@ Assignment agents should recommend resources based on the work type, deadline ru
 ## Housing Support
 
 - Store residence hall contracts, move-in documents, billing notices, maintenance records, and renewal dates in one Housing area.
+- Track Josephine's approved housing accommodation for a single room in a suite.
+- Confirm with SDC or Housing whether the single-room accommodation needs annual renewal or housing-cycle follow-up.
 - Use private storage for PDFs and RLS-protected metadata for titles, types, dates, and notes.
 - Do not commit housing contracts or residence documents to the codebase.
 - Turn important housing dates into reminders and review-with-support tasks.
