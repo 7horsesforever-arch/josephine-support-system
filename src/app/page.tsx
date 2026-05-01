@@ -9,7 +9,7 @@ import {
   supabase,
 } from "@/lib/supabase";
 
-type TaskCategory = "school" | "admin" | "health" | "life";
+type TaskCategory = "school" | "communications" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
 type ActionType = "done" | "already_did_it" | "snooze" | "need_help" | "created";
 type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
@@ -243,6 +243,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
   if (category === "hygiene") return "health";
   if (
     category === "school" ||
+    category === "communications" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -1051,6 +1052,7 @@ export default function Home() {
             >
               <option value="health">Health</option>
               <option value="school">School</option>
+              <option value="communications">Communications</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
