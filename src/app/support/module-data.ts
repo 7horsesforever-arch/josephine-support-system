@@ -383,6 +383,15 @@ export const supportModules: SupportModule[] = [
           "Car emergency kit.",
         ],
       },
+      {
+        title: "Weekly Room Reset",
+        items: [
+          "Clean the room once a week: trash, recycling, dishes, laundry, desk, floor, sheets/towels, and mini-fridge.",
+          "After cleaning, ask what supplies are low before the week gets busy.",
+          "Add needed items to the Amazon list for review instead of auto-ordering.",
+          "Use the smallest version on hard weeks: trash out, laundry gathered, and one surface cleared.",
+        ],
+      },
     ],
   },
   {
@@ -488,6 +497,7 @@ export const supportModules: SupportModule[] = [
           "Room assignment and suite information.",
           "Housing billing and renewal dates.",
           "Maintenance notes.",
+          "Weekly room reset and supply check.",
         ],
       },
       {

@@ -240,6 +240,8 @@ const creditUnionUrl = process.env.NEXT_PUBLIC_CREDIT_UNION_URL?.trim() ?? "";
 const viperCamUrl = process.env.NEXT_PUBLIC_VIPER_CAM_URL?.trim() ?? "";
 const diningHoursUrl = "https://housing.colostate.edu/dining/";
 const grubhubCampusUrl = "https://www.grubhub.com/campus";
+const amazonDormSuppliesUrl =
+  "https://www.amazon.com/s?k=dorm+room+cleaning+supplies";
 const healthNetworkUrl = "https://health.colostate.edu/";
 const healthPortalUrl = "https://portal.health.colostate.edu/";
 const studentInsuranceUrl =
@@ -728,7 +730,7 @@ const semesterLaunchItems = [
 
 const calendarRoutineItems = [
   "Weekly reset",
-  "Class schedule and room check",
+  "Class schedule and room reset",
   "Study blocks before due dates",
   "Meals and hydration anchors",
   "Sleep and wake routine",
@@ -755,6 +757,24 @@ const packingInventoryItems = [
   "Weather gear",
   "Mini-fridge food backups",
   "Car emergency kit",
+];
+
+const roomResetItems = [
+  "Trash and recycling out",
+  "Dishes, cups, and bottles handled",
+  "Laundry gathered",
+  "Sheets or towels checked",
+  "Desk and floor cleared enough to think",
+  "Mini-fridge checked for old food",
+];
+
+const roomSupplyCheckItems = [
+  "Trash bags",
+  "Laundry detergent or dryer sheets",
+  "Cleaning wipes or spray",
+  "Paper towels or tissues",
+  "Toiletries, period supplies, or medicine basics",
+  "Mini-fridge snacks and drinks",
 ];
 
 const travelSupportItems = [
@@ -1088,6 +1108,17 @@ function createStarterTasks(): SupportTask[] {
       maxGapDays: 30,
       lastCompletedAt: daysAgo(10),
       status: "ok",
+    },
+    {
+      id: "weekly-room-reset",
+      title: "Room reset",
+      category: "housing",
+      description:
+        "Weekly room clean and supply check: trash, laundry, sheets/towels, desk, floor, fridge, and anything that needs to go on the Amazon list.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(8),
+      status: "due",
     },
     {
       id: "mini-fridge-restock",
@@ -1767,6 +1798,9 @@ export default function Home() {
     "Connect Canvas Credit Union when you want a quick, read-only money check.",
   );
   const [isPlaidLoading, setIsPlaidLoading] = useState(false);
+  const [roomResetMessage, setRoomResetMessage] = useState(
+    "After the room reset, JoJo will ask what needs to be added to the Amazon list.",
+  );
   const [askJojoQuestion, setAskJojoQuestion] = useState("");
   const [safetyModeration, setSafetyModeration] =
     useState<SafetyModerationState | null>(null);
@@ -2604,6 +2638,22 @@ export default function Home() {
       createdAt: now,
     };
 
+    if (taskId === "weekly-room-reset") {
+      if (type === "done" || type === "already_did_it") {
+        setRoomResetMessage(
+          "Room reset logged. Quick supply check: does anything need to be added to the Amazon list before the week gets busy?",
+        );
+      } else if (type === "need_help") {
+        setRoomResetMessage(
+          "Room reset needs backup. Ask for help with one small part first: trash, laundry, desk, floor, or supplies.",
+        );
+      } else if (type === "snooze") {
+        setRoomResetMessage(
+          "Room reset snoozed. Pick the smallest version later: trash out, laundry gathered, or one surface cleared.",
+        );
+      }
+    }
+
     setHistory((currentHistory) => [historyEntry, ...currentHistory]);
     void saveTaskToSupabase(updatedTask);
     void saveHistoryToSupabase(historyEntry);
@@ -3191,6 +3241,47 @@ export default function Home() {
                       {formatDate(schedule.escalateAfterAt)}
                     </p>
 
+                    {task.id === "weekly-room-reset" ? (
+                      <div className="mt-4 rounded-md border border-teal-100 bg-teal-50/70 p-3">
+                        <strong className="text-sm text-teal-950">
+                          After you clean
+                        </strong>
+                        <p className="mt-1 text-sm text-teal-950">
+                          {roomResetMessage}
+                        </p>
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <span className="text-xs font-bold uppercase text-teal-900">
+                              Room check
+                            </span>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                              {roomResetItems.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold uppercase text-teal-900">
+                              Supplies to scan
+                            </span>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                              {roomSupplyCheckItems.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                            <a
+                              className="mt-3 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                              href={amazonDormSuppliesUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Open Amazon search
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div className="mt-4 grid gap-2 sm:grid-cols-4">
                       {(["done", "already_did_it", "snooze", "need_help"] as ActionType[]).map(
                         (action) => (
@@ -3752,6 +3843,37 @@ export default function Home() {
                       {item}
                     </span>
                   ))}
+                </div>
+              </div>
+              <div className="mt-4 rounded-md border border-teal-100 bg-teal-50/70 p-3">
+                <strong className="text-sm text-teal-950">
+                  Weekly room reset
+                </strong>
+                <p className="mt-1 text-sm text-teal-950">
+                  Clean enough for the room to work, then check whether anything
+                  needs to be added to the Amazon list.
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-md bg-white p-3">
+                    <span className="text-xs font-bold uppercase text-teal-900">
+                      Reset
+                    </span>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                      {roomResetItems.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="rounded-md bg-white p-3">
+                    <span className="text-xs font-bold uppercase text-teal-900">
+                      Supplies
+                    </span>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                      {roomSupplyCheckItems.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </section>
