@@ -11,6 +11,8 @@ See `docs/josephine-context-summary.md` for the private context summary that sho
 - Offer one recommended next step before offering secondary options.
 - Translate email and assignment noise into short summaries and concrete next actions.
 - Use plain language over dense academic or technical language.
+- Prefer multi-modal support: short text, visual grouping, spoken/read-aloud friendly summaries, and hands-on next actions.
+- Use slower, mastery-oriented flows: repeat important context, make review easy, and avoid speed-pressure patterns.
 - Separate "review with support" from "do now" so stressful items do not become invisible.
 - Avoid storing diagnosis labels unless there is a specific, consented need.
 
@@ -22,6 +24,7 @@ The email triage layer should act like a small copilot team:
 - Priority sorter: marks urgent/high/normal/low based on deadlines, meetings, admin issues, and support language.
 - Plain-language summarizer: turns the subject and preview into a short sentence.
 - Action planner: suggests one next action, such as adding a task, checking Canvas, or asking for caregiver/advisor help.
+- Accommodation checker: flags when an item may need extension planning, assistive technology, tutoring, or caregiver/advisor review.
 - Review guard: never sends, deletes, replies, or marks mail read without explicit review.
 
 ## Password-Light Access

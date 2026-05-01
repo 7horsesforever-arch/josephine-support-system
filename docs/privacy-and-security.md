@@ -13,7 +13,7 @@
 ## Data We Should Avoid Storing
 
 - Diagnoses or detailed medical history.
-- Disability labels unless there is a specific, consented accommodation workflow that requires storing them. Private design notes may reference Josephine's needs, but app database rows should avoid them by default.
+- Disability labels, neurotype labels, or clinical support details unless there is a specific, consented accommodation workflow that requires storing them. Private design notes may reference Josephine's needs, but app database rows should avoid them by default.
 - School portal passwords or recovery codes.
 - Long private email or Canvas message bodies.
 - Canvas access tokens beyond the short import request.

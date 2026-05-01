@@ -4,9 +4,32 @@ This note is private product context for designing Josephine's daily support sys
 
 ## Student Context
 
-Josephine is a Colorado State University student with approved accommodations. She benefits from support for dyslexia, dysgraphia, dyscalculia, memory load, planning, and follow-through.
+Josephine is a Colorado State University student with approved accommodations. Her teen summary describes a neurodivergent profile that includes autism, ADHD, and dyslexia. She benefits from support for visual processing, motor/hand coordination, task speed, parts of reading/writing/math, social initiation, memory load, planning, and follow-through.
 
 The system should help her notice what matters, understand it quickly, and take one concrete next step without needing to manage many passwords, portals, or dense blocks of text.
+
+## Strengths To Preserve
+
+- Verbal reasoning and expressive language.
+- Abstract reasoning and problem-solving.
+- Long-term memory and reading comprehension.
+- Empathy, caring, resilience, and emotional well-being.
+- Strong interest in animals and equestrianship.
+
+The app should lean into these strengths by making information talkable, concrete, and connected to meaningful routines rather than treating support as only deficit management.
+
+## Learning And Support Pattern
+
+- Multi-modal learning works best: verbal, visual, kinesthetic, and hands-on.
+- Slower pacing and repeated review help mastery.
+- Executive-function support and tutoring should be assumed as part of the college support ecosystem.
+- Mental-health/transition supports may be part of the broader care team, but the app should not store clinical details unless a specific consented workflow requires it.
+
+## Accommodation Context
+
+Josephine's college learning plan may include shortened assignments, extended deadlines, assistive technology, audiobooks, typing, Grammarly, calculator use, double test time, separate test setting, extra breaks, and exam retake support under defined conditions.
+
+The app should help turn those accommodations into practical reminders and review prompts, for example: "Does this assignment need an extension request?", "Would audio or typing support help?", or "Is this a good item to review with support?"
 
 ## Access And Account Context
 
@@ -22,6 +45,8 @@ The system should help her notice what matters, understand it quickly, and take 
 - Keep reading load low: short summaries, clear headings, and one main action at a time.
 - Keep writing load low: suggested replies/actions should be draftable, editable, and never sent automatically.
 - Keep numeric load low: convert dates, times, and point values into plain-language urgency.
+- Keep visual processing load low: avoid clutter, dense tables, tiny status differences, and layouts that require scanning many competing zones.
+- Keep speed pressure low: use calm states, forgiving snoozes, and recovery flows instead of punitive overdue language.
 - Support executive function: prioritize, sequence, remind, and provide recovery paths after missed tasks.
 - Separate "do now" from "review with support" so stressful items do not disappear.
 - Make every automation reviewable: importing, summarizing, triaging, and suggesting are allowed; sending, deleting, submitting, or marking mail read requires explicit user review.
