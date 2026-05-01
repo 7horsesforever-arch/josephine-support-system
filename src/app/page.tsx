@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 type TaskCategory = "hygiene" | "school" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
@@ -26,6 +27,27 @@ type HistoryEntry = {
 
 const dayMs = 24 * 60 * 60 * 1000;
 const storageKey = "josephine-support-state-v1";
+
+type SyncStatus = "loading" | "local" | "supabase" | "syncing" | "error";
+
+type TaskRow = {
+  id: string;
+  title: string;
+  category: TaskCategory;
+  description: string;
+  normal_interval_days: number;
+  max_gap_days: number;
+  last_completed_at: string;
+  status: TaskStatus;
+  updated_at?: string;
+};
+
+type HistoryRow = {
+  id: string;
+  task_title: string;
+  action_type: ActionType;
+  created_at: string;
+};
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -166,36 +188,147 @@ function statusClasses(status: TaskStatus) {
   return "bg-blue-100 text-blue-800";
 }
 
+function taskFromRow(row: TaskRow): SupportTask {
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    description: row.description,
+    normalIntervalDays: row.normal_interval_days,
+    maxGapDays: row.max_gap_days,
+    lastCompletedAt: row.last_completed_at,
+    status: row.status,
+  };
+}
+
+function taskToRow(task: SupportTask): TaskRow {
+  return {
+    id: task.id,
+    title: task.title,
+    category: task.category,
+    description: task.description,
+    normal_interval_days: task.normalIntervalDays,
+    max_gap_days: task.maxGapDays,
+    last_completed_at: task.lastCompletedAt,
+    status: task.status,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+function historyFromRow(row: HistoryRow): HistoryEntry {
+  return {
+    id: row.id,
+    taskTitle: row.task_title,
+    type: row.action_type,
+    createdAt: row.created_at,
+  };
+}
+
+function historyToRow(entry: HistoryEntry): HistoryRow {
+  return {
+    id: entry.id,
+    task_title: entry.taskTitle,
+    action_type: entry.type,
+    created_at: entry.createdAt,
+  };
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState(createStarterTasks);
   const [history, setHistory] = useState(createInitialHistory);
   const [storageReady, setStorageReady] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
+  const [syncMessage, setSyncMessage] = useState("Checking saved data...");
 
   useEffect(() => {
-    const storedState = window.localStorage.getItem(storageKey);
-    if (!storedState) {
-      setStorageReady(true);
-      return;
-    }
+    let ignore = false;
 
-    try {
-      const parsedState = JSON.parse(storedState) as {
-        tasks?: SupportTask[];
-        history?: HistoryEntry[];
-      };
+    async function loadSavedState() {
+      const storedState = window.localStorage.getItem(storageKey);
 
-      if (Array.isArray(parsedState.tasks)) {
-        setTasks(parsedState.tasks);
+      if (storedState) {
+        try {
+          const parsedState = JSON.parse(storedState) as {
+            tasks?: SupportTask[];
+            history?: HistoryEntry[];
+          };
+
+          if (Array.isArray(parsedState.tasks)) {
+            setTasks(parsedState.tasks);
+          }
+
+          if (Array.isArray(parsedState.history)) {
+            setHistory(parsedState.history);
+          }
+        } catch {
+          window.localStorage.removeItem(storageKey);
+        }
       }
 
-      if (Array.isArray(parsedState.history)) {
-        setHistory(parsedState.history);
+      if (!isSupabaseConfigured || !supabase) {
+        setSyncStatus("local");
+        setSyncMessage("Saved in this browser. Supabase is not configured yet.");
+        setStorageReady(true);
+        return;
       }
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    } finally {
+
+      const { data: savedTasks, error: tasksError } = await supabase
+        .from("support_tasks")
+        .select("*")
+        .order("title");
+
+      if (ignore) return;
+
+      if (tasksError) {
+        setSyncStatus("local");
+        setSyncMessage("Saved in this browser. Supabase tables are not connected yet.");
+        setStorageReady(true);
+        return;
+      }
+
+      const { data: savedHistory, error: historyError } = await supabase
+        .from("support_history")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(25);
+
+      if (ignore) return;
+
+      if (historyError) {
+        setSyncStatus("local");
+        setSyncMessage("Saved in this browser. Supabase history is not connected yet.");
+        setStorageReady(true);
+        return;
+      }
+
+      if ((savedTasks ?? []).length > 0) {
+        setTasks(savedTasks.map(taskFromRow));
+      } else {
+        const starter = createStarterTasks();
+        setTasks(starter);
+        await supabase.from("support_tasks").upsert(starter.map(taskToRow));
+      }
+
+      if ((savedHistory ?? []).length > 0) {
+        setHistory(savedHistory.map(historyFromRow));
+      } else {
+        const starterHistory = createInitialHistory();
+        setHistory(starterHistory);
+        await supabase
+          .from("support_history")
+          .upsert(starterHistory.map(historyToRow));
+      }
+
+      setSyncStatus("supabase");
+      setSyncMessage("Saved to Supabase.");
       setStorageReady(true);
     }
+
+    loadSavedState();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -203,6 +336,40 @@ export default function Home() {
 
     window.localStorage.setItem(storageKey, JSON.stringify({ tasks, history }));
   }, [history, storageReady, tasks]);
+
+  async function saveTaskToSupabase(task: SupportTask) {
+    if (!supabase) return;
+    if (syncStatus === "local" || syncStatus === "error") return;
+
+    setSyncStatus("syncing");
+    const { error } = await supabase.from("support_tasks").upsert(taskToRow(task));
+    if (error) {
+      setSyncStatus("error");
+      setSyncMessage("Saved in this browser. Supabase sync needs attention.");
+      return;
+    }
+
+    setSyncStatus("supabase");
+    setSyncMessage("Saved to Supabase.");
+  }
+
+  async function saveHistoryToSupabase(entry: HistoryEntry) {
+    if (!supabase) return;
+    if (syncStatus === "local" || syncStatus === "error") return;
+
+    setSyncStatus("syncing");
+    const { error } = await supabase
+      .from("support_history")
+      .insert(historyToRow(entry));
+    if (error) {
+      setSyncStatus("error");
+      setSyncMessage("Saved in this browser. Supabase sync needs attention.");
+      return;
+    }
+
+    setSyncStatus("supabase");
+    setSyncMessage("Saved to Supabase.");
+  }
 
   const summary = useMemo(() => {
     return tasks.reduce(
@@ -221,29 +388,43 @@ export default function Home() {
     const task = tasks.find((item) => item.id === taskId);
     if (!task) return;
 
+    let updatedTask = task;
     setTasks((currentTasks) =>
       currentTasks.map((item) => {
         if (item.id !== taskId) return item;
 
         if (type === "done" || type === "already_did_it") {
-          return { ...item, lastCompletedAt: now, status: "ok" };
+          updatedTask = { ...item, lastCompletedAt: now, status: "ok" };
+          return updatedTask;
         }
 
-        if (type === "snooze") return { ...item, status: "snoozed" };
-        if (type === "need_help") return { ...item, status: "needs_help" };
+        if (type === "snooze") {
+          updatedTask = { ...item, status: "snoozed" };
+          return updatedTask;
+        }
+
+        if (type === "need_help") {
+          updatedTask = { ...item, status: "needs_help" };
+          return updatedTask;
+        }
+
         return item;
       }),
     );
 
+    const historyEntry = {
+      id: crypto.randomUUID(),
+      taskTitle: task.title,
+      type,
+      createdAt: now,
+    };
+
     setHistory((currentHistory) => [
-      {
-        id: crypto.randomUUID(),
-        taskTitle: task.title,
-        type,
-        createdAt: now,
-      },
+      historyEntry,
       ...currentHistory,
     ]);
+    void saveTaskToSupabase(updatedTask);
+    void saveHistoryToSupabase(historyEntry);
   }
 
   function addTask(event: FormEvent<HTMLFormElement>) {
@@ -268,16 +449,56 @@ export default function Home() {
     };
 
     setTasks((currentTasks) => [...currentTasks, task]);
+    const historyEntry = {
+      id: crypto.randomUUID(),
+      taskTitle: title,
+      type: "created" as ActionType,
+      createdAt: now,
+    };
+
     setHistory((currentHistory) => [
-      {
-        id: crypto.randomUUID(),
-        taskTitle: title,
-        type: "created",
-        createdAt: now,
-      },
+      historyEntry,
       ...currentHistory,
     ]);
+    void saveTaskToSupabase(task);
+    void saveHistoryToSupabase(historyEntry);
     event.currentTarget.reset();
+  }
+
+  async function resetDemoData() {
+    const starterTasks = createStarterTasks();
+    const starterHistory = createInitialHistory();
+
+    setTasks(starterTasks);
+    setHistory(starterHistory);
+
+    if (syncStatus === "local" || syncStatus === "error") return;
+    if (!supabase) return;
+
+    setSyncStatus("syncing");
+    const { error: deleteHistoryError } = await supabase
+      .from("support_history")
+      .delete()
+      .neq("id", "");
+    const { error: deleteTasksError } = await supabase
+      .from("support_tasks")
+      .delete()
+      .neq("id", "");
+    const { error: taskError } = await supabase
+      .from("support_tasks")
+      .upsert(starterTasks.map(taskToRow));
+    const { error: historyError } = await supabase
+      .from("support_history")
+      .upsert(starterHistory.map(historyToRow));
+
+    if (deleteHistoryError || deleteTasksError || taskError || historyError) {
+      setSyncStatus("error");
+      setSyncMessage("Reset locally. Supabase sync needs attention.");
+      return;
+    }
+
+    setSyncStatus("supabase");
+    setSyncMessage("Saved to Supabase.");
   }
 
   return (
@@ -317,6 +538,19 @@ export default function Home() {
             danger
           />
           <SummaryMetric value={history.length} label="History entries" />
+        </section>
+
+        <section className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
+          <span className="font-semibold text-stone-950">
+            {syncStatus === "supabase"
+              ? "Supabase mode"
+              : syncStatus === "syncing"
+                ? "Syncing"
+                : syncStatus === "loading"
+                  ? "Loading"
+                  : "Local mode"}
+          </span>
+          <span className="ml-2">{syncMessage}</span>
         </section>
 
         <section className="rounded-lg border border-stone-300 bg-white p-3">
@@ -371,10 +605,7 @@ export default function Home() {
               <button
                 className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-teal-800 hover:bg-stone-200"
                 type="button"
-                onClick={() => {
-                  setTasks(createStarterTasks());
-                  setHistory(createInitialHistory());
-                }}
+                onClick={resetDemoData}
               >
                 Reset demo data
               </button>
