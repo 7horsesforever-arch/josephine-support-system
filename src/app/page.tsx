@@ -243,6 +243,23 @@ const mailServicesUrl = "https://mailservices.colostate.edu/";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
+const dailyAffirmations = [
+  "I do not have to do everything at once. One clear next step counts.",
+  "My brain is allowed to work differently, and I can still build a good day.",
+  "Asking for help is a college skill, not a failure.",
+  "I can pause, reset, and choose the next right thing.",
+  "I belong here, even on days that feel messy.",
+  "Progress can be small and still be real.",
+  "I can use my supports without apologizing for needing them.",
+  "A hard moment is not the whole day.",
+  "I can make things easier for future me with one tiny action now.",
+  "I am learning the system, and I do not have to know it all today.",
+  "My needs are real, and planning for them is responsible.",
+  "I can be kind to myself while I figure this out.",
+  "Done imperfectly is still data, progress, and proof that I tried.",
+  "I am allowed to take up space, ask questions, and be understood.",
+];
+
 const campusDiningLocations = [
   {
     name: "Braiden Dining Center",
@@ -717,6 +734,13 @@ function SupportPageLink({ href }: { href: string }) {
       Open full page
     </Link>
   );
+}
+
+function getDailyAffirmation(date: Date) {
+  const dayNumber = Math.floor(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / dayMs,
+  );
+  return dailyAffirmations[dayNumber % dailyAffirmations.length];
 }
 
 const askJojoStopWords = new Set([
@@ -2100,6 +2124,8 @@ export default function Home() {
     );
   }, [tasks]);
 
+  const dailyAffirmation = getDailyAffirmation(new Date());
+
   const askJojoSources = useMemo<AskJojoSource[]>(() => {
     const moduleSources = supportModules.flatMap((supportModule) => [
       {
@@ -2165,6 +2191,12 @@ export default function Home() {
     }));
 
     return [
+      {
+        title: "Today's affirmation",
+        category: "Encouragement",
+        text: dailyAffirmation,
+        priority: 3,
+      },
       ...assignmentSources,
       ...taskSources,
       ...emailSources,
@@ -2172,7 +2204,14 @@ export default function Home() {
       ...financialSources,
       ...moduleSources,
     ];
-  }, [assignments, emailDrafts, financialAccounts, housingDocuments, tasks]);
+  }, [
+    assignments,
+    dailyAffirmation,
+    emailDrafts,
+    financialAccounts,
+    housingDocuments,
+    tasks,
+  ]);
 
   const askJojoAnswer = useMemo(
     () => answerAskJojo(askJojoQuestion, askJojoSources),
@@ -2570,6 +2609,15 @@ export default function Home() {
                     : "Local mode"}
           </span>
           <span className="ml-2">{syncMessage}</span>
+        </section>
+
+        <section className="rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 shadow-sm">
+          <p className="text-xs font-bold uppercase text-amber-900">
+            Today&apos;s affirmation
+          </p>
+          <p className="mt-2 text-xl font-bold leading-snug text-stone-950">
+            {dailyAffirmation}
+          </p>
         </section>
 
         <section className="rounded-lg border border-teal-700 bg-white p-5 shadow-sm">
