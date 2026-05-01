@@ -22,6 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - User-scoped Supabase persistence with Row Level Security.
 - Browser-only local mode only when Supabase is not configured.
 - Server-side escalation endpoint placeholder at `/api/escalations`.
+- Server-side Canvas assignment import endpoint at `/api/canvas/import`.
 
 ## Supabase Setup
 
@@ -56,7 +57,7 @@ npm run build
 - Run the Supabase schema.
 - Verify auth sign-in and private mode.
 - Add caregiver SMS fail-safe alerts.
-- Build the Canvas/school assignment import connection.
+- Connect the Canvas import endpoint to an authenticated UI flow.
 
 ## Deploy on Vercel
 
