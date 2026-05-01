@@ -81,6 +81,8 @@ const storageKey = "josephine-support-state-v1";
 const primaryAccessEmail = "chilton18@gmail.com";
 const devicePasskeyName = "Josephine MacBook Touch ID";
 const defaultCanvasBaseUrl = "https://colostate.instructure.com";
+const authNetworkErrorMessage =
+  "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -1036,20 +1038,31 @@ function AuthGate() {
     if (!supabase) return;
 
     setIsSubmitting(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: window.location.origin,
-      },
-    });
+    setMessage("Sending secure sign-in link...");
 
-    setIsSubmitting(false);
-    setMessage(
-      error
-        ? error.message
-        : "Check your email for a secure sign-in link, then return here.",
-    );
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      setMessage(
+        error
+          ? error.message
+          : "Check your email for a secure sign-in link, then return here.",
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof TypeError
+          ? authNetworkErrorMessage
+          : "Sign-in failed. Check Supabase Auth settings and try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   async function signInWithPasskey() {
