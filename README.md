@@ -51,6 +51,8 @@ Passkey support is wired as a ready path for Josephine's MacBook with Touch ID. 
 
 Read `docs/privacy-and-security.md` before adding real school, health, phone, email, or caregiver data.
 
+Read `docs/josephine-context-summary.md` before making product decisions that affect prioritization, reminders, email/assignment summaries, or access flows.
+
 Read `docs/device-first-access.md` before changing sign-in, passkey, Microsoft, Canvas, or school portal access.
 
 Read `docs/accessibility-support-design.md` before changing task, email, or assignment workflows.

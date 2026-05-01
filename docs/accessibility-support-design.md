@@ -2,10 +2,13 @@
 
 This app is being designed for a student who benefits from reduced reading load, reduced writing load, reduced numeric friction, and strong executive-function scaffolding.
 
+See `docs/josephine-context-summary.md` for the private context summary that should guide product decisions without turning sensitive details into casual app data.
+
 ## Design Principles
 
 - Prefer single sign-on and OAuth over repeated password entry.
 - Keep actions short, visible, and reversible.
+- Offer one recommended next step before offering secondary options.
 - Translate email and assignment noise into short summaries and concrete next actions.
 - Use plain language over dense academic or technical language.
 - Separate "review with support" from "do now" so stressful items do not become invisible.
