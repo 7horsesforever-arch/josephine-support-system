@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type TaskCategory = "hygiene" | "school" | "admin" | "health" | "life";
 type TaskStatus = "ok" | "due" | "snoozed" | "needs_help" | "escalated";
@@ -25,6 +25,7 @@ type HistoryEntry = {
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
+const storageKey = "josephine-support-state-v1";
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -33,47 +34,54 @@ function daysAgo(count: number) {
   return date.toISOString();
 }
 
-const starterTasks: SupportTask[] = [
-  {
-    id: "shower",
-    title: "Shower",
-    category: "hygiene",
-    description: "Normal reminder 2 days after completion. Fail-safe at 7 days.",
-    normalIntervalDays: 2,
-    maxGapDays: 7,
-    lastCompletedAt: daysAgo(3),
-    status: "due",
-  },
-  {
-    id: "brush-teeth-night",
-    title: "Brush teeth at night",
-    category: "hygiene",
-    description: "Normal reminder 1 day after completion. Fail-safe at 2 days.",
-    normalIntervalDays: 1,
-    maxGapDays: 2,
-    lastCompletedAt: daysAgo(1),
-    status: "due",
-  },
-  {
-    id: "laundry",
-    title: "Laundry",
-    category: "life",
-    description: "Normal reminder 7 days after completion. Fail-safe at 14 days.",
-    normalIntervalDays: 7,
-    maxGapDays: 14,
-    lastCompletedAt: daysAgo(5),
-    status: "ok",
-  },
-];
+function createStarterTasks(): SupportTask[] {
+  return [
+    {
+      id: "shower",
+      title: "Shower",
+      category: "hygiene",
+      description:
+        "Normal reminder 2 days after completion. Fail-safe at 7 days.",
+      normalIntervalDays: 2,
+      maxGapDays: 7,
+      lastCompletedAt: daysAgo(3),
+      status: "due",
+    },
+    {
+      id: "brush-teeth-night",
+      title: "Brush teeth at night",
+      category: "hygiene",
+      description:
+        "Normal reminder 1 day after completion. Fail-safe at 2 days.",
+      normalIntervalDays: 1,
+      maxGapDays: 2,
+      lastCompletedAt: daysAgo(1),
+      status: "due",
+    },
+    {
+      id: "laundry",
+      title: "Laundry",
+      category: "life",
+      description:
+        "Normal reminder 7 days after completion. Fail-safe at 14 days.",
+      normalIntervalDays: 7,
+      maxGapDays: 14,
+      lastCompletedAt: daysAgo(5),
+      status: "ok",
+    },
+  ];
+}
 
-const initialHistory: HistoryEntry[] = [
-  {
-    id: "initial-shower",
-    taskTitle: "Shower",
-    type: "done",
-    createdAt: daysAgo(3),
-  },
-];
+function createInitialHistory(): HistoryEntry[] {
+  return [
+    {
+      id: "initial-shower",
+      taskTitle: "Shower",
+      type: "done",
+      createdAt: daysAgo(3),
+    },
+  ];
+}
 
 function addDays(isoDate: string, days: number) {
   return new Date(new Date(isoDate).getTime() + days * dayMs);
@@ -159,8 +167,42 @@ function statusClasses(status: TaskStatus) {
 }
 
 export default function Home() {
-  const [tasks, setTasks] = useState(starterTasks);
-  const [history, setHistory] = useState(initialHistory);
+  const [tasks, setTasks] = useState(createStarterTasks);
+  const [history, setHistory] = useState(createInitialHistory);
+  const [storageReady, setStorageReady] = useState(false);
+
+  useEffect(() => {
+    const storedState = window.localStorage.getItem(storageKey);
+    if (!storedState) {
+      setStorageReady(true);
+      return;
+    }
+
+    try {
+      const parsedState = JSON.parse(storedState) as {
+        tasks?: SupportTask[];
+        history?: HistoryEntry[];
+      };
+
+      if (Array.isArray(parsedState.tasks)) {
+        setTasks(parsedState.tasks);
+      }
+
+      if (Array.isArray(parsedState.history)) {
+        setHistory(parsedState.history);
+      }
+    } catch {
+      window.localStorage.removeItem(storageKey);
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady) return;
+
+    window.localStorage.setItem(storageKey, JSON.stringify({ tasks, history }));
+  }, [history, storageReady, tasks]);
 
   const summary = useMemo(() => {
     return tasks.reduce(
@@ -330,8 +372,8 @@ export default function Home() {
                 className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-teal-800 hover:bg-stone-200"
                 type="button"
                 onClick={() => {
-                  setTasks(starterTasks);
-                  setHistory(initialHistory);
+                  setTasks(createStarterTasks());
+                  setHistory(createInitialHistory());
                 }}
               >
                 Reset demo data
