@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -682,6 +683,17 @@ const academicSupportResources: AcademicSupportResource[] = [
     href: "https://inclusiveexcellence.colostate.edu/cultural-and-resource-centers",
   },
 ];
+
+function SupportPageLink({ href }: { href: string }) {
+  return (
+    <Link
+      className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+      href={href}
+    >
+      Open full page
+    </Link>
+  );
+}
 
 function daysAgo(count: number) {
   const date = new Date();
@@ -2506,6 +2518,7 @@ export default function Home() {
               >
                 {isEmailDrafting ? "Drafting" : "Draft Replies"}
               </button>
+              <SupportPageLink href="/support/messages" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">
                   Stuff to watch for
@@ -2575,6 +2588,7 @@ export default function Home() {
                 Match assignments with the right people and tools before a due
                 date gets too close.
               </p>
+              <SupportPageLink href="/support/school" />
               <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
                 <strong className="text-sm text-amber-950">
                   SDC testing deadlines
@@ -2668,6 +2682,7 @@ export default function Home() {
                 Appointments, insurance, refills, and the boring-but-important
                 health stuff in one place.
               </p>
+              <SupportPageLink href="/support/health" />
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
                   className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
@@ -2718,6 +2733,7 @@ export default function Home() {
                 The numbers and next steps to use when something feels urgent,
                 unsafe, or too big to handle alone.
               </p>
+              <SupportPageLink href="/support/safety" />
               <div className="mt-4 grid gap-3">
                 {emergencyPlanItems.map((item) => (
                   <article
@@ -2766,6 +2782,7 @@ export default function Home() {
                 RamCard, parking, buses, laundry, mail, and the everyday systems
                 that are annoying when they disappear.
               </p>
+              <SupportPageLink href="/support/campus" />
               <div className="mt-4 grid gap-3">
                 {campusLogisticsItems.map((item) => (
                   <article
@@ -2825,6 +2842,7 @@ export default function Home() {
                 Drive holds the files. This keeps the folders and reminders
                 from becoming a mystery.
               </p>
+              <SupportPageLink href="/support/docs" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
                 <strong className="text-sm text-stone-950">
                   Important folders
@@ -3055,6 +3073,7 @@ export default function Home() {
                   California
                 </span>
               </div>
+              <SupportPageLink href="/support/viper" />
 
               {viperCamUrl ? (
                 <a
@@ -3114,6 +3133,7 @@ export default function Home() {
                   Braiden first
                 </span>
               </div>
+              <SupportPageLink href="/support/food" />
 
               <div className="mt-4 grid gap-3">
                 {campusDiningLocations.map((location) => (
@@ -3183,6 +3203,7 @@ export default function Home() {
                 Quick balance check here. Transfers and bill pay still happen
                 directly at the credit union.
               </p>
+              <SupportPageLink href="/support/money" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
                   {financialInstitutionName ?? "Canvas Credit Union"}
@@ -3261,7 +3282,7 @@ export default function Home() {
                     type="button"
                     disabled
                   >
-                  Credit Union Link Missing
+                    Credit Union Link Missing
                   </button>
                 )}
                 <button
@@ -3296,6 +3317,7 @@ export default function Home() {
                   {vehicleProfile.role}
                 </span>
               </div>
+              <SupportPageLink href="/support/vehicle" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">{vehicleProfile.name}</strong>
                 <span>{vehicleProfile.note}</span>
@@ -3341,6 +3363,7 @@ export default function Home() {
                   Future job
                 </span>
               </div>
+              <SupportPageLink href="/support/work" />
 
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
@@ -3407,6 +3430,7 @@ export default function Home() {
                 Room info, move-in details, contracts, billing, maintenance, and
                 renewal dates together.
               </p>
+              <SupportPageLink href="/support/housing" />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">Housing files</strong>
                 <span>

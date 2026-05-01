@@ -34,6 +34,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Work support reminders for job search, hours tracking, paychecks, and Drive-based document storage.
 - Viper Cam placeholder for a private barn camera link or future secure stream.
 - College-life support panels for medical, emergency plan, campus logistics, semester launch, calendar routines, documents, packing, travel, social belonging, and help scripts.
+- Dedicated `/support/...` pages for larger modules so the main dashboard can stay lighter while each area gets room to grow.
 
 ## Supabase Setup
 
@@ -91,7 +92,7 @@ npm run build
 - Add caregiver SMS fail-safe alerts.
 - Connect the Canvas import endpoint to an authenticated UI flow.
 - Connect Microsoft OAuth so CSU email can be imported without handling passwords.
-- Connect Google OAuth so `7horsesforever@gmail.com` can be imported without handling passwords.
+- Connect Google OAuth so Josephine's personal Gmail can be imported without handling passwords.
 - Add an authenticated UI for email triage results.
 
 ## Deploy on Vercel
