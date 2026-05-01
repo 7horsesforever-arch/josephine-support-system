@@ -2,13 +2,8 @@
 
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { usePlaidLink } from "react-plaid-link";
-import type {
-  PlaidLinkOnSuccessMetadata,
-  PlaidLinkOptions,
-} from "react-plaid-link";
 import {
   isSupabaseConfigured,
   registerDevicePasskey,
@@ -176,14 +171,6 @@ type FinancialAccountRow = {
   updated_at: string;
 };
 
-type PlaidConnectionPayload = {
-  connected: boolean;
-  institutionName: string | null;
-  accounts: FinancialAccountRow[];
-  lastSyncedAt: string | null;
-  error?: string;
-};
-
 type CanvasConnection = {
   connected: boolean;
   canvasBaseUrl: string | null;
@@ -227,22 +214,12 @@ const storageKey = "josephine-support-state-v1";
 const primaryAccessEmail = "chilton18@gmail.com";
 const devicePasskeyName = "Josephine MacBook Touch ID";
 const defaultCanvasBaseUrl = "https://colostate.instructure.com";
-const creditUnionUrl = process.env.NEXT_PUBLIC_CREDIT_UNION_URL?.trim() ?? "";
-const viperCamUrl = process.env.NEXT_PUBLIC_VIPER_CAM_URL?.trim() ?? "";
-const diningHoursUrl = "https://housing.colostate.edu/dining/";
-const grubhubCampusUrl = "https://www.grubhub.com/campus";
 const amazonDormSuppliesUrl =
   "https://www.amazon.com/s?k=dorm+room+cleaning+supplies";
-const healthNetworkUrl = "https://health.colostate.edu/";
-const healthPortalUrl = "https://portal.health.colostate.edu/";
-const studentInsuranceUrl =
-  "https://thehub.colostate.edu/student-health-insurance-information/";
 const lifelineUrl = "https://988lifeline.org/";
 const lifelineChatUrl = "https://988lifeline.org/chat/";
 const csuTellSomeoneUrl = "https://supportandsafety.colostate.edu/tell-someone/";
 const helpCompassUrl = "https://helpcompass.colostate.edu/";
-const ramCardUrl = "https://www.ramcash.colostate.edu/";
-const transfortBusTrackerUrl = "https://clever-web.fcgov.com/home";
 const authNetworkErrorMessage =
   "Could not reach Supabase Auth. Check NEXT_PUBLIC_SUPABASE_URL in .env.local, restart the dev server, then try again.";
 
@@ -265,12 +242,23 @@ const dailyAffirmations = [
 
 const dashboardJumpLinks = [
   { label: "Today", href: "#today-list" },
-  { label: "Messages", href: "#messages" },
-  { label: "School", href: "#school-help" },
-  { label: "Food", href: "#food" },
-  { label: "Money", href: "#money" },
-  { label: "Housing", href: "#housing" },
-  { label: "Viper", href: "#viper-cam" },
+  { label: "Deadlines", href: "#deadline-watch" },
+  { label: "Add Task", href: "#add-task" },
+];
+
+const supportPageShortcuts = [
+  { label: "Messages", href: "/support/messages" },
+  { label: "School", href: "/support/school" },
+  { label: "Health", href: "/support/health" },
+  { label: "Food", href: "/support/food" },
+  { label: "Money", href: "/support/money" },
+  { label: "Campus", href: "/support/campus" },
+  { label: "Docs", href: "/support/docs" },
+  { label: "Housing", href: "/support/housing" },
+  { label: "Vehicle", href: "/support/vehicle" },
+  { label: "Work", href: "/support/work" },
+  { label: "Viper", href: "/support/viper" },
+  { label: "Safety", href: "/support/safety" },
 ];
 
 const safetyAlertResponseSteps = [
@@ -279,14 +267,6 @@ const safetyAlertResponseSteps = [
   "If this is a CSU concern but not immediate danger, use Tell Someone or contact Student Case Management.",
   "A caregiver alert should share only the safety concern and next support step, not private messages or search history.",
 ];
-
-const vehicleProfile = {
-  name: "2017 Volkswagen Touareg",
-  role: "Campus car",
-  note: "Use monthly odometer checks so maintenance is based on real miles, not memory.",
-};
-
-const handshakeUrl = "https://bizcareers.colostate.edu/resources/handshake/";
 
 const roomResetItems = [
   "Trash and recycling out",
@@ -1217,10 +1197,6 @@ export default function Home() {
   const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([]);
   const [housingDocuments, setHousingDocuments] = useState<HousingDocument[]>([]);
   const [financialAccounts, setFinancialAccounts] = useState<FinancialAccount[]>([]);
-  const [financialInstitutionName, setFinancialInstitutionName] = useState<string | null>(null);
-  const [financialLastSyncedAt, setFinancialLastSyncedAt] = useState<string | null>(null);
-  const [plaidLinkToken, setPlaidLinkToken] = useState<string | null>(null);
-  const shouldOpenPlaidRef = useRef(false);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -1238,17 +1214,6 @@ export default function Home() {
   );
   const [isCanvasImporting, setIsCanvasImporting] = useState(false);
   const [isCanvasConnectionSaving, setIsCanvasConnectionSaving] = useState(false);
-  const [emailDraftMessage, setEmailDraftMessage] = useState(
-    "Once email is connected, drafts and social read-throughs will stay here for review.",
-  );
-  const [isEmailDrafting, setIsEmailDrafting] = useState(false);
-  const [housingMessage, setHousingMessage] = useState(
-    "Housing docs can stay tucked away safely, with reminders for the dates that matter.",
-  );
-  const [financialMessage, setFinancialMessage] = useState(
-    "Connect Canvas Credit Union when you want a quick, read-only money check.",
-  );
-  const [isPlaidLoading, setIsPlaidLoading] = useState(false);
   const [roomResetMessage, setRoomResetMessage] = useState(
     "After the room reset, JoJo will ask what needs to be added to the Amazon list.",
   );
@@ -1429,31 +1394,21 @@ export default function Home() {
         setAssignments(savedAssignments.map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
       }
 
-      const { data: savedEmailDrafts, error: emailDraftsError } =
-        await supabase!
+      const { data: savedEmailDrafts } = await supabase!
           .from("school_email_drafts")
           .select("id,source,recipient_email,subject,body,status,created_by_agent,updated_at")
           .order("updated_at", { ascending: false })
           .limit(5);
 
-      if (!ignore && emailDraftsError) {
-        setEmailDraftMessage("Email drafting needs the latest Supabase schema.");
-      }
-
       if (!ignore && savedEmailDrafts) {
         setEmailDrafts(savedEmailDrafts.map((row) => emailDraftFromRow(row as EmailDraftRow)));
       }
 
-      const { data: savedHousingDocuments, error: housingDocumentsError } =
-        await supabase!
+      const { data: savedHousingDocuments } = await supabase!
           .from("housing_documents")
           .select("id,title,document_type,status,storage_path,file_url,important_date,notes,updated_at")
           .order("important_date", { ascending: true, nullsFirst: false })
           .limit(10);
-
-      if (!ignore && housingDocumentsError) {
-        setHousingMessage("Housing documents need the latest Supabase schema.");
-      }
 
       if (!ignore && savedHousingDocuments) {
         setHousingDocuments(
@@ -1463,38 +1418,10 @@ export default function Home() {
         );
       }
 
-      const { data: savedFinancialConnection, error: financialConnectionError } =
-        await supabase!
-          .from("financial_connections")
-          .select("institution_name,last_synced_at")
-          .eq("user_id", activeUserId)
-          .eq("provider", "plaid")
-          .maybeSingle();
-
-      if (!ignore && financialConnectionError) {
-        setFinancialMessage("Financial connection needs the latest Supabase schema.");
-      }
-
-      if (!ignore && !financialConnectionError && savedFinancialConnection) {
-        setFinancialInstitutionName(
-          (savedFinancialConnection as { institution_name: string | null })
-            .institution_name,
-        );
-        setFinancialLastSyncedAt(
-          (savedFinancialConnection as { last_synced_at: string | null })
-            .last_synced_at,
-        );
-      }
-
-      const { data: savedFinancialAccounts, error: financialAccountsError } =
-        await supabase!
+      const { data: savedFinancialAccounts } = await supabase!
           .from("financial_accounts")
           .select("plaid_account_id,name,official_name,mask,account_type,account_subtype,available_balance,current_balance,iso_currency_code,updated_at")
           .order("updated_at", { ascending: false });
-
-      if (!ignore && financialAccountsError) {
-        setFinancialMessage("Financial accounts need the latest Supabase schema.");
-      }
 
       if (!ignore && savedFinancialAccounts) {
         setFinancialAccounts(
@@ -1549,170 +1476,6 @@ export default function Home() {
     return currentSession?.access_token ?? null;
   }, []);
 
-  const applyPlaidPayload = useCallback((payload: PlaidConnectionPayload) => {
-    setFinancialInstitutionName(payload.institutionName);
-    setFinancialLastSyncedAt(payload.lastSyncedAt);
-    setFinancialAccounts(payload.accounts.map(financialAccountFromRow));
-  }, []);
-
-  const refreshFinancialBalances = useCallback(async () => {
-    const appAccessToken = await getCurrentAppAccessToken();
-    if (!appAccessToken) {
-      setFinancialMessage("Sign in before refreshing credit union balances.");
-      return;
-    }
-
-    setIsPlaidLoading(true);
-    setFinancialMessage("Refreshing credit union balances...");
-
-    const response = await fetch("/api/financial/plaid/balances", {
-      headers: {
-        Authorization: `Bearer ${appAccessToken}`,
-      },
-    });
-
-    const payload = (await response.json()) as PlaidConnectionPayload;
-    setIsPlaidLoading(false);
-
-    if (!response.ok) {
-      setFinancialMessage(payload.error ?? "Credit union balances could not be refreshed.");
-      return;
-    }
-
-    applyPlaidPayload(payload);
-    setFinancialMessage(
-      payload.connected
-        ? "Credit union balances refreshed. Amounts are read-only."
-        : "Connect Canvas Credit Union with Plaid to show masked accounts and balances.",
-    );
-  }, [applyPlaidPayload, getCurrentAppAccessToken]);
-
-  const exchangePlaidPublicToken = useCallback(
-    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
-      const appAccessToken = await getCurrentAppAccessToken();
-      if (!appAccessToken) {
-        setFinancialMessage("App session expired. Sign in again before connecting Plaid.");
-        return;
-      }
-
-      setIsPlaidLoading(true);
-      setFinancialMessage("Saving encrypted Plaid connection...");
-
-      const response = await fetch("/api/financial/plaid/exchange", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${appAccessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          publicToken,
-          metadata,
-        }),
-      });
-
-      const payload = (await response.json()) as PlaidConnectionPayload;
-      setIsPlaidLoading(false);
-
-      if (!response.ok) {
-        setFinancialMessage(payload.error ?? "Plaid connection could not be saved.");
-        return;
-      }
-
-      applyPlaidPayload(payload);
-      setFinancialMessage("Canvas Credit Union connected. Balances are read-only.");
-    },
-    [applyPlaidPayload, getCurrentAppAccessToken],
-  );
-
-  const plaidConfig: PlaidLinkOptions = {
-    token: plaidLinkToken,
-    onSuccess: (publicToken, metadata) => {
-      void exchangePlaidPublicToken(publicToken, metadata);
-    },
-    onExit: (error) => {
-      if (error) {
-        setFinancialMessage(error.display_message || error.error_message);
-      }
-    },
-  };
-
-  const { open: openPlaid, ready: isPlaidReady } = usePlaidLink(plaidConfig);
-
-  useEffect(() => {
-    if (!shouldOpenPlaidRef.current || !plaidLinkToken || !isPlaidReady) return;
-
-    openPlaid();
-    shouldOpenPlaidRef.current = false;
-  }, [isPlaidReady, openPlaid, plaidLinkToken]);
-
-  async function startPlaidConnection() {
-    const appAccessToken = await getCurrentAppAccessToken();
-    if (!appAccessToken) {
-      setFinancialMessage("Sign in before connecting Canvas Credit Union.");
-      return;
-    }
-
-    setIsPlaidLoading(true);
-    setFinancialMessage("Starting secure Plaid connection...");
-
-    const response = await fetch("/api/financial/plaid/link-token", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${appAccessToken}`,
-      },
-    });
-
-    const payload = (await response.json()) as {
-      linkToken?: string;
-      error?: string;
-    };
-
-    setIsPlaidLoading(false);
-
-    if (!response.ok || !payload.linkToken) {
-      setFinancialMessage(payload.error ?? "Plaid link could not start.");
-      return;
-    }
-
-    setPlaidLinkToken(payload.linkToken);
-    shouldOpenPlaidRef.current = true;
-  }
-
-  async function disconnectPlaidConnection() {
-    if (!window.confirm("Remove the saved Canvas Credit Union connection from this app?")) {
-      return;
-    }
-
-    const appAccessToken = await getCurrentAppAccessToken();
-    if (!appAccessToken) {
-      setFinancialMessage("Sign in before removing the credit union connection.");
-      return;
-    }
-
-    setIsPlaidLoading(true);
-    setFinancialMessage("Removing credit union connection...");
-
-    const response = await fetch("/api/financial/plaid/balances", {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${appAccessToken}`,
-      },
-    });
-
-    const payload = (await response.json()) as { error?: string };
-    setIsPlaidLoading(false);
-
-    if (!response.ok) {
-      setFinancialMessage(payload.error ?? "Credit union connection could not be removed.");
-      return;
-    }
-
-    setFinancialAccounts([]);
-    setFinancialInstitutionName(null);
-    setFinancialLastSyncedAt(null);
-    setFinancialMessage("Credit union connection removed.");
-  }
-
   const loadCanvasConnection = useCallback(async () => {
     const appAccessToken = await getCurrentAppAccessToken();
     if (!appAccessToken) return;
@@ -1754,75 +1517,6 @@ export default function Home() {
     }
 
     setAssignments((data ?? []).map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
-  }
-
-  async function refreshEmailDrafts() {
-    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("school_email_drafts")
-      .select("id,source,recipient_email,subject,body,status,created_by_agent,updated_at")
-      .order("updated_at", { ascending: false })
-      .limit(5);
-
-    if (error) {
-      setEmailDraftMessage("Email drafts could not be refreshed from Supabase.");
-      return;
-    }
-
-    setEmailDrafts((data ?? []).map((row) => emailDraftFromRow(row as EmailDraftRow)));
-  }
-
-  async function generateEmailDrafts() {
-    if (!supabase || !userId) {
-      setEmailDraftMessage("Sign in before generating email drafts.");
-      return;
-    }
-
-    const appAccessToken = await getCurrentAppAccessToken();
-    if (!appAccessToken) {
-      setEmailDraftMessage("App session expired. Sign in again before drafting email.");
-      return;
-    }
-
-    setIsEmailDrafting(true);
-    setEmailDraftMessage("Drafting replies from triaged communications...");
-
-    const response = await fetch("/api/email/drafts", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${appAccessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ limit: 5 }),
-    });
-
-    const payload = (await response.json()) as {
-      drafted?: number;
-      drafts?: EmailDraftRow[];
-      message?: string;
-      error?: string;
-    };
-
-    setIsEmailDrafting(false);
-
-    if (!response.ok) {
-      setEmailDraftMessage(payload.error ?? "Email drafts could not be generated.");
-      return;
-    }
-
-    if (payload.drafts) {
-      setEmailDrafts(payload.drafts.map(emailDraftFromRow));
-    } else {
-      await refreshEmailDrafts();
-    }
-
-    setEmailDraftMessage(
-      payload.message ??
-        `Prepared ${payload.drafted ?? 0} email draft${payload.drafted === 1 ? "" : "s"} for review. Nothing was sent.`,
-    );
   }
 
   async function saveTaskToSupabase(task: SupportTask) {
@@ -2061,6 +1755,32 @@ export default function Home() {
   const askJojoAnswer = useMemo(
     () => answerAskJojo(askJojoQuestion, askJojoSources, safetyModeration),
     [askJojoQuestion, askJojoSources, safetyModeration],
+  );
+
+  const upcomingAssignments = useMemo(
+    () =>
+      [...assignments]
+        .filter((assignment) => assignment.dueAt)
+        .sort(
+          (first, second) =>
+            new Date(first.dueAt ?? 0).getTime() -
+            new Date(second.dueAt ?? 0).getTime(),
+        )
+        .slice(0, 5),
+    [assignments],
+  );
+
+  const datedHousingDocuments = useMemo(
+    () =>
+      [...housingDocuments]
+        .filter((document) => document.importantDate)
+        .sort(
+          (first, second) =>
+            new Date(first.importantDate ?? 0).getTime() -
+            new Date(second.importantDate ?? 0).getTime(),
+        )
+        .slice(0, 3),
+    [housingDocuments],
   );
 
   function recordAction(taskId: string, type: ActionType) {
@@ -2761,45 +2481,22 @@ export default function Home() {
 
           <aside
             className="grid scroll-mt-6 content-start gap-4 md:grid-cols-2"
-            id="life-stuff"
+            id="deadline-watch"
           >
             <div className="md:col-span-2">
-              <h2 className="text-lg font-bold">Life Stuff</h2>
+              <h2 className="text-lg font-bold">Deadline Watch</h2>
               <p className="mt-1 text-sm text-stone-600">
-                Quick cards only. The full pages hold the details, checklists,
-                links, and setup notes.
+                Only dated things live here. Everything else is on its full
+                support page.
               </p>
             </div>
 
             <DashboardModuleCard
-              id="messages"
-              title="Messages"
-              summary="Draft replies and decode confusing tone before anything gets sent."
-              href="/support/messages"
-              badge="Review first"
-            >
-              <button
-                className="mt-4 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
-                type="button"
-                onClick={generateEmailDrafts}
-                disabled={isEmailDrafting}
-              >
-                {isEmailDrafting ? "Drafting" : "Draft Replies"}
-              </button>
-              <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
-              {emailDrafts.length > 0 ? (
-                <p className="mt-2 text-sm font-semibold text-teal-800">
-                  {emailDrafts.length} draft{emailDrafts.length === 1 ? "" : "s"} ready to review.
-                </p>
-              ) : null}
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
               id="school-help"
-              title="School Help"
-              summary="Assignments, SDC timing, tutoring, accommodations, and resource matching."
+              title="School Deadlines"
+              summary="Canvas due dates and assignment import stay visible because they drive the daily task flow."
               href="/support/school"
-              badge={`${assignments.length} Canvas`}
+              badge={`${upcomingAssignments.length} due`}
             >
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
@@ -2823,6 +2520,38 @@ export default function Home() {
               >
                 {isCanvasImporting ? "Importing" : "Import Assignments"}
               </button>
+              {upcomingAssignments.length > 0 ? (
+                <ol className="mt-4 grid gap-3">
+                  {upcomingAssignments.map((assignment) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={assignment.id}
+                    >
+                      <strong className="block text-sm">{assignment.title}</strong>
+                      <span className="mt-1 block text-xs text-stone-600">
+                        {assignment.courseName}
+                      </span>
+                      <span className="mt-1 block text-xs font-bold text-teal-800">
+                        Due {formatDateTime(assignment.dueAt ?? "")}
+                      </span>
+                      {assignment.url ? (
+                        <a
+                          className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                          href={assignment.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open in Canvas
+                        </a>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="mt-3 text-sm text-stone-600">
+                  No dated Canvas assignments are showing yet.
+                </p>
+              )}
               <details className="mt-3 rounded-md border border-stone-200 bg-white p-3">
                 <summary className="cursor-pointer text-sm font-semibold text-teal-800">
                   Canvas setup
@@ -2884,303 +2613,73 @@ export default function Home() {
               <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
             </DashboardModuleCard>
 
-            <DashboardModuleCard
-              id="help-now"
-              title="Help Now"
-              summary="Urgent support stays visible. Detailed plans live on the safety page."
-              href="/support/safety"
-              badge="Important"
-            >
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:bg-red-800"
-                  href="tel:988"
-                >
-                  Call 988
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-red-700 px-3 text-sm font-semibold text-red-800 hover:bg-red-50"
-                  href={csuTellSomeoneUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Tell Someone
-                </a>
-              </div>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="health"
-              title="Health"
-              summary="Sleep, insurance, refills, appointments, Oura, and Apple Health."
-              href="/support/health"
-            >
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={healthPortalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Health Portal
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={studentInsuranceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Insurance
-                </a>
-              </div>
-              <a
-                className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100"
-                href={healthNetworkUrl}
-                target="_blank"
-                rel="noreferrer"
+            {datedHousingDocuments.length > 0 ? (
+              <DashboardModuleCard
+                id="housing-deadlines"
+                title="Housing Dates"
+                summary="Only housing documents with a real date show on the dashboard."
+                href="/support/housing"
+                badge={`${datedHousingDocuments.length} dated`}
               >
-                CSU Health Network
-              </a>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="food"
-              title="Food"
-              summary="Dining hours, Braiden, robot delivery, and mini-fridge restock."
-              href="/support/food"
-              badge="Braiden first"
-            >
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={diningHoursUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Dining Hours
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={grubhubCampusUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Grubhub
-                </a>
-              </div>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="money"
-              title="Money"
-              summary="Read-only money check. Transfers and bill pay stay at the credit union."
-              href="/support/money"
-              badge={financialAccounts.length > 0 ? "Connected" : "Setup"}
-            >
-              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
-                <strong className="block text-stone-950">
-                  {financialInstitutionName ?? "Canvas Credit Union"}
-                </strong>
-                <span>
-                  {financialLastSyncedAt
-                    ? `Last updated ${formatDateTime(financialLastSyncedAt)}`
-                    : "Not connected yet"}
-                </span>
-              </div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <button
-                  className="min-h-10 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
-                  type="button"
-                  onClick={startPlaidConnection}
-                  disabled={isPlaidLoading || (Boolean(plaidLinkToken) && !isPlaidReady)}
-                >
-                  {financialAccounts.length > 0 ? "Reconnect" : "Connect"}
-                </button>
-                <button
-                  className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
-                  type="button"
-                  onClick={refreshFinancialBalances}
-                  disabled={isPlaidLoading || financialAccounts.length === 0}
-                >
-                  Refresh
-                </button>
-              </div>
-              <details className="mt-3 rounded-md border border-stone-200 bg-white p-3">
-                <summary className="cursor-pointer text-sm font-semibold text-teal-800">
-                  More money actions
-                </summary>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {creditUnionUrl ? (
-                    <a
-                      className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                      href={creditUnionUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                <ol className="mt-4 grid gap-3">
+                  {datedHousingDocuments.map((document) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={document.id}
                     >
-                      Open Credit Union
-                    </a>
-                  ) : (
-                    <button
-                      className="min-h-10 cursor-not-allowed rounded-md bg-stone-300 px-4 text-sm font-semibold text-stone-600"
-                      type="button"
-                      disabled
-                    >
-                      Credit Union Link Missing
-                    </button>
-                  )}
-                  <button
-                    className="min-h-10 rounded-md border border-stone-300 px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
-                    type="button"
-                    onClick={disconnectPlaidConnection}
-                    disabled={isPlaidLoading || financialAccounts.length === 0}
-                  >
-                    Remove Plaid
-                  </button>
-                </div>
-              </details>
-              <p className="mt-3 text-sm text-stone-600">{financialMessage}</p>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="campus-basics"
-              title="Campus"
-              summary="RamCard, parking, buses, mail, laundry, and real-time transit."
-              href="/support/campus"
-            >
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={transfortBusTrackerUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Bus Tracker
-                </a>
-                <a
-                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-teal-700 px-4 text-sm font-semibold text-teal-800 hover:bg-teal-50"
-                  href={ramCardUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  RamCard
-                </a>
-              </div>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="docs-packing"
-              title="Docs & Packing"
-              summary="Drive folders, room inventory, weekly room reset, and supply checks."
-              href="/support/docs"
-            />
-
-            <DashboardModuleCard
-              id="housing"
-              title="Housing"
-              summary="Room info, documents, maintenance, renewal dates, and accommodation notes."
-              href="/support/housing"
-              badge={housingDocuments.length > 0 ? `${housingDocuments.length} docs` : "Docs"}
-            >
-              <p className="mt-4 text-sm text-stone-600">{housingMessage}</p>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="vehicle"
-              title="Vehicle"
-              summary="Touareg mileage, gas, wash/cleanout, oil service, and receipts."
-              href="/support/vehicle"
-              badge={vehicleProfile.role}
-            />
-
-            <DashboardModuleCard
-              id="work"
-              title="Work"
-              summary="Handshake, job search, hours, paychecks, and work documents."
-              href="/support/work"
-              badge="Future job"
-            >
-              <a
-                className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                href={handshakeUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open Handshake
-              </a>
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="viper-cam"
-              title="Viper Cam"
-              summary="A quick Viper check-in plus camera setup and privacy notes."
-              href="/support/viper"
-              badge="California"
-            >
-              {viperCamUrl ? (
-                <a
-                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
-                  href={viperCamUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open Viper Cam
-                </a>
-              ) : (
-                <p className="mt-4 text-sm text-stone-600">
-                  Camera link will appear after equipment is chosen.
-                </p>
-              )}
-            </DashboardModuleCard>
-
-            <DashboardModuleCard
-              id="semester-start"
-              title="Semester Start"
-              summary="First-week setup, syllabi, accommodation letters, exams, and textbooks."
-              href="/support/semester"
-            />
-
-            <DashboardModuleCard
-              id="weekly-rhythm"
-              title="Weekly Rhythm"
-              summary="A calmer weekly plan for classes, meals, sleep, work, and downtime."
-              href="/support/rhythm"
-            />
-
-            <DashboardModuleCard
-              id="home-viper-visits"
-              title="Home & Visits"
-              summary="Trips home, holidays, Viper visits, packing, and recovery time."
-              href="/support/travel"
-            />
-
-            <DashboardModuleCard
-              id="people-belonging"
-              title="People"
-              summary="Low-pressure connection, Key LLC, cultural centers, clubs, and belonging."
-              href="/support/belonging"
-            />
-
-            <DashboardModuleCard
-              id="scripts-helpers"
-              title="Scripts"
-              summary="Help-message scripts and planning prompts when words are hard."
-              href="/support/scripts"
-            />
+                      <strong className="block text-sm">{document.title}</strong>
+                      <span className="mt-1 block text-xs capitalize text-stone-600">
+                        {document.documentType.replace("_", " ")}
+                      </span>
+                      <span className="mt-1 block text-xs font-bold text-teal-800">
+                        Date {formatDate(new Date(document.importantDate ?? ""))}
+                      </span>
+                      {document.fileUrl ? (
+                        <a
+                          className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                          href={document.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open document
+                        </a>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              </DashboardModuleCard>
+            ) : null}
           </aside>
         </section>
-        <footer className="flex justify-end gap-2 pb-2 pt-4">
-          <Link
-            className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
-            href="/support/did-it"
+        <footer className="grid gap-3 pb-2 pt-4">
+          <nav
+            className="flex flex-wrap gap-2 text-xs"
+            aria-label="Full support pages"
           >
-            Did it
-          </Link>
-          <Link
-            className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
-            href="/support/admin"
-          >
-            Caregiver/admin
-          </Link>
+            {supportPageShortcuts.map((shortcut) => (
+              <Link
+                className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
+                href={shortcut.href}
+                key={shortcut.href}
+              >
+                {shortcut.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex justify-end gap-2">
+            <Link
+              className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
+              href="/support/did-it"
+            >
+              Did it
+            </Link>
+            <Link
+              className="rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-500 hover:bg-white hover:text-stone-700"
+              href="/support/admin"
+            >
+              Caregiver/admin
+            </Link>
+          </div>
         </footer>
       </div>
     </main>
