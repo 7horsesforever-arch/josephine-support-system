@@ -111,6 +111,32 @@ export const supportModules: SupportModule[] = [
     ],
   },
   {
+    slug: "adulting",
+    title: "Adulting",
+    eyebrow: "Time Sensitive",
+    summary:
+      "The practical life stuff with dates: health, car, housing, documents, money, food, and campus logistics.",
+    sections: [
+      {
+        title: "What Surfaces On The Dashboard",
+        items: [
+          "Health routines, refills, appointments, and sleep-related follow-up when they are due.",
+          "Vehicle mileage, gas, wash, cleanout, and oil-service checks.",
+          "Housing dates, document dates, and room reset reminders.",
+          "Food, money, campus, travel, and daily-life items when timing matters.",
+        ],
+      },
+      {
+        title: "What Stays On Dedicated Pages",
+        items: [
+          "Reference lists, setup notes, resource links, and non-urgent planning.",
+          "Use the specific pages for deeper details: Health, Vehicle, Housing, Food, Money, Campus, Docs, and Travel.",
+          "Keep private documents in secure storage and link to them only when Josephine chooses.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "health",
     title: "Health & Wellness",
     eyebrow: "Medical",

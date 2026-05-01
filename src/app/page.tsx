@@ -48,6 +48,11 @@ type SupportTask = {
   status: TaskStatus;
 };
 
+type DeadlineTaskItem = {
+  task: SupportTask;
+  schedule: ReturnType<typeof getTaskSchedule>;
+};
+
 type HistoryEntry = {
   id: string;
   taskId: string | null;
@@ -250,6 +255,7 @@ const dashboardJumpLinks = [
 const supportPageShortcuts = [
   { label: "Messages", href: "/support/messages" },
   { label: "School", href: "/support/school" },
+  { label: "Adulting", href: "/support/adulting" },
   { label: "Health", href: "/support/health" },
   { label: "Food", href: "/support/food" },
   { label: "Money", href: "/support/money" },
@@ -326,6 +332,43 @@ function DashboardModuleCard({
         Open full page
       </Link>
     </section>
+  );
+}
+
+function DeadlineTaskList({
+  items,
+  emptyMessage,
+}: {
+  items: DeadlineTaskItem[];
+  emptyMessage: string;
+}) {
+  if (items.length === 0) {
+    return <p className="mt-3 text-sm text-stone-600">{emptyMessage}</p>;
+  }
+
+  return (
+    <ol className="mt-4 grid gap-3">
+      {items.map(({ task, schedule }) => (
+        <li
+          className="rounded-md border border-stone-200 bg-stone-50 p-3"
+          key={task.id}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <strong className="text-sm">{task.title}</strong>
+            <span
+              className={`rounded-full px-2 py-1 text-xs font-bold ${statusClasses(schedule.status)}`}
+            >
+              {statusLabel(schedule.status)}
+            </span>
+          </div>
+          <p className="mt-2 text-sm text-stone-700">{task.description}</p>
+          <span className="mt-2 block text-xs font-semibold text-teal-800">
+            Due {formatDate(schedule.nextDueAt)} · backup{" "}
+            {formatDate(schedule.escalateAfterAt)}
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -1784,6 +1827,65 @@ export default function Home() {
     [housingDocuments],
   );
 
+  const deadlineTasks = useMemo(
+    () =>
+      tasks
+        .map((task) => ({ task, schedule: getTaskSchedule(task) }))
+        .filter(({ schedule }) => schedule.status !== "ok")
+        .sort(
+          (first, second) =>
+            first.schedule.nextDueAt.getTime() -
+            second.schedule.nextDueAt.getTime(),
+        ),
+    [tasks],
+  );
+
+  const communicationDeadlineTasks = useMemo(
+    () =>
+      deadlineTasks
+        .filter(({ task }) => task.category === "communications")
+        .slice(0, 4),
+    [deadlineTasks],
+  );
+
+  const schoolDeadlineTasks = useMemo(
+    () =>
+      deadlineTasks
+        .filter(({ task }) => task.category === "school")
+        .slice(0, 4),
+    [deadlineTasks],
+  );
+
+  const workDeadlineTasks = useMemo(
+    () =>
+      deadlineTasks
+        .filter(({ task }) => task.category === "work")
+        .slice(0, 4),
+    [deadlineTasks],
+  );
+
+  const adultingDeadlineTasks = useMemo(
+    () =>
+      deadlineTasks
+        .filter(
+          ({ task }) =>
+            task.category !== "communications" &&
+            task.category !== "school" &&
+            task.category !== "work" &&
+            task.category !== "admin",
+        )
+        .slice(0, 5),
+    [deadlineTasks],
+  );
+
+  const communicationsDeadlineCount =
+    communicationDeadlineTasks.length + emailDrafts.length;
+  const schoolDeadlineCount =
+    schoolDeadlineTasks.length + upcomingAssignments.length;
+  const workDeadlineCount = workDeadlineTasks.length;
+  const adultingDeadlineCount =
+    adultingDeadlineTasks.length + datedHousingDocuments.length;
+
   function recordAction(taskId: string, type: ActionType) {
     const now = new Date().toISOString();
     const task = tasks.find((item) => item.id === taskId);
@@ -2525,12 +2627,48 @@ export default function Home() {
             </div>
 
             <DashboardModuleCard
+              id="communications-deadlines"
+              title="Communications"
+              summary="Email drafts, confusing messages, and communication tasks stay visible because replies can get urgent fast."
+              href="/support/messages"
+              badge={
+                communicationsDeadlineCount > 0
+                  ? `${communicationsDeadlineCount} pressing`
+                  : "always pressing"
+              }
+            >
+              <DeadlineTaskList
+                items={communicationDeadlineTasks}
+                emptyMessage="No communication tasks are due right now."
+              />
+              {emailDrafts.length > 0 ? (
+                <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">
+                  <strong className="block">Drafts waiting</strong>
+                  <p className="mt-1">
+                    {emailDrafts.length} draft
+                    {emailDrafts.length === 1 ? "" : "s"} need review before
+                    sending.
+                  </p>
+                  <ol className="mt-2 grid gap-1">
+                    {emailDrafts.slice(0, 2).map((draft) => (
+                      <li key={draft.id}>{draft.subject}</li>
+                    ))}
+                  </ol>
+                </div>
+              ) : null}
+            </DashboardModuleCard>
+
+            <DashboardModuleCard
               id="school-help"
               title="School Deadlines"
               summary="Canvas due dates and assignment import stay visible because they drive the daily task flow."
               href="/support/school"
-              badge={`${upcomingAssignments.length} due`}
+              badge={`${schoolDeadlineCount} due`}
             >
+              <DeadlineTaskList
+                items={schoolDeadlineTasks}
+                emptyMessage="No school support tasks are due right now."
+              />
               <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
                 <strong className="block text-stone-950">
                   {canvasConnection?.connected
@@ -2646,42 +2784,65 @@ export default function Home() {
               <p className="mt-3 text-sm text-stone-600">{canvasMessage}</p>
             </DashboardModuleCard>
 
-            {datedHousingDocuments.length > 0 ? (
-              <DashboardModuleCard
-                id="housing-deadlines"
-                title="Housing Dates"
-                summary="Only housing documents with a real date show on the dashboard."
-                href="/support/housing"
-                badge={`${datedHousingDocuments.length} dated`}
-              >
-                <ol className="mt-4 grid gap-3">
-                  {datedHousingDocuments.map((document) => (
-                    <li
-                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
-                      key={document.id}
-                    >
-                      <strong className="block text-sm">{document.title}</strong>
-                      <span className="mt-1 block text-xs capitalize text-stone-600">
-                        {document.documentType.replace("_", " ")}
-                      </span>
-                      <span className="mt-1 block text-xs font-bold text-teal-800">
-                        Date {formatDate(new Date(document.importantDate ?? ""))}
-                      </span>
-                      {document.fileUrl ? (
-                        <a
-                          className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
-                          href={document.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Open document
-                        </a>
-                      ) : null}
-                    </li>
-                  ))}
-                </ol>
-              </DashboardModuleCard>
-            ) : null}
+            <DashboardModuleCard
+              id="work-deadlines"
+              title="Work Deadlines"
+              summary="Job applications, shifts, onboarding, and paycheck dates can surface here when they become time-sensitive."
+              href="/support/work"
+              badge={`${workDeadlineCount} due`}
+            >
+              <DeadlineTaskList
+                items={workDeadlineTasks}
+                emptyMessage="No work deadlines are due right now."
+              />
+            </DashboardModuleCard>
+
+            <DashboardModuleCard
+              id="adulting-deadlines"
+              title="Adulting"
+              summary="Time-sensitive health, car, housing, money, food, campus, travel, and document items roll up here."
+              href="/support/adulting"
+              badge={`${adultingDeadlineCount} due`}
+            >
+              <DeadlineTaskList
+                items={adultingDeadlineTasks}
+                emptyMessage="No adulting deadlines are due right now."
+              />
+              {datedHousingDocuments.length > 0 ? (
+                <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3">
+                  <strong className="block text-sm">Housing dates</strong>
+                  <ol className="mt-4 grid gap-3">
+                    {datedHousingDocuments.map((document) => (
+                      <li
+                        className="rounded-md border border-stone-200 bg-white p-3"
+                        key={document.id}
+                      >
+                        <strong className="block text-sm">
+                          {document.title}
+                        </strong>
+                        <span className="mt-1 block text-xs capitalize text-stone-600">
+                          {document.documentType.replace("_", " ")}
+                        </span>
+                        <span className="mt-1 block text-xs font-bold text-teal-800">
+                          Date{" "}
+                          {formatDate(new Date(document.importantDate ?? ""))}
+                        </span>
+                        {document.fileUrl ? (
+                          <a
+                            className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                            href={document.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Open document
+                          </a>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ) : null}
+            </DashboardModuleCard>
           </aside>
         </section>
         <footer className="grid gap-3 pb-2 pt-4">
