@@ -540,6 +540,24 @@ const viperCamSafetyNotes = [
 
 const medicalSupportPlan = [
   {
+    name: "Scrub It!",
+    cadence: "Every couple of days",
+    detail:
+      "Shower reset: hair, face, underarms, body, feet, and clean clothes after. If it feels like too much, start with getting into the bathroom.",
+  },
+  {
+    name: "Brush It!",
+    cadence: "Every night",
+    detail:
+      "Dentist reminder: brush for two minutes with fluoride toothpaste, aim at the gumline, brush the tongue, and do not rinse all the fluoride away.",
+  },
+  {
+    name: "Wash It!",
+    cadence: "Weekly-ish",
+    detail:
+      "Laundry reset: clothes, towels, sheets when needed, detergent, dry completely, and put away enough that tomorrow is easier.",
+  },
+  {
     name: "Insurance stuff",
     cadence: "Before fall and after changes",
     detail:
@@ -940,10 +958,10 @@ function createStarterTasks(): SupportTask[] {
   return [
     {
       id: "shower",
-      title: "Shower",
+      title: "Scrub It!",
       category: "health",
       description:
-        "Shows up every couple of days. If it slips a week, it moves into backup-check mode.",
+        "Shower reset. Hair, face, underarms, body, feet, and clean clothes after.",
       normalIntervalDays: 2,
       maxGapDays: 7,
       lastCompletedAt: daysAgo(3),
@@ -951,10 +969,10 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "brush-teeth-night",
-      title: "Brush teeth at night",
+      title: "Brush It!",
       category: "health",
       description:
-        "Small night reset. If it gets skipped, the app brings it back gently.",
+        "Dentist-backed night reset: two minutes, gumline, tongue, and fluoride left to work.",
       normalIntervalDays: 1,
       maxGapDays: 2,
       lastCompletedAt: daysAgo(1),
@@ -962,10 +980,10 @@ function createStarterTasks(): SupportTask[] {
     },
     {
       id: "laundry",
-      title: "Laundry",
+      title: "Wash It!",
       category: "life",
       description:
-        "Weekly-ish clothes reset so laundry does not become an emergency.",
+        "Weekly-ish clothes, towel, and sheet reset so laundry does not become an emergency.",
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(5),
@@ -1373,7 +1391,7 @@ function createInitialHistory(): HistoryEntry[] {
     {
       id: "initial-shower",
       taskId: "shower",
-      taskTitle: "Shower",
+      taskTitle: "Scrub It!",
       type: "done",
       createdAt: daysAgo(3),
     },

@@ -15,7 +15,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Current Build
 
 - Daily task dashboard for Josephine.
-- Starter tasks for shower, nighttime teeth brushing, and laundry.
+- Starter tasks for Scrub It!, Brush It!, and Wash It! routines.
 - One-tap actions: Done, Already Did It, Snooze, Need Help.
 - Completion-based next reminder and fail-safe dates.
 - Supabase Auth gate when Supabase is configured.

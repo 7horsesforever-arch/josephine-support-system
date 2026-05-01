@@ -118,6 +118,31 @@ export const supportModules: SupportModule[] = [
       "Appointments, insurance, prescriptions, urgent care, and health logistics.",
     sections: [
       {
+        title: "Scrub It!",
+        items: [
+          "Shower reset: hair, face, underarms, body, feet, and clean clothes after.",
+          "If the whole shower feels too big, start with getting into the bathroom and turning on the water.",
+          "Use the backup-check reminder if it slips too long, without making it a shame spiral.",
+        ],
+      },
+      {
+        title: "Brush It!",
+        items: [
+          "Dentist reminder: brush for two minutes with fluoride toothpaste.",
+          "Aim at the gumline, get the back teeth, and brush the tongue.",
+          "Spit after brushing, but do not rinse all the fluoride away right after.",
+          "Night brushing matters because teeth sit with whatever is left on them while sleeping.",
+        ],
+      },
+      {
+        title: "Wash It!",
+        items: [
+          "Laundry reset: clothes, towels, and sheets when needed.",
+          "Use detergent, dry completely, and put away enough that tomorrow is easier.",
+          "Weekly-ish is the goal so laundry does not turn into an emergency pile.",
+        ],
+      },
+      {
         title: "Keep Easy To Find",
         items: [
           "Insurance status, insurance card, and pharmacy card.",
