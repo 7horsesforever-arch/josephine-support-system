@@ -24,6 +24,7 @@ The email triage layer should act like a small copilot team:
 - Priority sorter: marks urgent/high/normal/low based on deadlines, meetings, admin issues, and support language.
 - Plain-language summarizer: turns the subject and preview into a short sentence.
 - Action planner: suggests one next action, such as adding a task, checking Canvas, or asking for caregiver/advisor help.
+- Reply drafter: prepares editable response drafts for reviewed messages.
 - Accommodation checker: flags when an item may need extension planning, assistive technology, tutoring, or caregiver/advisor review.
 - Review guard: never sends, deletes, replies, or marks mail read without explicit review.
 

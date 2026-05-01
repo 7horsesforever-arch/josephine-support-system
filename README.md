@@ -28,6 +28,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Server-side Microsoft Graph mail import endpoint at `/api/microsoft/mail/import`.
 - Server-side Gmail import endpoint at `/api/google/gmail/import`.
 - Server-side school email triage endpoint at `/api/email/triage`.
+- Review-only communications drafting endpoint at `/api/email/drafts`.
 
 ## Supabase Setup
 

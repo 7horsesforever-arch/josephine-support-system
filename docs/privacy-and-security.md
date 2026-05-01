@@ -7,6 +7,7 @@
 - Imported school assignment title, course name, due date, points, status, and Canvas link.
 - Imported school and personal email metadata/previews from Microsoft Graph and Gmail: sender, subject, body preview/snippet, received time, importance/read state, source, and web link.
 - Email triage output: priority, category, short summary, suggested action, and possible due-date hint.
+- Email draft output: recipient, subject, body, status, source, and drafting agent name.
 - Basic profile data needed for access control: user id, email, display name, and role.
 - Caregiver relationship links when caregiver access is enabled.
 
@@ -40,6 +41,7 @@
 - Saved Canvas API tokens must be encrypted server-side with `CANVAS_TOKEN_ENCRYPTION_KEY`, have an explicit expiration date, and be revocable from the app and Canvas.
 - Microsoft mail access should use delegated OAuth scopes such as `Mail.Read`; never collect, store, or replay the user's school password.
 - Gmail access should use delegated Google OAuth scopes such as `gmail.readonly`; never collect, store, or replay the user's Google password.
+- Email drafting agents may prepare editable replies, but they must not send, delete, archive, or mark mail read without explicit review.
 - Passkeys are device/keychain credentials. Do not store passkey secrets, raw WebAuthn credential material, or biometric data in app tables.
 
 ## Local Storage

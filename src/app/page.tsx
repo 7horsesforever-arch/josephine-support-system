@@ -76,6 +76,28 @@ type SchoolAssignmentRow = {
   workflow_state: string | null;
 };
 
+type EmailDraft = {
+  id: string;
+  source: string;
+  recipientEmail: string | null;
+  subject: string;
+  body: string;
+  status: string;
+  createdByAgent: string;
+  updatedAt: string;
+};
+
+type EmailDraftRow = {
+  id: string;
+  source: string;
+  recipient_email: string | null;
+  subject: string;
+  body: string;
+  status: string;
+  created_by_agent: string;
+  updated_at: string;
+};
+
 type CanvasConnection = {
   connected: boolean;
   canvasBaseUrl: string | null;
@@ -316,6 +338,19 @@ function assignmentFromRow(row: SchoolAssignmentRow): SchoolAssignment {
   };
 }
 
+function emailDraftFromRow(row: EmailDraftRow): EmailDraft {
+  return {
+    id: row.id,
+    source: row.source,
+    recipientEmail: row.recipient_email,
+    subject: row.subject,
+    body: row.body,
+    status: row.status,
+    createdByAgent: row.created_by_agent,
+    updatedAt: row.updated_at,
+  };
+}
+
 function schoolYearExpiration() {
   const date = new Date();
   date.setFullYear(date.getFullYear() + 1);
@@ -327,6 +362,7 @@ export default function Home() {
   const [tasks, setTasks] = useState(createStarterTasks);
   const [history, setHistory] = useState(createInitialHistory);
   const [assignments, setAssignments] = useState<SchoolAssignment[]>([]);
+  const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -344,6 +380,10 @@ export default function Home() {
   );
   const [isCanvasImporting, setIsCanvasImporting] = useState(false);
   const [isCanvasConnectionSaving, setIsCanvasConnectionSaving] = useState(false);
+  const [emailDraftMessage, setEmailDraftMessage] = useState(
+    "Communications drafting agents will prepare replies for review after email is imported and triaged.",
+  );
+  const [isEmailDrafting, setIsEmailDrafting] = useState(false);
 
   const userId = session?.user.id;
 
@@ -502,6 +542,21 @@ export default function Home() {
         setAssignments(savedAssignments.map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
       }
 
+      const { data: savedEmailDrafts, error: emailDraftsError } =
+        await supabase!
+          .from("school_email_drafts")
+          .select("id,source,recipient_email,subject,body,status,created_by_agent,updated_at")
+          .order("updated_at", { ascending: false })
+          .limit(5);
+
+      if (!ignore && emailDraftsError) {
+        setEmailDraftMessage("Email drafting needs the latest Supabase schema.");
+      }
+
+      if (!ignore && savedEmailDrafts) {
+        setEmailDrafts(savedEmailDrafts.map((row) => emailDraftFromRow(row as EmailDraftRow)));
+      }
+
       const { data: savedCanvasConnection, error: canvasConnectionError } =
         await supabase!
           .from("canvas_connections")
@@ -588,6 +643,75 @@ export default function Home() {
     }
 
     setAssignments((data ?? []).map((row) => assignmentFromRow(row as SchoolAssignmentRow)));
+  }
+
+  async function refreshEmailDrafts() {
+    if (!supabase || !userId || syncStatus === "local" || syncStatus === "error") {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("school_email_drafts")
+      .select("id,source,recipient_email,subject,body,status,created_by_agent,updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(5);
+
+    if (error) {
+      setEmailDraftMessage("Email drafts could not be refreshed from Supabase.");
+      return;
+    }
+
+    setEmailDrafts((data ?? []).map((row) => emailDraftFromRow(row as EmailDraftRow)));
+  }
+
+  async function generateEmailDrafts() {
+    if (!supabase || !userId) {
+      setEmailDraftMessage("Sign in before generating email drafts.");
+      return;
+    }
+
+    const appAccessToken = await getCurrentAppAccessToken();
+    if (!appAccessToken) {
+      setEmailDraftMessage("App session expired. Sign in again before drafting email.");
+      return;
+    }
+
+    setIsEmailDrafting(true);
+    setEmailDraftMessage("Drafting replies from triaged communications...");
+
+    const response = await fetch("/api/email/drafts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${appAccessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ limit: 5 }),
+    });
+
+    const payload = (await response.json()) as {
+      drafted?: number;
+      drafts?: EmailDraftRow[];
+      message?: string;
+      error?: string;
+    };
+
+    setIsEmailDrafting(false);
+
+    if (!response.ok) {
+      setEmailDraftMessage(payload.error ?? "Email drafts could not be generated.");
+      return;
+    }
+
+    if (payload.drafts) {
+      setEmailDrafts(payload.drafts.map(emailDraftFromRow));
+    } else {
+      await refreshEmailDrafts();
+    }
+
+    setEmailDraftMessage(
+      payload.message ??
+        `Prepared ${payload.drafted ?? 0} email draft${payload.drafted === 1 ? "" : "s"} for review. Nothing was sent.`,
+    );
   }
 
   async function saveTaskToSupabase(task: SupportTask) {
@@ -1292,6 +1416,54 @@ export default function Home() {
                   </p>
                 )}
               </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Communications Agent</h2>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Draft replies from triaged CSU email and Gmail. Drafts stay
+                    in review until Josephine edits and approves them.
+                  </p>
+                </div>
+                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">
+                  Review first
+                </span>
+              </div>
+              <button
+                className="mt-4 min-h-10 w-full rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                type="button"
+                onClick={generateEmailDrafts}
+                disabled={isEmailDrafting}
+              >
+                {isEmailDrafting ? "Drafting" : "Generate Draft Replies"}
+              </button>
+              <p className="mt-3 text-sm text-stone-600">{emailDraftMessage}</p>
+              {emailDrafts.length > 0 ? (
+                <ol className="mt-4 grid gap-3">
+                  {emailDrafts.map((draft) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={draft.id}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{draft.subject}</strong>
+                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">
+                          {draft.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <span className="mt-1 block text-xs text-stone-500">
+                        To {draft.recipientEmail ?? "sender"} ·{" "}
+                        {draft.source === "google_gmail" ? "Gmail" : "CSU email"}
+                      </span>
+                      <p className="mt-3 whitespace-pre-line text-sm text-stone-700">
+                        {draft.body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">

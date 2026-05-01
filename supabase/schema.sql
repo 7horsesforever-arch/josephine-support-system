@@ -116,6 +116,21 @@ create table if not exists public.school_email_triage (
   unique (user_id, source, source_message_id)
 );
 
+create table if not exists public.school_email_drafts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  source text not null default 'microsoft_graph' check (source in ('microsoft_graph', 'google_gmail')),
+  source_message_id text not null,
+  recipient_email text,
+  subject text not null,
+  body text not null,
+  status text not null default 'needs_review' check (status in ('needs_review', 'edited', 'approved', 'sent', 'discarded')),
+  created_by_agent text not null default 'communications_drafting_agent_v1',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, source, source_message_id)
+);
+
 alter table public.school_email_messages
   drop constraint if exists school_email_messages_source_check;
 
@@ -153,6 +168,8 @@ create index if not exists school_email_messages_user_id_received_at_idx on publ
 create index if not exists school_email_messages_user_id_source_received_at_idx on public.school_email_messages(user_id, source, received_at desc);
 create index if not exists school_email_triage_user_id_priority_idx on public.school_email_triage(user_id, priority, created_at desc);
 create index if not exists school_email_triage_user_id_source_priority_idx on public.school_email_triage(user_id, source, priority, created_at desc);
+create index if not exists school_email_drafts_user_id_updated_at_idx on public.school_email_drafts(user_id, updated_at desc);
+create index if not exists school_email_drafts_user_id_status_idx on public.school_email_drafts(user_id, status, updated_at desc);
 create index if not exists caregiver_links_student_user_id_idx on public.caregiver_links(student_user_id);
 create index if not exists caregiver_links_caregiver_user_id_idx on public.caregiver_links(caregiver_user_id);
 
@@ -164,6 +181,7 @@ alter table public.school_assignments enable row level security;
 alter table public.canvas_connections enable row level security;
 alter table public.school_email_messages enable row level security;
 alter table public.school_email_triage enable row level security;
+alter table public.school_email_drafts enable row level security;
 
 drop policy if exists "prototype can read support tasks" on public.support_tasks;
 drop policy if exists "prototype can write support tasks" on public.support_tasks;
@@ -191,6 +209,9 @@ drop policy if exists "Users can delete own school email messages" on public.sch
 drop policy if exists "Users can read own school email triage" on public.school_email_triage;
 drop policy if exists "Users can write own school email triage" on public.school_email_triage;
 drop policy if exists "Users can delete own school email triage" on public.school_email_triage;
+drop policy if exists "Users can read own school email drafts" on public.school_email_drafts;
+drop policy if exists "Users can write own school email drafts" on public.school_email_drafts;
+drop policy if exists "Users can delete own school email drafts" on public.school_email_drafts;
 
 create policy "Users can read own profile"
   on public.profiles
@@ -382,6 +403,33 @@ create policy "Users can write own school email triage"
 
 create policy "Users can delete own school email triage"
   on public.school_email_triage
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Users can read own school email drafts"
+  on public.school_email_drafts
+  for select
+  to authenticated
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1
+      from public.caregiver_links
+      where caregiver_links.student_user_id = school_email_drafts.user_id
+        and caregiver_links.caregiver_user_id = (select auth.uid())
+    )
+  );
+
+create policy "Users can write own school email drafts"
+  on public.school_email_drafts
+  for all
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Users can delete own school email drafts"
+  on public.school_email_drafts
   for delete
   to authenticated
   using (user_id = (select auth.uid()));
