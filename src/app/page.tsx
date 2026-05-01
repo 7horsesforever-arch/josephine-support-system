@@ -13,6 +13,7 @@ type TaskCategory =
   | "school"
   | "communications"
   | "financial"
+  | "housing"
   | "admin"
   | "health"
   | "life";
@@ -104,6 +105,30 @@ type EmailDraftRow = {
   updated_at: string;
 };
 
+type HousingDocument = {
+  id: string;
+  title: string;
+  documentType: string;
+  status: string;
+  storagePath: string | null;
+  fileUrl: string | null;
+  importantDate: string | null;
+  notes: string | null;
+  updatedAt: string;
+};
+
+type HousingDocumentRow = {
+  id: string;
+  title: string;
+  document_type: string;
+  status: string;
+  storage_path: string | null;
+  file_url: string | null;
+  important_date: string | null;
+  notes: string | null;
+  updated_at: string;
+};
+
 type CanvasConnection = {
   connected: boolean;
   canvasBaseUrl: string | null;
@@ -179,6 +204,17 @@ function createStarterTasks(): SupportTask[] {
       normalIntervalDays: 7,
       maxGapDays: 14,
       lastCompletedAt: daysAgo(6),
+      status: "ok",
+    },
+    {
+      id: "housing-documents-check",
+      title: "Housing documents check",
+      category: "housing",
+      description:
+        "Normal reminder 14 days after completion. Fail-safe at 30 days.",
+      normalIntervalDays: 14,
+      maxGapDays: 30,
+      lastCompletedAt: daysAgo(10),
       status: "ok",
     },
   ];
@@ -285,6 +321,7 @@ function normalizeTaskCategory(category: string): TaskCategory {
     category === "school" ||
     category === "communications" ||
     category === "financial" ||
+    category === "housing" ||
     category === "admin" ||
     category === "health" ||
     category === "life"
@@ -300,6 +337,7 @@ function categoryLabel(category: TaskCategory) {
     school: "School",
     communications: "Communications",
     financial: "Financial",
+    housing: "Housing",
     admin: "Admin",
     health: "Health",
     life: "Life",
@@ -381,6 +419,20 @@ function emailDraftFromRow(row: EmailDraftRow): EmailDraft {
   };
 }
 
+function housingDocumentFromRow(row: HousingDocumentRow): HousingDocument {
+  return {
+    id: row.id,
+    title: row.title,
+    documentType: row.document_type,
+    status: row.status,
+    storagePath: row.storage_path,
+    fileUrl: row.file_url,
+    importantDate: row.important_date,
+    notes: row.notes,
+    updatedAt: row.updated_at,
+  };
+}
+
 function schoolYearExpiration() {
   const date = new Date();
   date.setFullYear(date.getFullYear() + 1);
@@ -393,6 +445,7 @@ export default function Home() {
   const [history, setHistory] = useState(createInitialHistory);
   const [assignments, setAssignments] = useState<SchoolAssignment[]>([]);
   const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([]);
+  const [housingDocuments, setHousingDocuments] = useState<HousingDocument[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -414,6 +467,9 @@ export default function Home() {
     "Communications drafting agents will prepare replies for review after email is imported and triaged.",
   );
   const [isEmailDrafting, setIsEmailDrafting] = useState(false);
+  const [housingMessage, setHousingMessage] = useState(
+    "Housing documents will live in private storage with reminders for contracts, move-in steps, and renewal dates.",
+  );
 
   const userId = session?.user.id;
 
@@ -585,6 +641,25 @@ export default function Home() {
 
       if (!ignore && savedEmailDrafts) {
         setEmailDrafts(savedEmailDrafts.map((row) => emailDraftFromRow(row as EmailDraftRow)));
+      }
+
+      const { data: savedHousingDocuments, error: housingDocumentsError } =
+        await supabase!
+          .from("housing_documents")
+          .select("id,title,document_type,status,storage_path,file_url,important_date,notes,updated_at")
+          .order("important_date", { ascending: true, nullsFirst: false })
+          .limit(10);
+
+      if (!ignore && housingDocumentsError) {
+        setHousingMessage("Housing documents need the latest Supabase schema.");
+      }
+
+      if (!ignore && savedHousingDocuments) {
+        setHousingDocuments(
+          savedHousingDocuments.map((row) =>
+            housingDocumentFromRow(row as HousingDocumentRow),
+          ),
+        );
       }
 
       const { data: savedCanvasConnection, error: canvasConnectionError } =
@@ -1208,6 +1283,7 @@ export default function Home() {
               <option value="school">School</option>
               <option value="communications">Communications</option>
               <option value="financial">Financial</option>
+              <option value="housing">Housing</option>
               <option value="admin">Admin</option>
               <option value="life">Life</option>
             </select>
@@ -1481,6 +1557,66 @@ export default function Home() {
                   before moving money or changing payment settings.
                 </span>
               </div>
+            </section>
+
+            <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold">Housing</h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Keep residence hall contracts, move-in information, billing
+                notices, maintenance notes, and renewal dates in one protected
+                place.
+              </p>
+              <div className="mt-4 rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                <strong className="block text-stone-950">Document storage</strong>
+                <span>
+                  Store PDFs in private Supabase Storage or another
+                  access-controlled folder. This app should save document
+                  metadata and private storage paths, not public copies.
+                </span>
+              </div>
+              <p className="mt-3 text-sm text-stone-600">{housingMessage}</p>
+              {housingDocuments.length > 0 ? (
+                <ol className="mt-4 grid gap-3">
+                  {housingDocuments.map((document) => (
+                    <li
+                      className="rounded-md border border-stone-200 bg-stone-50 p-3"
+                      key={document.id}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{document.title}</strong>
+                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold capitalize text-blue-800">
+                          {document.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <span className="mt-1 block text-xs capitalize text-stone-500">
+                        {document.documentType.replace("_", " ")}
+                        {document.importantDate
+                          ? ` · Date ${formatDate(new Date(document.importantDate))}`
+                          : ""}
+                      </span>
+                      {document.notes ? (
+                        <p className="mt-2 text-sm text-stone-700">{document.notes}</p>
+                      ) : null}
+                      {document.fileUrl ? (
+                        <a
+                          className="mt-2 inline-block text-sm font-semibold text-teal-800 hover:text-teal-950"
+                          href={document.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open Document
+                        </a>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="mt-4 text-sm text-stone-600">
+                  No housing documents are stored yet. The attached CSU contract
+                  should be uploaded through private storage, not committed into
+                  the codebase.
+                </p>
+              )}
             </section>
 
             <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">

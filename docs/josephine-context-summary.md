@@ -66,6 +66,13 @@ The app should help turn those accommodations into practical reminders and revie
 - Do not store banking credentials, account numbers, card numbers, balances, or payment details in the app.
 - Do not automate payments or money movement.
 
+## Housing Support
+
+- Store residence hall contracts, move-in documents, billing notices, maintenance records, and renewal dates in one Housing area.
+- Use private storage for PDFs and RLS-protected metadata for titles, types, dates, and notes.
+- Do not commit housing contracts or residence documents to the codebase.
+- Turn important housing dates into reminders and review-with-support tasks.
+
 ## Safety Boundary
 
 Josephine's accommodation context should shape the app experience. It should not become a broad profile for unrelated decisions, and it should not be shared with external services except where Josephine/caregivers have clearly authorized a specific connection.
