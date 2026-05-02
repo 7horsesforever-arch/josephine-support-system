@@ -9,6 +9,7 @@ import { CloudStorageConnections } from "../cloud-storage-connections";
 import { WorkPaycheckEstimator } from "../work-paycheck-estimator";
 import { ViperTracker } from "../viper-tracker";
 import { SafetyCrimeDashboard } from "../safety-crime-dashboard";
+import { CommunityDashboard } from "../community-dashboard";
 
 const healthMetricCards = [
   {
@@ -547,6 +548,8 @@ export default async function SupportModulePage({
         {supportModule.slug === "viper" ? <ViperTracker /> : null}
 
         {supportModule.slug === "safety" ? <SafetyCrimeDashboard /> : null}
+
+        {supportModule.slug === "community" ? <CommunityDashboard /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (

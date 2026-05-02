@@ -26,9 +26,22 @@ export const supportModules: SupportModule[] = [
         items: [
           "Connecting school email through Microsoft OAuth and personal Gmail through Google OAuth.",
           "Keeping imported messages, triage, Social Decoder, and draft review on this page.",
+          "Reading and interpreting messages through a social-context lens before asking Josephine to respond.",
+          "Marking school-work messages as school items and adding deadline-bearing messages to the front-page feed.",
+          "Keeping event and opportunity emails as opt-in Community alerts until Josephine chooses Interested.",
           "Drafting replies to CSU email and Gmail without sending automatically.",
           "Decoding messages that feel confusing, tense, indirect, or hard to answer.",
           "Watching for Black Student Union, Delta Sigma Theta, and campus community updates.",
+        ],
+      },
+      {
+        title: "Email Agent Flow",
+        items: [
+          "Import message metadata and previews through Microsoft Graph and Gmail OAuth, not passwords.",
+          "Classify each message: school work, event, opportunity, admin, social, money, housing, health, or ignore.",
+          "Extract due dates, RSVP dates, meeting times, and required next steps.",
+          "Add school/work/admin deadlines to the front-page feed automatically after review rules are met.",
+          "Route optional events and opportunities to Community first, then add tasks only after Josephine opts in.",
         ],
       },
       {
@@ -772,35 +785,63 @@ export const supportModules: SupportModule[] = [
     ],
   },
   {
-    slug: "belonging",
-    title: "People",
-    eyebrow: "Belonging",
+    slug: "community",
+    title: "Community",
+    eyebrow: "Major + Belonging",
     summary:
-      "Low-pressure connection, Key LLC, clubs, cultural centers, and support for social context.",
+      "Major-related opportunities, student groups, cultural connection, and opt-in event alerts.",
     sections: [
       {
-        title: "Connection Options",
+        title: "Priority Interests",
         items: [
-          "Key LLC events and built-in community.",
-          "Black Student Union and Cultural Resource Center updates.",
-          "Delta Sigma Theta interest and information opportunities.",
-          "One low-pressure social attempt per week.",
+          "Equine Science and Animal Science department opportunities should rank high.",
+          "Watch for internships, research, barn/lab opportunities, scholarships, and guest speakers.",
+          "Black Student Union, B/AACC, Delta Sigma Theta, NPHC, and cultural resource events should surface here.",
+          "Key LLC and OPS events can be low-pressure ways to connect.",
         ],
       },
       {
-        title: "Social Decoder",
+        title: "Opt-In Event Flow",
         items: [
-          "Use Social Decoder when a message feels unclear, loaded, or hard to answer.",
-          "Check whether a reply should be short, warm, direct, or reviewed first.",
-          "Nothing sends without Josephine reviewing it.",
+          "Show events and opportunities as Community alerts first.",
+          "Do not add optional events to the front-page feed until Josephine chooses Interested.",
+          "After she opts in, add the event time, RSVP deadline, prep steps, and travel buffer to the daily task flow.",
+          "Keep 'not now' events out of the dashboard so the page does not become noisy.",
+        ],
+      },
+      {
+        title: "Email Watch Rules",
+        items: [
+          "Major keywords: equine, horse, animal science, livestock, veterinary, pre-vet, One Health, Temple Grandin, research, internship.",
+          "Belonging keywords: Black Student Union, B/AACC, Delta Sigma Theta, NPHC, Divine Nine, cultural resource centers.",
+          "School-work messages with due dates become deadline candidates.",
+          "Opportunity messages become Community alerts unless there is a required academic deadline.",
         ],
       },
     ],
     links: [
+      { label: "Animal Sciences", href: "https://agsci.colostate.edu/ansci/" },
+      {
+        label: "Equine Science",
+        href: "https://agsci.colostate.edu/ansci/degree/equine-science/",
+      },
+      {
+        label: "Animal Science Major",
+        href: "https://admissions.colostate.edu/programs/animal-science/",
+      },
+      {
+        label: "RamLink / Student Orgs",
+        href: "https://catalog.colostate.edu/general-catalog/cocurricular-engagement/clubs-organizations/",
+      },
       {
         label: "Cultural Resource Centers",
         href: "https://inclusiveexcellence.colostate.edu/cultural-and-resource-centers",
       },
+      {
+        label: "Fraternity & Sorority Life",
+        href: "https://catalog.colostate.edu/general-catalog/cocurricular-engagement/fraternity-sorority/",
+      },
+      { label: "One Health Club", href: "https://onehealth.colostate.edu/one-health-club/" },
       { label: "Key LLC", href: "https://key.lc.colostate.edu/" },
     ],
   },

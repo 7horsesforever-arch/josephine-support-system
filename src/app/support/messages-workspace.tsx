@@ -33,9 +33,43 @@ const triageLanes = [
     detail: "Emails that contain a deadline, appointment, form, bill, or follow-up.",
   },
   {
+    name: "Community Alert",
+    detail: "Events, clubs, major opportunities, and belonging updates that need an opt-in choice first.",
+  },
+  {
     name: "Save For Later",
     detail: "Useful information that does not need action right now.",
   },
+];
+
+const emailAgentSteps = [
+  {
+    name: "Read",
+    detail:
+      "Use Microsoft Graph for CSU email and Gmail OAuth for personal email. No passwords, no background Mac Messages scraping.",
+  },
+  {
+    name: "Interpret",
+    detail:
+      "Summarize the message, identify the likely ask, tone, urgency, social context, and whether a trusted-person review would help.",
+  },
+  {
+    name: "Classify",
+    detail:
+      "Tag school work, deadline, event, opportunity, community, social, money, housing, health, or no action.",
+  },
+  {
+    name: "Route",
+    detail:
+      "Deadlines go to the front-page feed. Optional events go to Community until Josephine chooses Interested.",
+  },
+];
+
+const prioritySignals = [
+  "Canvas, assignment, exam, quiz, syllabus, professor, advisor, SDC, testing center",
+  "Equine, horse, animal science, livestock, veterinary, pre-vet, One Health, internship, research",
+  "Black Student Union, B/AACC, Delta Sigma Theta, NPHC, Divine Nine, cultural resource centers",
+  "RSVP, due, deadline, by Friday, no later than, application, required, meeting time",
 ];
 
 function detectTone(text: string) {
@@ -197,6 +231,50 @@ export function MessagesWorkspace() {
             ))}
           </div>
         </aside>
+      </section>
+
+      <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase text-teal-800">
+          Email Agent Design
+        </p>
+        <h2 className="mt-2 text-2xl font-black">From Inbox To Next Step</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-4">
+          {emailAgentSteps.map((step) => (
+            <article
+              className="rounded-lg border border-stone-200 bg-stone-50 p-4"
+              key={step.name}
+            >
+              <h3 className="text-sm font-bold text-stone-950">{step.name}</h3>
+              <p className="mt-2 text-sm text-stone-700">{step.detail}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <h3 className="font-bold">Routing rule</h3>
+          <p className="mt-2">
+            School-work messages with due dates can become dashboard tasks.
+            Optional event and opportunity messages go to Community first, then
+            become tasks only after Josephine opts in.
+          </p>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-stone-300 bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase text-teal-800">
+          Priority Signals
+        </p>
+        <h2 className="mt-2 text-2xl font-black">What JoJo Should Notice</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          {prioritySignals.map((signal) => (
+            <div
+              className="rounded-md border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700"
+              key={signal}
+            >
+              {signal}
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-5 text-emerald-950 shadow-sm">

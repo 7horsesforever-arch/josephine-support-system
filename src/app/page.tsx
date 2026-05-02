@@ -272,6 +272,7 @@ const supportPageShortcuts = [
   { label: "Food", href: "/support/food" },
   { label: "Money", href: "/support/money" },
   { label: "Campus", href: "/support/campus" },
+  { label: "Community", href: "/support/community" },
   { label: "Docs", href: "/support/docs" },
   { label: "Housing", href: "/support/housing" },
   { label: "Vehicle", href: "/support/vehicle" },
