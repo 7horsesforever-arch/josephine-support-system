@@ -286,6 +286,15 @@ export const supportModules: SupportModule[] = [
           "External caregiver alerts should require explicit setup, clear consent, and an easy way to review or pause them.",
         ],
       },
+      {
+        title: "Crime Data Boundary",
+        items: [
+          "Use Fort Collins Police citywide data for broad property-crime trends.",
+          "Use the CSUPD Daily Crime and Fire Log for recent campus-specific reports.",
+          "Use crime data to choose practical habits, not to create constant fear.",
+          "If something is happening right now, ignore dashboards and call or text 911.",
+        ],
+      },
     ],
     links: [
       { label: "988 Lifeline", href: "https://988lifeline.org/" },
@@ -293,6 +302,22 @@ export const supportModules: SupportModule[] = [
       { label: "CSU Police", href: "https://police.colostate.edu/" },
       { label: "SafeWalk", href: "https://police.colostate.edu/safe-walk/" },
       { label: "CSU Safety", href: "https://safety.colostate.edu/" },
+      {
+        label: "Fort Collins Crime Stats",
+        href: "https://www.fortcollins.gov/Services/Police-and-Public-Safety/Police-Services/Crime-Stats-and-Prevention",
+      },
+      {
+        label: "Fort Collins Crime Map",
+        href: "https://myneighborhoodupdate.net/",
+      },
+      {
+        label: "CSUPD Crime Log",
+        href: "https://police.colostate.edu/daily-crime-and-fire-log/",
+      },
+      {
+        label: "CSU Clery Stats",
+        href: "https://clery.colostate.edu/crime-statistics-for-colorado-state-university/",
+      },
       {
         label: "CSU Tell Someone",
         href: "https://supportandsafety.colostate.edu/tell-someone/",
