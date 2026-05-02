@@ -245,6 +245,18 @@ const dailyAffirmations = [
   "I am allowed to take up space, ask questions, and be understood.",
 ];
 
+const commonAskJojoQuestions = [
+  "What is due soon?",
+  "What should I do first today?",
+  "How do I schedule an SDC test?",
+  "What if an email feels confusing?",
+  "Where do I find my housing portal?",
+  "How many Viper grain bags are left?",
+  "What food options are easiest near Braiden?",
+  "How do I get a safe ride at night?",
+  "What should I do if I feel overwhelmed?",
+];
+
 const dashboardJumpLinks = [
   { label: "Today", href: "#today-list" },
   { label: "Deadlines", href: "#deadline-watch" },
@@ -1273,6 +1285,7 @@ export default function Home() {
     "After the room reset, JoJo will ask what needs to be added to the Amazon list.",
   );
   const [askJojoQuestion, setAskJojoQuestion] = useState("");
+  const [submittedAskJojoQuestion, setSubmittedAskJojoQuestion] = useState("");
   const [safetyModeration, setSafetyModeration] =
     useState<SafetyModerationState | null>(null);
   const [safetyModerationMessage, setSafetyModerationMessage] = useState(
@@ -1613,7 +1626,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const trimmedQuestion = askJojoQuestion.trim();
+    const trimmedQuestion = submittedAskJojoQuestion.trim();
 
     if (!trimmedQuestion) {
       const timeoutId = window.setTimeout(() => {
@@ -1704,7 +1717,7 @@ export default function Home() {
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [askJojoQuestion, getCurrentAppAccessToken]);
+  }, [submittedAskJojoQuestion, getCurrentAppAccessToken]);
 
   const summary = useMemo(() => {
     return tasks.reduce(
@@ -1808,9 +1821,26 @@ export default function Home() {
   ]);
 
   const askJojoAnswer = useMemo(
-    () => answerAskJojo(askJojoQuestion, askJojoSources, safetyModeration),
-    [askJojoQuestion, askJojoSources, safetyModeration],
+    () =>
+      answerAskJojo(
+        submittedAskJojoQuestion,
+        askJojoSources,
+        safetyModeration,
+      ),
+    [submittedAskJojoQuestion, askJojoSources, safetyModeration],
   );
+  const isAskJojoDraftEmpty = askJojoQuestion.trim().length === 0;
+
+  function submitAskJojo(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    const trimmedQuestion = askJojoQuestion.trim();
+    setSubmittedAskJojoQuestion(trimmedQuestion);
+  }
+
+  function submitCommonAskJojoQuestion(question: string) {
+    setAskJojoQuestion(question);
+    setSubmittedAskJojoQuestion(question);
+  }
 
   const upcomingAssignments = useMemo(
     () =>
@@ -2327,30 +2357,42 @@ export default function Home() {
                 app: tasks, Canvas, messages, money, housing, support pages, and
                 safety notes.
               </p>
-              <label className="mt-4 block text-sm font-semibold text-stone-700">
-                What do you need help finding?
-                <input
-                  className="mt-2 min-h-12 w-full rounded-md border border-stone-300 px-3 text-base font-normal"
-                  value={askJojoQuestion}
-                  onChange={(event) => setAskJojoQuestion(event.target.value)}
-                  placeholder="Ask JoJo about SDC tests, assignments, food, money, emails..."
-                />
-              </label>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {[
-                  "What is due soon?",
-                  "How do I schedule an SDC test?",
-                  "What if an email feels confusing?",
-                ].map((question) => (
+              <form className="mt-4" onSubmit={submitAskJojo}>
+                <label className="block text-sm font-semibold text-stone-700">
+                  What do you need help finding?
+                  <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <input
+                      className="min-h-12 w-full rounded-md border border-stone-300 px-3 text-base font-normal"
+                      value={askJojoQuestion}
+                      onChange={(event) => setAskJojoQuestion(event.target.value)}
+                      placeholder="Ask JoJo about SDC tests, assignments, food, money, emails..."
+                    />
+                    <button
+                      className="min-h-12 rounded-md bg-teal-700 px-5 text-sm font-bold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+                      type="submit"
+                      disabled={isAskJojoDraftEmpty}
+                    >
+                      Ask
+                    </button>
+                  </div>
+                </label>
+              </form>
+              <div className="mt-3">
+                <p className="text-xs font-bold uppercase text-stone-500">
+                  Common asks
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {commonAskJojoQuestions.map((question) => (
                   <button
                     className="min-h-9 rounded-md border border-teal-700 px-3 text-sm font-semibold text-teal-800 hover:bg-teal-50"
                     key={question}
                     type="button"
-                    onClick={() => setAskJojoQuestion(question)}
+                    onClick={() => submitCommonAskJojoQuestion(question)}
                   >
                     {question}
                   </button>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
