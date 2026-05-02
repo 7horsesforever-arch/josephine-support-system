@@ -6,6 +6,7 @@ import { MessagesWorkspace } from "../messages-workspace";
 import { MoneyPlaidDashboard } from "../money-plaid-dashboard";
 import { SchoolFocusTimer } from "../school-focus-timer";
 import { CloudStorageConnections } from "../cloud-storage-connections";
+import { WorkPaycheckEstimator } from "../work-paycheck-estimator";
 
 const healthMetricCards = [
   {
@@ -538,6 +539,8 @@ export default async function SupportModulePage({
         {supportModule.slug === "food" ? <FoodDashboard /> : null}
 
         {supportModule.slug === "money" ? <MoneyPlaidDashboard /> : null}
+
+        {supportModule.slug === "work" ? <WorkPaycheckEstimator /> : null}
 
         <section className="grid gap-4 md:grid-cols-2">
           {supportModule.sections.map((section) => (

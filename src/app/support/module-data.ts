@@ -806,6 +806,8 @@ export const supportModules: SupportModule[] = [
         title: "When Employed",
         items: [
           "Track weekly hours.",
+          "Use the paycheck estimator to enter hourly pay, hours worked, deductions, and expected tax withholding.",
+          "Compare estimated take-home pay against the first real paystub and adjust the percentages.",
           "Compare work schedule against class workload and recovery time.",
           "Check paychecks and pay periods.",
           "Store work documents in Google Drive, not app code.",
