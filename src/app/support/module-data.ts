@@ -621,11 +621,29 @@ export const supportModules: SupportModule[] = [
   },
   {
     slug: "viper",
-    title: "Viper Cam",
+    title: "Viper Tracker",
     eyebrow: "Horse Check-In",
     summary:
-      "A calm way for Josephine to check on Viper from Colorado while he is in California.",
+      "Camera check-in, grain-bag countdown, supply ordering, and break batch planning for Viper while he is in California.",
     sections: [
+      {
+        title: "Grain Bag Rule",
+        items: [
+          "Viper eats 2 premade grain bags per day.",
+          "Josephine can enter how many bags she leaves him with and the system counts them down.",
+          "When the estimate reaches 10 bags, that means about 5 days are left and more bags need to be made.",
+          "Use the tracker to order supplies and remind caregiver support before the bin gets too low.",
+        ],
+      },
+      {
+        title: "Break Supply Plan",
+        items: [
+          "When Josephine is home for breaks, batch a large number of grain bags.",
+          "Reset the tracker after the new batch is made.",
+          "Store notes about grain, supplements, baggies, labels, and anything that needs ordering.",
+          "Keep Viper care calm and visible so Josephine can help from Colorado without needing to remember every detail.",
+        ],
+      },
       {
         title: "Equipment Paths",
         items: [
