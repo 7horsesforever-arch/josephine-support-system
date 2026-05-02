@@ -1267,7 +1267,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
-  const [syncMessage, setSyncMessage] = useState("Checking your saved setup...");
+  const [, setSyncMessage] = useState("Checking your saved setup...");
   const [passkeyStatus, setPasskeyStatus] = useState(
     "This MacBook can become the primary access device after one secure email sign-in.",
   );
@@ -2319,21 +2319,6 @@ export default function Home() {
             danger
           />
           <SummaryMetric value={history.length} label="Did it" />
-        </section>
-
-        <section className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
-          <span className="font-semibold text-stone-950">
-            {syncStatus === "supabase"
-              ? "Private mode"
-              : syncStatus === "syncing"
-                ? "Syncing"
-                : syncStatus === "loading"
-                  ? "Loading"
-                  : syncStatus === "error"
-                    ? "Needs setup"
-                    : "Local mode"}
-          </span>
-          <span className="ml-2">{syncMessage}</span>
         </section>
 
         <section className="rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 shadow-sm">
