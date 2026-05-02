@@ -41,6 +41,8 @@ type SpeechWindow = Window & {
 
 type WritableTarget = HTMLInputElement | HTMLTextAreaElement;
 
+const voiceEntryEnabledKey = "josephine-voice-entry-enabled";
+
 function getSpeechRecognitionConstructor() {
   if (typeof window === "undefined") return null;
   const speechWindow = window as SpeechWindow;
@@ -103,6 +105,8 @@ export function VoiceDictationWidget() {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const targetRef = useRef<WritableTarget | null>(null);
   const [isSupported, setIsSupported] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -113,6 +117,7 @@ export function VoiceDictationWidget() {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setIsSupported(Boolean(getSpeechRecognitionConstructor()));
+      setIsEnabled(window.localStorage.getItem(voiceEntryEnabledKey) !== "false");
     }, 0);
 
     return () => {
@@ -121,6 +126,14 @@ export function VoiceDictationWidget() {
     };
   }, []);
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      window.localStorage.setItem(voiceEntryEnabledKey, String(isEnabled));
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isEnabled]);
+
   function stopListening() {
     recognitionRef.current?.stop();
     setIsListening(false);
@@ -128,6 +141,8 @@ export function VoiceDictationWidget() {
   }
 
   function startListening() {
+    setIsExpanded(true);
+
     const Recognition = getSpeechRecognitionConstructor();
     if (!Recognition) {
       setMessage("Voice entry is not supported in this browser yet.");
@@ -185,6 +200,19 @@ export function VoiceDictationWidget() {
     setIsListening(true);
   }
 
+  function toggleEnabled() {
+    if (isEnabled) {
+      stopListening();
+      setIsExpanded(false);
+      setIsEnabled(false);
+      return;
+    }
+
+    setIsEnabled(true);
+    setIsExpanded(true);
+    setMessage("Focus a text box, then use voice entry.");
+  }
+
   function insertLastTranscript() {
     const focusedElement = document.activeElement;
     const target = isWritableTarget(focusedElement)
@@ -201,7 +229,47 @@ export function VoiceDictationWidget() {
   }
 
   return (
-    <section className="fixed bottom-4 right-4 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-lg border border-stone-300 bg-white p-3 text-stone-950 shadow-lg">
+    <section
+      className={`fixed bottom-4 right-4 z-50 rounded-lg border border-stone-300 bg-white text-stone-950 shadow-lg ${
+        isExpanded || isListening
+          ? "w-[min(22rem,calc(100vw-2rem))] p-3"
+          : "w-auto p-2"
+      }`}
+    >
+      {!isExpanded && !isListening ? (
+        <div className="flex items-center gap-2">
+          <button
+            className={`min-h-10 rounded-md px-3 text-sm font-bold ${
+              isEnabled
+                ? "bg-teal-700 text-white hover:bg-teal-800"
+                : "bg-stone-200 text-stone-600 hover:bg-stone-300"
+            }`}
+            type="button"
+            onClick={() => {
+              if (!isEnabled) {
+                toggleEnabled();
+                return;
+              }
+
+              setIsExpanded(true);
+            }}
+          >
+            {isEnabled ? "Voice" : "Voice off"}
+          </button>
+          {isEnabled ? (
+            <button
+              className="min-h-10 rounded-md border border-stone-300 px-3 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:text-stone-400"
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={startListening}
+              disabled={!isSupported}
+            >
+              Start
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase text-teal-800">
@@ -209,17 +277,37 @@ export function VoiceDictationWidget() {
           </p>
           <p className="mt-1 text-sm text-stone-600">{message}</p>
         </div>
-        <span
-          className={`rounded-full px-2 py-1 text-xs font-bold ${
-            isListening
-              ? "bg-red-50 text-red-800"
-              : isSupported
-                ? "bg-teal-50 text-teal-800"
-                : "bg-stone-100 text-stone-500"
-          }`}
-        >
-          {isListening ? "Listening" : isSupported ? "Ready" : "Unavailable"}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={`rounded-full px-2 py-1 text-xs font-bold ${
+              isListening
+                ? "bg-red-50 text-red-800"
+                : isEnabled && isSupported
+                  ? "bg-teal-50 text-teal-800"
+                  : "bg-stone-100 text-stone-500"
+            }`}
+          >
+            {isListening
+              ? "Listening"
+              : isEnabled && isSupported
+                ? "Ready"
+                : isEnabled
+                  ? "Unavailable"
+                  : "Off"}
+          </span>
+          <button
+            className="rounded-md px-2 py-1 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800"
+            type="button"
+            onClick={() => {
+              if (isListening) {
+                stopListening();
+              }
+              setIsExpanded(false);
+            }}
+          >
+            Minimize
+          </button>
+        </div>
       </div>
 
       {interimTranscript || lastTranscript ? (
@@ -234,7 +322,7 @@ export function VoiceDictationWidget() {
           type="button"
           onMouseDown={(event) => event.preventDefault()}
           onClick={isListening ? stopListening : startListening}
-          disabled={!isSupported}
+          disabled={!isSupported || !isEnabled}
         >
           {isListening ? "Stop" : "Start"}
         </button>
@@ -247,6 +335,15 @@ export function VoiceDictationWidget() {
           Insert Last
         </button>
       </div>
+      <button
+        className="mt-2 min-h-9 w-full rounded-md border border-stone-300 px-3 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+        type="button"
+        onClick={toggleEnabled}
+      >
+        {isEnabled ? "Turn Voice Entry Off" : "Turn Voice Entry On"}
+      </button>
+        </>
+      )}
     </section>
   );
 }
